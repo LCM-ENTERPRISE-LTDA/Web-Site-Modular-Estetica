@@ -1,0 +1,253 @@
+/* ============================================================
+   VisualEditor — Global Inline Visual Editor  (v2.1.0)
+   Every selector is namespaced with .editor-* and isolated so it
+   NEVER interferes with the host site's own design / layout.
+   ============================================================ */
+
+:root {
+  --editor-accent: #b86e3e;
+  --editor-accent-2: #9a7548;
+  --editor-bar-h: 48px;
+  --editor-ink: #1f1813;
+  --editor-bg: rgba(24, 19, 16, 0.82);
+  --editor-glass: rgba(255, 255, 255, 0.08);
+  --editor-line: rgba(255, 255, 255, 0.16);
+  --editor-z: 2147483000;
+}
+
+.editor-root,
+.editor-root * { box-sizing: border-box; }
+
+/* ============================================================
+   1. GLOBAL TOP BAR
+   ============================================================ */
+.editor-bar {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: var(--editor-bar-h);
+  z-index: var(--editor-z);
+  display: flex; align-items: center; gap: 16px; padding: 0 16px;
+  font-family: 'Jost', 'DM Sans', system-ui, -apple-system, sans-serif;
+  font-size: 13px; color: #fff;
+  background: var(--editor-bg);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid var(--editor-line);
+  box-shadow: 0 6px 26px rgba(0, 0, 0, 0.28);
+  user-select: none;
+}
+.editor-bar-title { font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; font-size: 12px; color: #fff; white-space: nowrap; }
+.editor-bar-title span { color: var(--editor-accent); }
+.editor-bar-status { font-size: 11px; letter-spacing: 0.04em; color: rgba(255,255,255,0.55); white-space: nowrap; transition: color 0.2s ease; }
+.editor-bar-status.editor-dirty { color: #f0b46a; }
+.editor-bar-spacer { flex: 1 1 auto; }
+.editor-bar-actions { display: flex; align-items: center; gap: 8px; }
+
+.editor-btn {
+  appearance: none; border: 1px solid var(--editor-line);
+  background: var(--editor-glass); color: rgba(255,255,255,0.85);
+  font-family: inherit; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 7px 14px; border-radius: 7px; cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.12s ease;
+  white-space: nowrap;
+}
+.editor-btn:hover { background: rgba(255,255,255,0.16); color: #fff; border-color: rgba(255,255,255,0.4); }
+.editor-btn:active { transform: translateY(1px); }
+.editor-btn--primary { background: var(--editor-accent); border-color: var(--editor-accent); color: #fff; }
+.editor-btn--primary:hover { background: #a85e30; border-color: #a85e30; }
+.editor-btn--ghost.editor-on { background: var(--editor-accent-2); border-color: var(--editor-accent-2); color: #fff; }
+
+html.editor-active { scroll-padding-top: var(--editor-bar-h); }
+body.editor-active { border-top: var(--editor-bar-h) solid transparent; background-clip: padding-box; }
+
+/* BUGFIX: some sites set pointer-events:none on decorative <img> (e.g.
+   .card-img), which blocks hover/click in the editor. Re-enable images
+   ONLY while editing (not in preview). Reverted automatically on export. */
+body.editor-active:not(.editor-preview) img { pointer-events: auto !important; }
+
+/* ============================================================
+   2. HOVER HIGHLIGHT + SELECTION  (deep / per-element)
+   ============================================================ */
+.editor-hl { outline: 1.5px dashed rgba(184,110,62,0.85) !important; outline-offset: -1px !important; cursor: pointer; }
+.editor-selected { outline: 2px solid var(--editor-accent) !important; outline-offset: -1px !important; }
+.editor-text-active {
+  outline: 2px solid var(--editor-accent-2) !important; outline-offset: 3px !important;
+  border-radius: 2px; cursor: text !important; background: rgba(154,117,72,0.05);
+}
+.editor-img-hl { outline: 2px solid var(--editor-accent) !important; outline-offset: -2px !important; cursor: pointer; }
+
+/* ============================================================
+   3. FLOATING TOOLBAR
+   ============================================================ */
+.editor-toolbar {
+  position: fixed; z-index: calc(var(--editor-z) - 2);
+  display: flex; gap: 2px; padding: 4px;
+  background: var(--editor-bg);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  border: 1px solid var(--editor-line); border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.32);
+  font-family: 'Jost', system-ui, sans-serif;
+  opacity: 0; transform: translateY(4px); pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.editor-toolbar.editor-show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.editor-tb-btn {
+  appearance: none; border: none; background: transparent; color: #fff;
+  width: 30px; height: 30px; border-radius: 7px; font-size: 14px; line-height: 1;
+  cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+  transition: background 0.15s ease;
+}
+.editor-tb-btn:hover { background: rgba(255,255,255,0.18); }
+.editor-tb-sep { width: 1px; margin: 4px 2px; background: var(--editor-line); }
+
+/* ============================================================
+   4. IMAGE OVERLAY  (floats over the hovered <img>)
+   ============================================================ */
+.editor-img-overlay {
+  position: fixed; z-index: calc(var(--editor-z) - 1);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; padding: 12px; text-align: center;
+  background: linear-gradient(180deg, rgba(31,24,19,0.32), rgba(31,24,19,0.62));
+  border: 2px dashed rgba(255,255,255,0.85); border-radius: 6px;
+  color: #fff; font-family: 'Jost', 'DM Sans', system-ui, sans-serif;
+  cursor: pointer; opacity: 0; pointer-events: none; overflow: hidden;
+  transition: opacity 0.15s ease;
+}
+.editor-img-overlay.editor-show { opacity: 1; pointer-events: auto; }
+.editor-img-overlay-inner { display: flex; flex-direction: column; align-items: center; gap: 6px; max-width: 90%; }
+.editor-img-overlay-ic { font-size: 26px; line-height: 1; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
+.editor-img-overlay-label { font-size: 12px; font-weight: 600; letter-spacing: 0.03em; line-height: 1.35; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+.editor-img-overlay-gear {
+  position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border-radius: 50%;
+  border: 1.5px solid #fff; background: var(--editor-accent); color: #fff;
+  font-size: 14px; line-height: 1; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  transition: transform 0.12s ease, background 0.15s ease;
+}
+.editor-img-overlay-gear:hover { background: #a85e30; transform: scale(1.08); }
+
+/* Drop-zone affordance for empty image slots ([data-editable-image]). */
+[data-editable-image] { position: relative; }
+.editor-image-hover { cursor: pointer; }
+.editor-image-hover::after {
+  content: 'Clique para alterar/adicionar imagem';
+  position: absolute; inset: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: center; text-align: center; padding: 12px;
+  background: linear-gradient(180deg, rgba(31,24,19,0.32), rgba(31,24,19,0.62));
+  border: 2px dashed rgba(255,255,255,0.85); border-radius: 6px;
+  color: #fff; font-family: 'Jost', 'DM Sans', system-ui, sans-serif;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.03em; line-height: 1.35;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6); pointer-events: none;
+}
+
+/* ============================================================
+   5. INSPECTOR PANEL (right side)
+   ============================================================ */
+.editor-panel {
+  position: fixed; top: var(--editor-bar-h); right: 0; bottom: 0;
+  width: 320px; max-width: 86vw; z-index: calc(var(--editor-z) - 3);
+  background: #fbf8f5; color: var(--editor-ink);
+  border-left: 1px solid rgba(0,0,0,0.1); box-shadow: -10px 0 40px rgba(0,0,0,0.16);
+  font-family: 'Jost', 'DM Sans', system-ui, sans-serif;
+  display: flex; flex-direction: column;
+  transform: translateX(110%); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); overflow: hidden;
+}
+.editor-panel.editor-open { transform: translateX(0); }
+.editor-panel-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid rgba(0,0,0,0.08); background: #fff; }
+.editor-panel-title { font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--editor-accent); }
+.editor-panel-tag { font-size: 10px; letter-spacing: 0.08em; color: #8a7268; margin-top: 2px; text-transform: uppercase; }
+.editor-panel-close { appearance: none; border: none; background: transparent; font-size: 20px; line-height: 1; color: #8a7268; cursor: pointer; padding: 4px; }
+.editor-panel-close:hover { color: var(--editor-ink); }
+.editor-panel-body { flex: 1 1 auto; overflow-y: auto; padding: 6px 0 40px; }
+
+.editor-section { border-bottom: 1px solid rgba(0,0,0,0.06); }
+.editor-section-head {
+  width: 100%; text-align: left; appearance: none; border: none; background: transparent;
+  font-family: inherit; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: var(--editor-ink);
+  padding: 13px 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+}
+.editor-section-head::after { content: '\2212'; color: var(--editor-accent); font-size: 15px; }
+.editor-section.editor-collapsed .editor-section-head::after { content: '+'; }
+.editor-section-body { padding: 4px 16px 16px; display: block; }
+.editor-section.editor-collapsed .editor-section-body { display: none; }
+
+.editor-field { margin-bottom: 12px; }
+.editor-field:last-child { margin-bottom: 0; }
+.editor-label { display: block; font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: #8a7268; margin-bottom: 6px; }
+.editor-row { display: flex; align-items: center; gap: 8px; }
+
+.editor-input, .editor-select, .editor-textarea {
+  width: 100%; font-family: inherit; font-size: 13px; color: var(--editor-ink); background: #fff;
+  border: 1px solid rgba(0,0,0,0.14); border-radius: 6px; padding: 8px 10px; outline: none;
+  transition: border-color 0.15s ease; margin-bottom: 8px;
+}
+.editor-field > .editor-input, .editor-field > .editor-select, .editor-field > .editor-textarea { margin-bottom: 0; }
+.editor-input:focus, .editor-select:focus, .editor-textarea:focus { border-color: var(--editor-accent); }
+.editor-textarea { resize: vertical; min-height: 64px; line-height: 1.5; }
+
+.editor-color { width: 38px; height: 34px; padding: 2px; border: 1px solid rgba(0,0,0,0.14); border-radius: 6px; background: #fff; cursor: pointer; flex: 0 0 auto; }
+.editor-range { width: 100%; accent-color: var(--editor-accent); cursor: pointer; }
+.editor-range-val { font-size: 11px; color: #8a7268; min-width: 38px; text-align: right; }
+
+.editor-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.editor-swatch { width: 22px; height: 22px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.15); cursor: pointer; padding: 0; transition: transform 0.12s ease; }
+.editor-swatch:hover { transform: scale(1.12); }
+
+.editor-align-group, .editor-seg { display: flex; gap: 6px; }
+.editor-seg-btn {
+  flex: 1; appearance: none; border: 1px solid rgba(0,0,0,0.14); background: #fff; color: var(--editor-ink);
+  font-family: inherit; font-size: 13px; padding: 7px 0; border-radius: 6px; cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.editor-seg-btn:hover { border-color: var(--editor-accent); }
+.editor-seg-btn.editor-on { background: var(--editor-accent); color: #fff; border-color: var(--editor-accent); }
+
+.editor-reset-row { padding: 14px 16px; }
+.editor-reset-btn {
+  width: 100%; appearance: none; border: 1px dashed rgba(180,70,50,0.5); background: rgba(180,70,50,0.05); color: #a8442c;
+  font-family: inherit; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; padding: 10px; border-radius: 7px; cursor: pointer;
+  transition: background 0.15s ease;
+}
+.editor-reset-btn:hover { background: rgba(180,70,50,0.1); }
+.editor-font-preview { font-size: 18px; margin-top: 6px; color: var(--editor-ink); }
+
+/* ============================================================
+   6. SKILL BAR EDIT (curriculo)
+   ============================================================ */
+.editor-skill-editable { cursor: ew-resize !important; position: relative; }
+.editor-skill-editable.editor-skill-armed { outline: 2px solid var(--editor-accent); outline-offset: 3px; border-radius: 3px; }
+.editor-skill-badge {
+  position: absolute; top: -24px; right: 0; background: var(--editor-accent); color: #fff;
+  font-family: 'Jost', system-ui, sans-serif; font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 5px; pointer-events: none; white-space: nowrap; z-index: 50;
+}
+
+/* ============================================================
+   7. TOAST
+   ============================================================ */
+.editor-toast {
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(12px);
+  z-index: var(--editor-z); background: var(--editor-ink); color: #fff;
+  font-family: 'Jost', system-ui, sans-serif; font-size: 13px; letter-spacing: 0.04em;
+  padding: 11px 22px; border-radius: 9px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.editor-toast.editor-show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ============================================================
+   8. PREVIEW MODE
+   ============================================================ */
+body.editor-preview .editor-hl,
+body.editor-preview .editor-selected,
+body.editor-preview .editor-img-hl { outline: none !important; }
+body.editor-preview .editor-toolbar,
+body.editor-preview .editor-img-overlay,
+body.editor-preview .editor-panel,
+body.editor-preview .editor-skill-badge { display: none !important; }
+body.editor-preview .editor-image-hover::after { display: none !important; }
+
+@media (max-width: 600px) {
+  .editor-bar-status { display: none; }
+  .editor-bar-title { font-size: 11px; }
+  .editor-btn { padding: 6px 10px; font-size: 10px; }
+}
