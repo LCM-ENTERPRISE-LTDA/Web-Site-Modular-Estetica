@@ -247,7 +247,23 @@ body.editor-preview .editor-skill-badge { display: none !important; }
 body.editor-preview .editor-image-hover::after { display: none !important; }
 
 @media (max-width: 600px) {
+  .editor-bar { gap: 8px; padding: 0 10px; }
   .editor-bar-status { display: none; }
-  .editor-bar-title { font-size: 11px; }
-  .editor-btn { padding: 6px 10px; font-size: 10px; }
+  .editor-bar-title { font-size: 11px; letter-spacing: 0.08em; }
+  .editor-bar-actions { gap: 6px; }
+  .editor-btn { padding: 6px 9px; font-size: 10px; letter-spacing: 0.04em; }
+}
+
+/* Telas estreitas: o titulo vira so o marcador, liberando espaco p/ os botoes */
+@media (max-width: 430px) {
+  .editor-bar { gap: 6px; }
+  .editor-bar-title { font-size: 0; letter-spacing: 0; }        /* esconde "Modo Edicao" */
+  .editor-bar-title span { font-size: 15px; }                   /* mantem o simbolo visivel */
+  .editor-bar-actions { gap: 5px; }
+  .editor-btn { padding: 6px 8px; font-size: 9.5px; letter-spacing: 0.02em; }
+}
+
+@media (max-width: 360px) {
+  .editor-bar { padding: 0 8px; }
+  .editor-btn { padding: 5px 7px; font-size: 9px; letter-spacing: 0.01em; }
 }
