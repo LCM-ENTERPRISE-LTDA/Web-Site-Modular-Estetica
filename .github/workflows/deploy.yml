@@ -48,16 +48,30 @@ jobs:
 
       - name: Descompactar
         run: |
+          set -euo pipefail
           rm -rf _unzipped && mkdir _unzipped
           unzip -o site.zip -d _unzipped
           echo "--- conteudo ---"; find _unzipped -maxdepth 3 -type f | sort
 
       - name: Sincronizar para a raiz do repositorio
         run: |
-          # O editor exporta:  web_site_official/<page>.html  +  web_site_official/images/*
+          set -euo pipefail
+          # O editor exporta um pacote PARCIAL:  web_site_official/<page>.html + web_site_official/images/*
           SRC="_unzipped/web_site_official"
           if [ ! -d "$SRC" ]; then SRC="_unzipped"; fi
-          rsync -av --exclude='.git' "$SRC"/ ./
+
+          # guarda de sanidade: o pacote precisa conter ao menos um arquivo
+          if [ -z "$(find "$SRC" -type f -print -quit)" ]; then
+            echo "::error::Pacote vazio — nada para publicar"; exit 1
+          fi
+
+          # Substituicao LIMPA da pagina editada: o rsync sobrescreve os arquivos
+          # do pacote (a pagina + imagens) na raiz. NAO usamos --delete de proposito:
+          # o zip e parcial, entao apagar tudo que nao esta nele removeria a
+          # infraestrutura do site (editor/, auth.js, .github/, Code.gs, demais
+          # paginas). Excluimos .git e .github para que um pacote jamais consiga
+          # sobrescrever o versionamento ou o proprio pipeline.
+          rsync -av --checksum --exclude='.git' --exclude='.github' "$SRC"/ ./
           rm -rf _unzipped site.zip
 
       - name: Commit & push
