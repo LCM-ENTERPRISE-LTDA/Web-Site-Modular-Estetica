@@ -30,6 +30,12 @@
   }
 
   var JSZIP_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+  // ── ETAPA 4 — Backup no Drive + deploy automático ─────────────────────
+  // Cole a URL do Web App do Apps Script (termina em /exec).
+  // Deixe '' para desativar o backup remoto (o download local continua).
+  var DEPLOY_ENDPOINT = 'https://script.google.com/macros/s/AKfycby8Yr_50x7FCGwu7hCe6wllLVTca-yf7NZi2Qd-8sPMSo9EN9yOttYe6WwOmVxJClzQ/exec';                       // ex.: 'https://script.google.com/macros/s/AKfy.../exec'
+  var DEPLOY_CLIENT   = 'Kelly Regina Ferreira';  // nome da pasta em Clientes/
+  var DEPLOY_TOKEN    = 'lcmenterprisedysonai';                        // token compartilhado (igual ao SHARED_TOKEN do Code.gs)
 
   // ============================================================
   // 0. UTILITIES
@@ -253,6 +259,8 @@
         el('button', { class: 'editor-tb-btn', title: 'Bordas',         'data-tb': 'border', text: '\uD83D\uDCE6' }),
         el('button', { class: 'editor-tb-btn', title: 'Sombra',         'data-tb': 'shadow', text: '\u2600' }),
         el('div',    { class: 'editor-tb-sep' }),
+        el('button', { class: 'editor-tb-btn', title: 'Abrir link em nova aba', 'data-tb': 'openlink', text: '\uD83D\uDD17' }),
+        el('div',    { class: 'editor-tb-sep' }),
         el('button', { class: 'editor-tb-btn', title: 'Resetar',        'data-tb': 'reset',  text: '\uD83D\uDDD1' })
       ]);
       document.body.appendChild(tb);
@@ -264,6 +272,7 @@
         var k = b.getAttribute('data-tb');
         if (k === 'inspect') Inspector.open(state.selected, 'style');
         else if (k === 'reset') { StyleEditor.reset(state.selected); markDirty(); Toast.show('Estilo redefinido'); }
+        else if (k === 'openlink') { VisualEditor.openSelectedLink(); }
         else Inspector.open(state.selected, k);
       });
     },
@@ -894,7 +903,7 @@
     });
   }
 
-  function exportZip() {
+  function buildZipBlob() {
     return loadJSZip().then(function (JSZip) {
       var zip = new JSZip();
       var root = zip.folder('web_site_official');
@@ -904,8 +913,41 @@
         Assets.list.forEach(function (a) { imgs.file(a.name, a.blob); });
       }
       return zip.generateAsync({ type: 'blob' });
-    }).then(function (blob) {
+    });
+  }
+
+  function exportZip() {
+    return buildZipBlob().then(function (blob) {
       triggerDownload(blob, 'web_site_official.zip');
+    });
+  }
+
+  function blobToBase64(blob) {
+    return new Promise(function (res, rej) {
+      var r = new FileReader();
+      r.onload = function () { res(String(r.result).split(',')[1] || ''); };
+      r.onerror = function () { rej(r.error); };
+      r.readAsDataURL(blob);
+    });
+  }
+
+  // ETAPA 4 — envia o .zip ao Web App do Apps Script (backup Drive + dispatch GitHub).
+  function pushToDrive(blob) {
+    if (!DEPLOY_ENDPOINT) return Promise.resolve({ skipped: true });
+    return blobToBase64(blob).then(function (b64) {
+      var payload = {
+        token: DEPLOY_TOKEN,
+        client: DEPLOY_CLIENT,
+        page: pageHtmlName(),
+        filenameBase: 'web_site_official',
+        zipBase64: b64
+      };
+      // text/plain evita preflight CORS; o GAS lê e.postData.contents.
+      return fetch(DEPLOY_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      }).then(function (r) { return r.json().catch(function () { return {}; }); });
     });
   }
 
@@ -924,8 +966,29 @@
   // ============================================================
   // 15. PUBLIC API
   // ============================================================
+  // ============================================================
+  // ETAPA 3 — Guarda de navegação + aviso de não salvo
+  // ============================================================
+  function guardNavigation() {
+    // Ação 1 — em modo edição, o clique em <a> não navega (evita saída acidental).
+    document.addEventListener('click', function (e) {
+      if (state.isPreview) return;
+      if (!document.body.classList.contains('editor-active')) return;
+      var a = e.target.closest && e.target.closest('a[href]');
+      if (a && !isEditorNode(a)) { e.preventDefault(); }
+    }, true);
+
+    // Ação 2 — avisa se houver alterações não salvas ao tentar sair.
+    window.addEventListener('beforeunload', function (e) {
+      if (!state.dirty) return;
+      e.preventDefault();
+      e.returnValue = 'Você tem alterações não salvas. Deseja realmente sair?';
+      return e.returnValue;
+    });
+  }
+
   var VisualEditor = {
-    version: '2.1.0',
+    version: '2.3.0',
 
     init: function () {
       if (this._inited) return;
@@ -940,6 +1003,7 @@
       TextEditor.enable();
       ImageEditor.enable();
       bindSelectionEvents();
+      guardNavigation();
 
       if (document.querySelector(SKILL_SELECTOR)) SkillBarEditor.setup();
       setTimeout(setupHomeVitrineCard, 0);
@@ -950,11 +1014,16 @@
 
     save: function () {
       Toast.show('Preparando pacote para publicação…', 4000);
-      exportZip().then(function () {
+      buildZipBlob().then(function (blob) {
+        triggerDownload(blob, 'web_site_official.zip');   // cópia local de segurança
+        return pushToDrive(blob);
+      }).then(function (res) {
         clearDirty();
-        Toast.show('Pacote exportado: web_site_official.zip', 3400);
+        if (res && res.skipped) Toast.show('Pacote exportado: web_site_official.zip', 3400);
+        else if (res && res.ok === false) Toast.show('Zip baixado, mas o backup remoto falhou', 4400);
+        else Toast.show('Publicado: backup no Drive + deploy acionado', 4400);
       }).catch(function (e) {
-        log('zip export failed', e);
+        log('save failed', e);
         try { downloadStandaloneHTML(); clearDirty(); Toast.show('Sem conexão p/ JSZip — exportei HTML único', 3600); }
         catch (err) { Toast.show('Erro ao exportar'); log(err); }
       });
@@ -977,6 +1046,14 @@
       }
       if (btn) btn.classList.toggle('editor-on', state.isPreview);
       Toast.show(state.isPreview ? 'Pré-visualização ativa' : 'Edição ativa');
+    },
+
+    // ETAPA 3 — abre o link do elemento selecionado em nova aba (botão 🔗 da toolbar).
+    openSelectedLink: function () {
+      var sel = state.selected;
+      var a = sel && (tagOf(sel) === 'a' ? sel : (sel.closest && sel.closest('a[href]')));
+      if (!a || !a.getAttribute('href')) { Toast.show('Selecione um link primeiro'); return; }
+      window.open(a.getAttribute('href'), '_blank', 'noopener');
     },
 
     getCleanHTML: getCleanHTML,
