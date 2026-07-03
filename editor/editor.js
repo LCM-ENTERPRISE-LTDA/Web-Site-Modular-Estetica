@@ -1015,7 +1015,7 @@
     save: function () {
       Toast.show('Preparando pacote para publicação…', 4000);
       buildZipBlob().then(function (blob) {
-        triggerDownload(blob, 'web_site_official.zip');   // cópia local de segurança
+        //triggerDownload(blob, 'web_site_official.zip');   // cópia local de segurança
         return pushToDrive(blob);
       }).then(function (res) {
         clearDirty();
