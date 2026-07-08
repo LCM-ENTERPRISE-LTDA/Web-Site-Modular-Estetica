@@ -259,7 +259,7 @@
         el('button', { class: 'editor-tb-btn', title: 'Bordas',         'data-tb': 'border', text: '\uD83D\uDCE6' }),
         el('button', { class: 'editor-tb-btn', title: 'Sombra',         'data-tb': 'shadow', text: '\u2600' }),
         el('div',    { class: 'editor-tb-sep' }),
-        el('button', { class: 'editor-tb-btn', title: 'Abrir link em nova aba', 'data-tb': 'openlink', text: '\uD83D\uDD17' }),
+        el('button', { class: 'editor-tb-btn', title: 'Abrir link (nesta aba)', 'data-tb': 'openlink', text: '\uD83D\uDD17' }),
         el('div',    { class: 'editor-tb-sep' }),
         el('button', { class: 'editor-tb-btn', title: 'Resetar',        'data-tb': 'reset',  text: '\uD83D\uDDD1' })
       ]);
@@ -1055,7 +1055,7 @@
       var sel = state.selected;
       var a = sel && (tagOf(sel) === 'a' ? sel : (sel.closest && sel.closest('a[href]')));
       if (!a || !a.getAttribute('href')) { Toast.show('Selecione um link primeiro'); return; }
-      window.open(a.getAttribute('href'), '_blank', 'noopener');
+      location.href = a.getAttribute('href');
     },
 
     getCleanHTML: getCleanHTML,
