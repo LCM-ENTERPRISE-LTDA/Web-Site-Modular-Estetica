@@ -1,1137 +1,162 @@
 <!DOCTYPE html>
-<html lang="pt-BR"><div id="in-page-channel-node-id" data-channel-name="in_page_channel_nmIjYa"></div><head><style>@keyframes slide-in-one-tap {
-  from {
-    transform: translateY(80px);
-  }
-  to {
-    transform: translateY(0px);
-  }
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kelly Regina Ferreira Correia | Estética Natural Integrativa · Melasma, Estrias & Saúde Capilar</title>
+<meta name="description" content="Estética Natural Integrativa — beleza que nasce de dentro. Protocolos naturais para melasma, estrias, saúde capilar e desinflamação do organismo, com atendimento humanizado e individualizado.">
+<link rel="canonical" href="https://kellyregina.com.br/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Kelly Regina Ferreira Correia | Estética Natural Integrativa">
+<meta property="og:description" content="Melasma, estrias, saúde capilar e desinflamação — tratando a raiz, de dentro para fora.">
+<meta property="og:url" content="https://kellyregina.com.br/">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: {
+    colors: {
+      ink: '#241E17', muted: '#7A7065', line: '#ECE6DD', paper: '#FDFCFA',
+      terra: '#9C4F26', terrawash: '#FBF1EA',
+      taupe: '#8A7A67', taupewash: '#F7F3EC',
+      mineral: '#5C7480', mineralwash: '#EFF4F5',
+      sage: '#567A57', sagewash: '#EEF5EE',
+      copper: '#A17945', copperwash: '#FAF5EC'
+    },
+    fontFamily: { serif: ['"Cormorant Garamond"','serif'], sans: ['Jost','sans-serif'] }
+  } }
 }
-
-.trust-hide-gracefully {
-  opacity: 0;
-}
-
-.trust-wallet-one-tap .hidden {
-    display: none;
-  }
-
-.trust-wallet-one-tap .semibold {
-    font-weight: 500;
-  }
-
-.trust-wallet-one-tap .binance-plex {
-    font-family: 'Binance';
-  }
-
-.trust-wallet-one-tap .rounded-full {
-    border-radius: 50%;
-  }
-
-.trust-wallet-one-tap .flex {
-    display: flex;
-  }
-
-.trust-wallet-one-tap .flex-col {
-    flex-direction: column;
-  }
-
-.trust-wallet-one-tap .items-center {
-    align-items: center;
-  }
-
-.trust-wallet-one-tap .space-between {
-    justify-content: space-between;
-  }
-
-.trust-wallet-one-tap .justify-center {
-    justify-content: center;
-  }
-
-.trust-wallet-one-tap .w-full {
-    width: 100%;
-  }
-
-.trust-wallet-one-tap .box {
-    transition: all 0.5s cubic-bezier(0, 0, 0, 1.43);
-    animation: slide-in-one-tap 0.5s cubic-bezier(0, 0, 0, 1.43);
-    width: 384px;
-    border-radius: 15px;
-    background: #fff;
-    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.25);
-    position: fixed;
-    right: 30px;
-    bottom: 30px;
-    z-index: 1020;
-  }
-
-.trust-wallet-one-tap .header {
-    gap: 15px;
-    border-bottom: 1px solid #e6e6e6;
-    padding: 10px 18px;
-  }
-
-.trust-wallet-one-tap .header .left-items {
-      gap: 15px;
-    }
-
-.trust-wallet-one-tap .header .title {
-      color: #1e2329;
-      font-size: 18px;
-      font-weight: 600;
-      line-height: 28px;
-    }
-
-.trust-wallet-one-tap .header .subtitle {
-      color: #474d57;
-      font-size: 14px;
-      line-height: 20px;
-    }
-
-.trust-wallet-one-tap .header .close {
-      color: #1e2329;
-      cursor: pointer;
-    }
-
-.trust-wallet-one-tap .body {
-    padding: 9px 18px;
-    gap: 10px;
-  }
-
-.trust-wallet-one-tap .body .right-items {
-      gap: 10px;
-      width: 100%;
-    }
-
-.trust-wallet-one-tap .body .right-items .wallet-title {
-        color: #1e2329;
-        font-size: 16px;
-        font-weight: 600;
-        line-height: 20px;
-      }
-
-.trust-wallet-one-tap .body .right-items .wallet-subtitle {
-        color: #474d57;
-        font-size: 14px;
-        line-height: 20px;
-      }
-
-.trust-wallet-one-tap .connect-indicator {
-    gap: 15px;
-    padding: 8px 0;
-  }
-
-.trust-wallet-one-tap .connect-indicator .flow-icon {
-      color: #474d57;
-    }
-
-.trust-wallet-one-tap .loading-color {
-    color: #fff;
-  }
-
-.trust-wallet-one-tap .button {
-    border-radius: 50px;
-    outline: 2px solid transparent;
-    outline-offset: 2px;
-    background-color: rgb(5, 0, 255);
-    border-color: rgb(229, 231, 235);
-    cursor: pointer;
-    text-align: center;
-    height: 45px;
-  }
-
-.trust-wallet-one-tap .button .button-text {
-      color: #fff;
-      font-size: 16px;
-      font-weight: 600;
-      line-height: 20px;
-    }
-
-.trust-wallet-one-tap .footer {
-    margin: 20px 30px;
-  }
-
-.trust-wallet-one-tap .check-icon {
-    color: #fff;
-  }
-
-@font-face {
-  font-family: 'Binance';
-  src: url(chrome-extension://egjidjbpglichdcondbcbdnbeeppgdph/fonts/BinancePlex-Regular.otf) format('opentype');
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Binance';
-  src: url(chrome-extension://egjidjbpglichdcondbcbdnbeeppgdph/fonts/BinancePlex-Medium.otf) format('opentype');
-  font-weight: 500;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Binance';
-  src: url(chrome-extension://egjidjbpglichdcondbcbdnbeeppgdph/fonts/BinancePlex-SemiBold.otf) format('opentype');
-  font-weight: 600;
-  font-style: normal;
-}
-
-/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2FwcC9zcmMvb25lVGFwL3N0eWxlLmNzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTtFQUNFO0lBQ0UsMkJBQTJCO0VBQzdCO0VBQ0E7SUFDRSwwQkFBMEI7RUFDNUI7QUFDRjs7QUFFQTtFQUNFLFVBQVU7QUFDWjs7QUFHRTtJQUNFLGFBQWE7RUFDZjs7QUFFQTtJQUNFLGdCQUFnQjtFQUNsQjs7QUFFQTtJQUNFLHNCQUFzQjtFQUN4Qjs7QUFFQTtJQUNFLGtCQUFrQjtFQUNwQjs7QUFFQTtJQUNFLGFBQWE7RUFDZjs7QUFFQTtJQUNFLHNCQUFzQjtFQUN4Qjs7QUFFQTtJQUNFLG1CQUFtQjtFQUNyQjs7QUFFQTtJQUNFLDhCQUE4QjtFQUNoQzs7QUFFQTtJQUNFLHVCQUF1QjtFQUN6Qjs7QUFFQTtJQUNFLFdBQVc7RUFDYjs7QUFFQTtJQUNFLGdEQUFnRDtJQUNoRCw0REFBNEQ7SUFDNUQsWUFBWTtJQUNaLG1CQUFtQjtJQUNuQixnQkFBZ0I7SUFDaEIsK0NBQStDO0lBQy9DLGVBQWU7SUFDZixXQUFXO0lBQ1gsWUFBWTtJQUNaLGFBQWE7RUFDZjs7QUFFQTtJQUNFLFNBQVM7SUFDVCxnQ0FBZ0M7SUFDaEMsa0JBQWtCO0VBdUJwQjs7QUFyQkU7TUFDRSxTQUFTO0lBQ1g7O0FBRUE7TUFDRSxjQUFjO01BQ2QsZUFBZTtNQUNmLGdCQUFnQjtNQUNoQixpQkFBaUI7SUFDbkI7O0FBRUE7TUFDRSxjQUFjO01BQ2QsZUFBZTtNQUNmLGlCQUFpQjtJQUNuQjs7QUFFQTtNQUNFLGNBQWM7TUFDZCxlQUFlO0lBQ2pCOztBQUdGO0lBQ0UsaUJBQWlCO0lBQ2pCLFNBQVM7RUFtQlg7O0FBakJFO01BQ0UsU0FBUztNQUNULFdBQVc7SUFjYjs7QUFaRTtRQUNFLGNBQWM7UUFDZCxlQUFlO1FBQ2YsZ0JBQWdCO1FBQ2hCLGlCQUFpQjtNQUNuQjs7QUFFQTtRQUNFLGNBQWM7UUFDZCxlQUFlO1FBQ2YsaUJBQWlCO01BQ25COztBQUlKO0lBQ0UsU0FBUztJQUNULGNBQWM7RUFLaEI7O0FBSEU7TUFDRSxjQUFjO0lBQ2hCOztBQUdGO0lBQ0UsV0FBVztFQUNiOztBQUVBO0lBQ0UsbUJBQW1CO0lBQ25CLDhCQUE4QjtJQUM5QixtQkFBbUI7SUFDbkIsZ0NBQWdDO0lBQ2hDLGdDQUFnQztJQUNoQyxlQUFlO0lBQ2Ysa0JBQWtCO0lBQ2xCLFlBQVk7RUFRZDs7QUFORTtNQUNFLFdBQVc7TUFDWCxlQUFlO01BQ2YsZ0JBQWdCO01BQ2hCLGlCQUFpQjtJQUNuQjs7QUFHRjtJQUNFLGlCQUFpQjtFQUNuQjs7QUFFQTtJQUNFLFdBQVc7RUFDYjs7QUFHRjtFQUNFLHNCQUFzQjtFQUN0QiwrREFBMEU7RUFDMUUsZ0JBQWdCO0VBQ2hCLGtCQUFrQjtBQUNwQjs7QUFFQTtFQUNFLHNCQUFzQjtFQUN0QiwrREFBeUU7RUFDekUsZ0JBQWdCO0VBQ2hCLGtCQUFrQjtBQUNwQjs7QUFFQTtFQUNFLHNCQUFzQjtFQUN0QiwrREFBMkU7RUFDM0UsZ0JBQWdCO0VBQ2hCLGtCQUFrQjtBQUNwQiIsInNvdXJjZXNDb250ZW50IjpbIkBrZXlmcmFtZXMgc2xpZGUtaW4tb25lLXRhcCB7XG4gIGZyb20ge1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlWSg4MHB4KTtcbiAgfVxuICB0byB7XG4gICAgdHJhbnNmb3JtOiB0cmFuc2xhdGVZKDBweCk7XG4gIH1cbn1cblxuLnRydXN0LWhpZGUtZ3JhY2VmdWxseSB7XG4gIG9wYWNpdHk6IDA7XG59XG5cbi50cnVzdC13YWxsZXQtb25lLXRhcCB7XG4gIC5oaWRkZW4ge1xuICAgIGRpc3BsYXk6IG5vbmU7XG4gIH1cblxuICAuc2VtaWJvbGQge1xuICAgIGZvbnQtd2VpZ2h0OiA1MDA7XG4gIH1cblxuICAuYmluYW5jZS1wbGV4IHtcbiAgICBmb250LWZhbWlseTogJ0JpbmFuY2UnO1xuICB9XG5cbiAgLnJvdW5kZWQtZnVsbCB7XG4gICAgYm9yZGVyLXJhZGl1czogNTAlO1xuICB9XG5cbiAgLmZsZXgge1xuICAgIGRpc3BsYXk6IGZsZXg7XG4gIH1cblxuICAuZmxleC1jb2wge1xuICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gIH1cblxuICAuaXRlbXMtY2VudGVyIHtcbiAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICB9XG5cbiAgLnNwYWNlLWJldHdlZW4ge1xuICAgIGp1c3RpZnktY29udGVudDogc3BhY2UtYmV0d2VlbjtcbiAgfVxuXG4gIC5qdXN0aWZ5LWNlbnRlciB7XG4gICAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7XG4gIH1cblxuICAudy1mdWxsIHtcbiAgICB3aWR0aDogMTAwJTtcbiAgfVxuXG4gIC5ib3gge1xuICAgIHRyYW5zaXRpb246IGFsbCAwLjVzIGN1YmljLWJlemllcigwLCAwLCAwLCAxLjQzKTtcbiAgICBhbmltYXRpb246IHNsaWRlLWluLW9uZS10YXAgMC41cyBjdWJpYy1iZXppZXIoMCwgMCwgMCwgMS40Myk7XG4gICAgd2lkdGg6IDM4NHB4O1xuICAgIGJvcmRlci1yYWRpdXM6IDE1cHg7XG4gICAgYmFja2dyb3VuZDogI2ZmZjtcbiAgICBib3gtc2hhZG93OiAwcHggMnB4IDRweCAwcHggcmdiYSgwLCAwLCAwLCAwLjI1KTtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgcmlnaHQ6IDMwcHg7XG4gICAgYm90dG9tOiAzMHB4O1xuICAgIHotaW5kZXg6IDEwMjA7XG4gIH1cblxuICAuaGVhZGVyIHtcbiAgICBnYXA6IDE1cHg7XG4gICAgYm9yZGVyLWJvdHRvbTogMXB4IHNvbGlkICNlNmU2ZTY7XG4gICAgcGFkZGluZzogMTBweCAxOHB4O1xuXG4gICAgLmxlZnQtaXRlbXMge1xuICAgICAgZ2FwOiAxNXB4O1xuICAgIH1cblxuICAgIC50aXRsZSB7XG4gICAgICBjb2xvcjogIzFlMjMyOTtcbiAgICAgIGZvbnQtc2l6ZTogMThweDtcbiAgICAgIGZvbnQtd2VpZ2h0OiA2MDA7XG4gICAgICBsaW5lLWhlaWdodDogMjhweDtcbiAgICB9XG5cbiAgICAuc3VidGl0bGUge1xuICAgICAgY29sb3I6ICM0NzRkNTc7XG4gICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICBsaW5lLWhlaWdodDogMjBweDtcbiAgICB9XG5cbiAgICAuY2xvc2Uge1xuICAgICAgY29sb3I6ICMxZTIzMjk7XG4gICAgICBjdXJzb3I6IHBvaW50ZXI7XG4gICAgfVxuICB9XG5cbiAgLmJvZHkge1xuICAgIHBhZGRpbmc6IDlweCAxOHB4O1xuICAgIGdhcDogMTBweDtcblxuICAgIC5yaWdodC1pdGVtcyB7XG4gICAgICBnYXA6IDEwcHg7XG4gICAgICB3aWR0aDogMTAwJTtcblxuICAgICAgLndhbGxldC10aXRsZSB7XG4gICAgICAgIGNvbG9yOiAjMWUyMzI5O1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtd2VpZ2h0OiA2MDA7XG4gICAgICAgIGxpbmUtaGVpZ2h0OiAyMHB4O1xuICAgICAgfVxuXG4gICAgICAud2FsbGV0LXN1YnRpdGxlIHtcbiAgICAgICAgY29sb3I6ICM0NzRkNTc7XG4gICAgICAgIGZvbnQtc2l6ZTogMTRweDtcbiAgICAgICAgbGluZS1oZWlnaHQ6IDIwcHg7XG4gICAgICB9XG4gICAgfVxuICB9XG5cbiAgLmNvbm5lY3QtaW5kaWNhdG9yIHtcbiAgICBnYXA6IDE1cHg7XG4gICAgcGFkZGluZzogOHB4IDA7XG5cbiAgICAuZmxvdy1pY29uIHtcbiAgICAgIGNvbG9yOiAjNDc0ZDU3O1xuICAgIH1cbiAgfVxuXG4gIC5sb2FkaW5nLWNvbG9yIHtcbiAgICBjb2xvcjogI2ZmZjtcbiAgfVxuXG4gIC5idXR0b24ge1xuICAgIGJvcmRlci1yYWRpdXM6IDUwcHg7XG4gICAgb3V0bGluZTogMnB4IHNvbGlkIHRyYW5zcGFyZW50O1xuICAgIG91dGxpbmUtb2Zmc2V0OiAycHg7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogcmdiKDUsIDAsIDI1NSk7XG4gICAgYm9yZGVyLWNvbG9yOiByZ2IoMjI5LCAyMzEsIDIzNSk7XG4gICAgY3Vyc29yOiBwb2ludGVyO1xuICAgIHRleHQtYWxpZ246IGNlbnRlcjtcbiAgICBoZWlnaHQ6IDQ1cHg7XG5cbiAgICAuYnV0dG9uLXRleHQge1xuICAgICAgY29sb3I6ICNmZmY7XG4gICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICBmb250LXdlaWdodDogNjAwO1xuICAgICAgbGluZS1oZWlnaHQ6IDIwcHg7XG4gICAgfVxuICB9XG5cbiAgLmZvb3RlciB7XG4gICAgbWFyZ2luOiAyMHB4IDMwcHg7XG4gIH1cblxuICAuY2hlY2staWNvbiB7XG4gICAgY29sb3I6ICNmZmY7XG4gIH1cbn1cblxuQGZvbnQtZmFjZSB7XG4gIGZvbnQtZmFtaWx5OiAnQmluYW5jZSc7XG4gIHNyYzogdXJsKCcuL2ZvbnRzL2JpbmFuY2VQbGV4L0JpbmFuY2VQbGV4LVJlZ3VsYXIub3RmJykgZm9ybWF0KCdvcGVudHlwZScpO1xuICBmb250LXdlaWdodDogNDAwO1xuICBmb250LXN0eWxlOiBub3JtYWw7XG59XG5cbkBmb250LWZhY2Uge1xuICBmb250LWZhbWlseTogJ0JpbmFuY2UnO1xuICBzcmM6IHVybCgnLi9mb250cy9iaW5hbmNlUGxleC9CaW5hbmNlUGxleC1NZWRpdW0ub3RmJykgZm9ybWF0KCdvcGVudHlwZScpO1xuICBmb250LXdlaWdodDogNTAwO1xuICBmb250LXN0eWxlOiBub3JtYWw7XG59XG5cbkBmb250LWZhY2Uge1xuICBmb250LWZhbWlseTogJ0JpbmFuY2UnO1xuICBzcmM6IHVybCgnLi9mb250cy9iaW5hbmNlUGxleC9CaW5hbmNlUGxleC1TZW1pQm9sZC5vdGYnKSBmb3JtYXQoJ29wZW50eXBlJyk7XG4gIGZvbnQtd2VpZ2h0OiA2MDA7XG4gIGZvbnQtc3R5bGU6IG5vcm1hbDtcbn1cbiJdLCJzb3VyY2VSb290IjoiIn0= */</style><meta id="dcngeagmmhegagicpcmpinaoklddcgon"></head><body><div id="in-page-channel-node-id" data-channel-name="in_page_channel_O-Lc5a"></div>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="color-scheme" content="light only">
-
-  <!-- SEO -->
-  <title>Kelly Regina Ferreira Correia | Estética Natural Integrativa · Melasma, Estrias &amp; Saúde Capilar</title>
-  <meta name="description" content="Kelly Regina Ferreira Correia — Terapeuta Naturalista Integrativa. Tratamentos naturais para melasma, estrias, acne e saúde capilar, de dentro para fora. Protocolos individualizados e humanizados.">
-  <meta name="keywords" content="estética natural integrativa, tratamento para melasma, tratamento para estrias, limpeza de pele coreana natural, tratamento capilar natural, desinflamação, saúde capilar, Kelly Regina Ferreira Correia, terapeuta naturalista">
-  <link rel="canonical" href="https://kellyregina.com.br/">
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="Kelly Regina Ferreira Correia | Estética Natural Integrativa">
-  <meta property="og:description" content="Terapeuta Naturalista Integrativa especializada em melasma, estrias, acne e saúde capilar. Cuidado natural e humanizado, de dentro para fora.">
-  <meta property="og:image" content="https://kellyregina.com.br/og-image.jpg">
-  <meta property="og:url" content="https://kellyregina.com.br/">
-  <meta property="og:type" content="website">
-  <meta property="og:locale" content="pt_BR">
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Kelly Regina Ferreira Correia | Estética Natural Integrativa">
-  <meta name="twitter:description" content="Terapeuta Naturalista Integrativa: melasma, estrias e saúde capilar. Cuidado natural, de dentro para fora.">
-  <meta name="twitter:image" content="https://kellyregina.com.br/og-image.jpg">
-
-  <!-- Schema.org -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "HealthAndBeautyBusiness",
-    "name": "Kelly Regina Ferreira Correia — Estética Natural Integrativa",
-    "url": "https://kellyregina.com.br",
-    "description": "Terapeuta Naturalista Integrativa. Protocolos naturais e individualizados para melasma, estrias, acne e saúde capilar — tratando a raiz, de dentro para fora.",
-    "priceRange": "$$",
-    "areaServed": "Brasil",
-    "hasOfferCatalog": {
-      "@type": "OfferCatalog",
-      "name": "Protocolos Kelly Regina Ferreira",
-      "itemListElement": [
-        { "@type": "Offer", "name": "Kit Skin Care Facial", "description": "Protocolo natural para melasma, acne, rejuvenescimento e limpeza de pele coreana." },
-        { "@type": "Offer", "name": "Kit Skin Care Corporal", "description": "Protocolo regenerativo para estrias e desinflamação do tecido corporal." },
-        { "@type": "Offer", "name": "Kit Saúde Capilar", "description": "Protocolo natural para queda, coceira, descamação e oxigenação do couro cabeludo." },
-        { "@type": "Offer", "name": "Desinflamação e Reequilíbrio", "description": "Guia prático para reequilíbrio do organismo e desinflamação do corpo, de dentro para fora." }
-      ]
-    }
-  }
-  </script>
-
-  <!-- Fonts: Playfair Display (editorial serif) + DM Sans (refined sans) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&amp;family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&amp;display=swap" rel="stylesheet">
-  <link rel="icon" href="favicon.png" type="image/png"><!-- TODO: subir favicon da Kelly -->
-
-  <style>
-    /* ══════════════════════════════════════════
-       DESIGN TOKENS — Light Premium Palette
-    ══════════════════════════════════════════ */
-    :root {
-      /* Brand */
-      --copper:        #a05a30;
-      --copper-light:  #c8835a;
-      --copper-xlight: #dfa882;
-
-      /* Surface */
-      --bg:            #faf7f4;
-      --surface:       #f5f0ea;
-      --surface-b:     #ede6dd;
-      --card-bg:       #ffffff;
-
-      /* Text */
-      --ink:           #2a1f18;
-      --ink-mid:       #5c4a3e;
-      --ink-soft:      #8a7268;
-      --ink-muted:     #b0a098;
-
-      /* Border */
-      --border:        rgba(160, 90, 48, 0.14);
-      --border-strong: rgba(160, 90, 48, 0.28);
-
-      /* Type */
-      --serif: 'Playfair Display', Georgia, serif;
-      --sans:  'DM Sans', system-ui, sans-serif;
-
-      /* Layout */
-      --page-max: 540px;
-      --radius:   10px;
-      --ease:     cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* ══════════════════════════════════════════
-       RESET
-    ══════════════════════════════════════════ */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: var(--sans);
-      background: var(--bg);
-      color: var(--ink);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      min-height: 100svh;
-      overflow-x: hidden;
-    }
-    img { display: block; max-width: 100%; }
-    a   { text-decoration: none; color: inherit; }
-
-    ::-webkit-scrollbar { width: 3px; }
-    ::-webkit-scrollbar-track { background: var(--surface); }
-    ::-webkit-scrollbar-thumb { background: var(--copper-light); border-radius: 2px; }
-
-    /* ══════════════════════════════════════════
-       BACKGROUND — warm linen texture
-    ══════════════════════════════════════════ */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      background:
-        radial-gradient(ellipse 90% 55% at 50% 0%,  rgba(196,130,90,0.09) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 100% 85%, rgba(196,130,90,0.06) 0%, transparent 55%),
-        var(--bg);
-      pointer-events: none;
-    }
-    /* Fine linen grain */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.028'/%3E%3C/svg%3E");
-      pointer-events: none;
-      mix-blend-mode: multiply;
-    }
-
-    /* ══════════════════════════════════════════
-       WRAPPER
-    ══════════════════════════════════════════ */
-    .page-wrap {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      max-width: var(--page-max);
-      margin: 0 auto;
-      padding: 0 28px 100px;
-    }
-
-    /* ══════════════════════════════════════════
-       REVEAL
-    ══════════════════════════════════════════ */
-    .reveal {
-      opacity: 0;
-      transform: translateY(18px);
-      transition: opacity 0.75s var(--ease), transform 0.75s var(--ease);
-    }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
-
-    /* ══════════════════════════════════════════
-       HERO
-    ══════════════════════════════════════════ */
-    .hero {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding-top: clamp(60px, 12vw, 96px);
-      padding-bottom: clamp(20px, 5vw, 40px);   /* FIX: clamp() precisa de 3 args (antes: clamp(20px,5vw) → inválido) */
-    }
-
-    /* — Avatar — */
-    .avatar-wrap {
-      position: relative;
-      width: clamp(148px, 38vw, 192px);
-      height: clamp(148px, 38vw, 192px);
-      margin-bottom: clamp(32px, 7vw, 48px);
-    }
-
-    /* Outer halo ring */
-    .avatar-wrap::before {
-      content: '';
-      position: absolute;
-      inset: -16px;
-      border-radius: 50%;
-      border: 1px solid rgba(160, 90, 48, 0.18);
-      pointer-events: none;   /* FIX: anel decorativo não intercepta clique/hover do editor */
-    }
-    /* Middle ring */
-    .avatar-wrap::after {
-      content: '';
-      position: absolute;
-      inset: -8px;
-      border-radius: 50%;
-      border: 1px solid rgba(160, 90, 48, 0.28);
-      pointer-events: none;   /* FIX: idem — deixa o clique chegar na .avatar-img */
-    }
-
-    .avatar-img {
-      position: relative;     /* FIX: cria contexto de empilhamento */
-      z-index: 1;             /* FIX: imagem acima dos anéis → recebe hover/click do editor visual */
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      object-fit: cover;
-      object-position: top center;
-      display: block;
-      border: 2.5px solid rgba(200, 131, 90, 0.50);
-      box-shadow:
-        0 0 0 5px rgba(250, 247, 244, 1),
-        0 12px 40px rgba(100, 60, 30, 0.13),
-        0 2px 8px  rgba(100, 60, 30, 0.08);
-    }
-
-    .avatar-fallback {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: linear-gradient(145deg, var(--surface-b) 0%, var(--surface) 100%);
-      border: 1px solid var(--border-strong);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--serif);
-      font-size: clamp(46px, 11vw, 62px);
-      font-weight: 400;
-      color: var(--copper-light);
-      box-shadow: 0 12px 40px rgba(100,60,30,0.10);
-    }
-
-    /* — Identity — */
-    .hero-name {
-      font-family: var(--serif);
-      font-size: clamp(34px, 8.5vw, 48px);
-      font-weight: 400;
-      letter-spacing: 0.015em;
-      color: var(--ink);
-      line-height: 1.05;
-      margin-bottom: 14px;
-      opacity: 0;
-      animation: heroUp 0.9s 0.15s var(--ease) forwards;
-    }
-    .hero-name em {
-      font-style: italic;
-      color: var(--copper);
-    }
-
-    .hero-credential {
-      display: block;
-      font-family: var(--sans);
-      font-size: clamp(10px, 2.4vw, 11px);
-      font-weight: 400;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: var(--ink-soft);
-      margin-bottom: 14px;
-      opacity: 0;
-      animation: heroUp 0.9s 0.3s var(--ease) forwards;
-    }
-
-    .hero-tagline {
-      font-family: var(--serif);
-      font-size: clamp(16px, 4vw, 20px);
-      font-weight: 400;
-      font-style: italic;
-      line-height: 1.55;
-      color: var(--ink-mid);
-      max-width: 340px;
-      opacity: 0;
-      animation: heroUp 0.9s 0.45s var(--ease) forwards;
-    }
-
-    @keyframes heroUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Ornamental divider */
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      width: 100%;
-      margin: clamp(44px, 10vw, 44px) 0 clamp(32px, 7vw, 44px);
-      color: var(--copper-light);
-    }
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(to right, transparent, var(--border-strong), transparent);
-    }
-    .divider span {
-      font-family: var(--serif);
-      font-size: 16px;
-      opacity: 0.7;
-    }
-
-    /* ══════════════════════════════════════════
-       SECTION LABEL
-    ══════════════════════════════════════════ */
-    .section-label {
-      display: block;
-      text-align: center;
-      font-family: var(--sans);
-      font-size: clamp(9px, 2vw, 10px);
-      font-weight: 500;
-      letter-spacing: 0.34em;
-      text-transform: uppercase;
-      color: var(--copper);
-      margin-bottom: clamp(24px, 5.5vw, 36px);
-      opacity: 0.8;
-    }
-
-    /* ══════════════════════════════════════════
-       PRODUCT CARDS — uniform height system
-    ══════════════════════════════════════════ */
-    .products-stack {
-      display: flex;
-      flex-direction: column;
-      gap: clamp(12px, 3vw, 16px);
-    }
-
-    .product-card {
-      display: flex;
-      position: relative;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      text-decoration: none;
-      color: var(--ink);
-      min-height: 110px;          /* uniform floor height */
-      transition: transform 0.32s var(--ease),
-                  box-shadow 0.32s var(--ease),
-                  border-color 0.32s var(--ease);
-      box-shadow: 0 2px 12px rgba(100,60,30,0.06), 0 1px 3px rgba(100,60,30,0.04);
-      will-change: transform;
-    }
-    .product-card:hover {
-      transform: translateY(-3px);
-      border-color: var(--border-strong);
-      box-shadow: 0 8px 32px rgba(100,60,30,0.10), 0 2px 8px rgba(100,60,30,0.06);
-    }
-    .product-card:active { transform: scale(0.988); }
-
-    /* Left accent stripe */
-    .card-stripe {
-      width: 3px;
-      flex-shrink: 0;
-      background: var(--stripe-color, var(--copper-light));
-      border-radius: var(--radius) 0 0 var(--radius);
-      opacity: 0.7;
-    }
-
-    /* Card body */
-    .card-body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: clamp(20px, 5vw, 26px) clamp(18px, 4.5vw, 24px);
-      /* Keep text in the left half — never overlap the image */
-      max-width: 52%;
-      z-index: 1;
-    }
-
-    .card-label {
-      font-family: var(--sans);
-      font-size: clamp(9px, 2vw, 10px);
-      font-weight: 400;
-      letter-spacing: 0.26em;
-      text-transform: uppercase;
-      color: var(--ink-muted);
-      margin-bottom: 6px;
-    }
-
-    /* Arrow positioned absolutely over the image area, near right edge, centered vertically */
-    .card-arrow {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.5);
-      background: rgba(255,255,255,0.18);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      z-index: 2;
-      transition: background 0.3s var(--ease), border-color 0.3s var(--ease), transform 0.3s var(--ease);
-    }
-    .product-card:hover .card-arrow {
-      background: var(--stripe-color, var(--copper-light));
-      border-color: rgba(255,255,255,0.25);
-      transform: translateY(-50%) translateX(3px);
-    }
-    .product-card:hover .card-arrow svg { stroke: #fff; opacity: 1; }
-    .card-arrow svg {
-      width: 15px; height: 15px;
-      stroke: rgba(255,255,255,0.75);
-      fill: none;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      transition: stroke 0.3s var(--ease), opacity 0.3s var(--ease);
-    }
-
-    .card-title {
-      font-family: var(--serif);
-      font-size: clamp(22px, 5.5vw, 27px);
-      font-weight: 400;
-      color: var(--ink);
-      line-height: 1.1;
-      letter-spacing: 0.01em;
-      margin-bottom: 8px;
-    }
-    .card-title em { font-style: italic; color: var(--copper); }
-
-    .card-desc {
-      font-family: var(--sans);
-      font-size: clamp(13px, 3.2vw, 14px);
-      font-weight: 300;
-      line-height: 1.65;
-      color: var(--ink-soft);
-    }
-
-    /* — Card colour themes (stripe only, card stays white) — */
-    .card--copper  { --stripe-color: #b86e3e; }
-    .card--sage    { --stripe-color: #5d7a58; }
-    .card--sand    { --stripe-color: #9a7548; }
-    .card--blush   { --stripe-color: #d6ca96; }
-
-    /* — Featured card (Produto Principal) — lifted surface — */
-    .card--featured {
-      background: linear-gradient(108deg, #fdf9f6 0%, #faf3ec 100%);
-      border-color: rgba(184, 110, 62, 0.28);
-      box-shadow:
-        0 4px 20px rgba(160, 90, 48, 0.10),
-        0 1px 4px rgba(160, 90, 48, 0.08);
-    }
-    .card--featured:hover {
-      border-color: rgba(184, 110, 62, 0.42);
-      box-shadow:
-        0 10px 36px rgba(160, 90, 48, 0.14),
-        0 2px 8px rgba(160, 90, 48, 0.08);
-    }
-    .card--featured .card-stripe { opacity: 1; }
-
-    /* — Badge (apenas card principal) — */
-    .card-badge {
-      position: absolute;
-      top: 0; right: 0;
-      font-family: var(--sans);
-      font-size: 8.5px;
-      font-weight: 500;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: #fff;
-      background: #7a3a10;
-      padding: 5px 13px;
-      border-radius: 0 var(--radius) 0 var(--radius);
-      z-index: 3;
-    }
-
-    /* ══════════════════════════════════════════
-       FOOTER
-    ══════════════════════════════════════════ */
-    footer {
-      margin-top: clamp(72px, 16vw, 104px);
-      padding-top: clamp(36px, 8vw, 52px);
-      border-top: 1px solid var(--border);
-      text-align: center;
-    }
-
-    .footer-wordmark {
-      display: block;
-      font-family: var(--serif);
-      font-size: clamp(20px, 4.5vw, 24px);
-      font-weight: 400;
-      font-style: italic;
-      letter-spacing: 0.06em;
-      color: var(--copper);
-      margin-bottom: 32px;
-      opacity: 0.9;
-    }
-
-    .footer-line {
-      font-family: var(--sans);
-      font-size: clamp(11px, 2.6vw, 12px);
-      font-weight: 400;
-      line-height: 1.7;
-      color: var(--ink-soft);
-    }
-    .footer-line + .footer-line { margin-top: 2px; }
-
-    .footer-name-line {
-      font-family: var(--serif);
-      font-size: clamp(13px, 3.2vw, 15px);
-      font-style: italic;
-      font-weight: 400;
-      color: var(--ink-mid);
-      margin-top: 10px;
-    }
-
-    .footer-spec-line {
-      font-family: var(--sans);
-      font-size: clamp(9px, 2.2vw, 10px);
-      font-weight: 400;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--ink-muted);
-      margin-top: 4px;
-      margin-bottom: 28px;
-    }
-
-    .footer-disclaimer {
-      font-family: var(--sans);
-      font-size: clamp(11px, 2.6vw, 12px);
-      font-weight: 300;
-      line-height: 1.8;
-      color: var(--ink-muted);
-      max-width: 400px;
-      margin: 0 auto;
-    }
-
-
-    /* ══ CARD BACKGROUND IMAGES ══ */
-    .card-img {
-      position: absolute;
-      top: 0; right: 0;
-      width: 50%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      border-radius: 0 var(--radius) var(--radius) 0;
-      opacity: 0.55;
-      /* Fade left → transparent, stronger fade to ensure clean split */
-      -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,1) 65%);
-      mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,1) 65%);
-      pointer-events: none;
-      user-select: none;
-    }
-
-    /* ══ CONTACT ICONS ══ */
-    .contact-row {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 28px;
-      margin-top: clamp(48px, 10vw, 68px);
-    }
-    .contact-link {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      color: var(--ink-soft);
-      transition: color 0.28s var(--ease), transform 0.28s var(--ease);
-      text-decoration: none;
-    }
-    .contact-link:hover { color: var(--copper); transform: translateY(-3px); }
-    .contact-icon {
-      width: 52px; height: 52px;
-      border-radius: 50%;
-      border: 1px solid var(--border);
-      background: var(--card-bg);
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 10px rgba(100,60,30,0.07);
-      transition: border-color 0.28s var(--ease), box-shadow 0.28s var(--ease);
-    }
-    .contact-link:hover .contact-icon {
-      border-color: var(--border-strong);
-      box-shadow: 0 6px 20px rgba(100,60,30,0.12);
-    }
-    .contact-icon svg { width: 22px; height: 22px; }
-    .contact-label {
-      font-family: var(--sans);
-      font-size: 10px;
-      font-weight: 400;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-    }
-    /* ══════════════════════════════════════════
-       RESPONSIVE — endurecimento anti-overflow
-    ══════════════════════════════════════════ */
-    /* Guarda global: impede rolagem horizontal acidental (inclui o painel
-       fixo do editor visual, que fica fora da tela à direita). */
-    html { overflow-x: hidden; max-width: 100%; }
-
-    /* Permite que os filhos flex encolham e que palavras longas quebrem,
-       nunca estourando a largura da tela. */
-    .card-body { min-width: 0; }
-    .hero-name, .hero-tagline, .hero-credential,
-    .card-title, .card-desc, .footer-name-line { overflow-wrap: break-word; }
-
-    @media (max-width: 768px) {
-      .page-wrap { padding-left: clamp(18px, 5vw, 28px); padding-right: clamp(18px, 5vw, 28px); }
-    }
-
-    @media (max-width: 480px) {
-      .hero-credential { letter-spacing: 0.16em; max-width: 100%; }
-      .card-arrow { width: 32px; height: 32px; right: 10px; }
-    }
-
-    @media (max-width: 320px) {
-      .page-wrap { padding: 0 16px 80px; }
-    }
-  </style>
-<style>@keyframes slide-in-one-tap {
-  from {
-    transform: translateY(80px);
-  }
-  to {
-    transform: translateY(0px);
-  }
-}
-
-.trust-hide-gracefully {
-  opacity: 0;
-}
-
-.trust-wallet-one-tap .hidden {
-    display: none;
-  }
-
-.trust-wallet-one-tap .semibold {
-    font-weight: 500;
-  }
-
-.trust-wallet-one-tap .binance-plex {
-    font-family: 'Binance';
-  }
-
-.trust-wallet-one-tap .rounded-full {
-    border-radius: 50%;
-  }
-
-.trust-wallet-one-tap .flex {
-    display: flex;
-  }
-
-.trust-wallet-one-tap .flex-col {
-    flex-direction: column;
-  }
-
-.trust-wallet-one-tap .items-center {
-    align-items: center;
-  }
-
-.trust-wallet-one-tap .space-between {
-    justify-content: space-between;
-  }
-
-.trust-wallet-one-tap .justify-center {
-    justify-content: center;
-  }
-
-.trust-wallet-one-tap .w-full {
-    width: 100%;
-  }
-
-.trust-wallet-one-tap .box {
-    transition: all 0.5s cubic-bezier(0, 0, 0, 1.43);
-    animation: slide-in-one-tap 0.5s cubic-bezier(0, 0, 0, 1.43);
-    width: 384px;
-    border-radius: 15px;
-    background: #fff;
-    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.25);
-    position: fixed;
-    right: 30px;
-    bottom: 30px;
-    z-index: 1020;
-  }
-
-.trust-wallet-one-tap .header {
-    gap: 15px;
-    border-bottom: 1px solid #e6e6e6;
-    padding: 10px 18px;
-  }
-
-.trust-wallet-one-tap .header .left-items {
-      gap: 15px;
-    }
-
-.trust-wallet-one-tap .header .title {
-      color: #1e2329;
-      font-size: 18px;
-      font-weight: 600;
-      line-height: 28px;
-    }
-
-.trust-wallet-one-tap .header .subtitle {
-      color: #474d57;
-      font-size: 14px;
-      line-height: 20px;
-    }
-
-.trust-wallet-one-tap .header .close {
-      color: #1e2329;
-      cursor: pointer;
-    }
-
-.trust-wallet-one-tap .body {
-    padding: 9px 18px;
-    gap: 10px;
-  }
-
-.trust-wallet-one-tap .body .right-items {
-      gap: 10px;
-      width: 100%;
-    }
-
-.trust-wallet-one-tap .body .right-items .wallet-title {
-        color: #1e2329;
-        font-size: 16px;
-        font-weight: 600;
-        line-height: 20px;
-      }
-
-.trust-wallet-one-tap .body .right-items .wallet-subtitle {
-        color: #474d57;
-        font-size: 14px;
-        line-height: 20px;
-      }
-
-.trust-wallet-one-tap .connect-indicator {
-    gap: 15px;
-    padding: 8px 0;
-  }
-
-.trust-wallet-one-tap .connect-indicator .flow-icon {
-      color: #474d57;
-    }
-
-.trust-wallet-one-tap .loading-color {
-    color: #fff;
-  }
-
-.trust-wallet-one-tap .button {
-    border-radius: 50px;
-    outline: 2px solid transparent;
-    outline-offset: 2px;
-    background-color: rgb(5, 0, 255);
-    border-color: rgb(229, 231, 235);
-    cursor: pointer;
-    text-align: center;
-    height: 45px;
-  }
-
-.trust-wallet-one-tap .button .button-text {
-      color: #fff;
-      font-size: 16px;
-      font-weight: 600;
-      line-height: 20px;
-    }
-
-.trust-wallet-one-tap .footer {
-    margin: 20px 30px;
-  }
-
-.trust-wallet-one-tap .check-icon {
-    color: #fff;
-  }
-
-@font-face {
-  font-family: 'Binance';
-  src: url(chrome-extension://egjidjbpglichdcondbcbdnbeeppgdph/fonts/BinancePlex-Regular.otf) format('opentype');
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Binance';
-  src: url(chrome-extension://egjidjbpglichdcondbcbdnbeeppgdph/fonts/BinancePlex-Medium.otf) format('opentype');
-  font-weight: 500;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Binance';
-  src: url(chrome-extension://egjidjbpglichdcondbcbdnbeeppgdph/fonts/BinancePlex-SemiBold.otf) format('opentype');
-  font-weight: 600;
-  font-style: normal;
-}
-
-/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2FwcC9zcmMvb25lVGFwL3N0eWxlLmNzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTtFQUNFO0lBQ0UsMkJBQTJCO0VBQzdCO0VBQ0E7SUFDRSwwQkFBMEI7RUFDNUI7QUFDRjs7QUFFQTtFQUNFLFVBQVU7QUFDWjs7QUFHRTtJQUNFLGFBQWE7RUFDZjs7QUFFQTtJQUNFLGdCQUFnQjtFQUNsQjs7QUFFQTtJQUNFLHNCQUFzQjtFQUN4Qjs7QUFFQTtJQUNFLGtCQUFrQjtFQUNwQjs7QUFFQTtJQUNFLGFBQWE7RUFDZjs7QUFFQTtJQUNFLHNCQUFzQjtFQUN4Qjs7QUFFQTtJQUNFLG1CQUFtQjtFQUNyQjs7QUFFQTtJQUNFLDhCQUE4QjtFQUNoQzs7QUFFQTtJQUNFLHVCQUF1QjtFQUN6Qjs7QUFFQTtJQUNFLFdBQVc7RUFDYjs7QUFFQTtJQUNFLGdEQUFnRDtJQUNoRCw0REFBNEQ7SUFDNUQsWUFBWTtJQUNaLG1CQUFtQjtJQUNuQixnQkFBZ0I7SUFDaEIsK0NBQStDO0lBQy9DLGVBQWU7SUFDZixXQUFXO0lBQ1gsWUFBWTtJQUNaLGFBQWE7RUFDZjs7QUFFQTtJQUNFLFNBQVM7SUFDVCxnQ0FBZ0M7SUFDaEMsa0JBQWtCO0VBdUJwQjs7QUFyQkU7TUFDRSxTQUFTO0lBQ1g7O0FBRUE7TUFDRSxjQUFjO01BQ2QsZUFBZTtNQUNmLGdCQUFnQjtNQUNoQixpQkFBaUI7SUFDbkI7O0FBRUE7TUFDRSxjQUFjO01BQ2QsZUFBZTtNQUNmLGlCQUFpQjtJQUNuQjs7QUFFQTtNQUNFLGNBQWM7TUFDZCxlQUFlO0lBQ2pCOztBQUdGO0lBQ0UsaUJBQWlCO0lBQ2pCLFNBQVM7RUFtQlg7O0FBakJFO01BQ0UsU0FBUztNQUNULFdBQVc7SUFjYjs7QUFaRTtRQUNFLGNBQWM7UUFDZCxlQUFlO1FBQ2YsZ0JBQWdCO1FBQ2hCLGlCQUFpQjtNQUNuQjs7QUFFQTtRQUNFLGNBQWM7UUFDZCxlQUFlO1FBQ2YsaUJBQWlCO01BQ25COztBQUlKO0lBQ0UsU0FBUztJQUNULGNBQWM7RUFLaEI7O0FBSEU7TUFDRSxjQUFjO0lBQ2hCOztBQUdGO0lBQ0UsV0FBVztFQUNiOztBQUVBO0lBQ0UsbUJBQW1CO0lBQ25CLDhCQUE4QjtJQUM5QixtQkFBbUI7SUFDbkIsZ0NBQWdDO0lBQ2hDLGdDQUFnQztJQUNoQyxlQUFlO0lBQ2Ysa0JBQWtCO0lBQ2xCLFlBQVk7RUFRZDs7QUFORTtNQUNFLFdBQVc7TUFDWCxlQUFlO01BQ2YsZ0JBQWdCO01BQ2hCLGlCQUFpQjtJQUNuQjs7QUFHRjtJQUNFLGlCQUFpQjtFQUNuQjs7QUFFQTtJQUNFLFdBQVc7RUFDYjs7QUFHRjtFQUNFLHNCQUFzQjtFQUN0QiwrREFBMEU7RUFDMUUsZ0JBQWdCO0VBQ2hCLGtCQUFrQjtBQUNwQjs7QUFFQTtFQUNFLHNCQUFzQjtFQUN0QiwrREFBeUU7RUFDekUsZ0JBQWdCO0VBQ2hCLGtCQUFrQjtBQUNwQjs7QUFFQTtFQUNFLHNCQUFzQjtFQUN0QiwrREFBMkU7RUFDM0UsZ0JBQWdCO0VBQ2hCLGtCQUFrQjtBQUNwQiIsInNvdXJjZXNDb250ZW50IjpbIkBrZXlmcmFtZXMgc2xpZGUtaW4tb25lLXRhcCB7XG4gIGZyb20ge1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlWSg4MHB4KTtcbiAgfVxuICB0byB7XG4gICAgdHJhbnNmb3JtOiB0cmFuc2xhdGVZKDBweCk7XG4gIH1cbn1cblxuLnRydXN0LWhpZGUtZ3JhY2VmdWxseSB7XG4gIG9wYWNpdHk6IDA7XG59XG5cbi50cnVzdC13YWxsZXQtb25lLXRhcCB7XG4gIC5oaWRkZW4ge1xuICAgIGRpc3BsYXk6IG5vbmU7XG4gIH1cblxuICAuc2VtaWJvbGQge1xuICAgIGZvbnQtd2VpZ2h0OiA1MDA7XG4gIH1cblxuICAuYmluYW5jZS1wbGV4IHtcbiAgICBmb250LWZhbWlseTogJ0JpbmFuY2UnO1xuICB9XG5cbiAgLnJvdW5kZWQtZnVsbCB7XG4gICAgYm9yZGVyLXJhZGl1czogNTAlO1xuICB9XG5cbiAgLmZsZXgge1xuICAgIGRpc3BsYXk6IGZsZXg7XG4gIH1cblxuICAuZmxleC1jb2wge1xuICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gIH1cblxuICAuaXRlbXMtY2VudGVyIHtcbiAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICB9XG5cbiAgLnNwYWNlLWJldHdlZW4ge1xuICAgIGp1c3RpZnktY29udGVudDogc3BhY2UtYmV0d2VlbjtcbiAgfVxuXG4gIC5qdXN0aWZ5LWNlbnRlciB7XG4gICAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7XG4gIH1cblxuICAudy1mdWxsIHtcbiAgICB3aWR0aDogMTAwJTtcbiAgfVxuXG4gIC5ib3gge1xuICAgIHRyYW5zaXRpb246IGFsbCAwLjVzIGN1YmljLWJlemllcigwLCAwLCAwLCAxLjQzKTtcbiAgICBhbmltYXRpb246IHNsaWRlLWluLW9uZS10YXAgMC41cyBjdWJpYy1iZXppZXIoMCwgMCwgMCwgMS40Myk7XG4gICAgd2lkdGg6IDM4NHB4O1xuICAgIGJvcmRlci1yYWRpdXM6IDE1cHg7XG4gICAgYmFja2dyb3VuZDogI2ZmZjtcbiAgICBib3gtc2hhZG93OiAwcHggMnB4IDRweCAwcHggcmdiYSgwLCAwLCAwLCAwLjI1KTtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgcmlnaHQ6IDMwcHg7XG4gICAgYm90dG9tOiAzMHB4O1xuICAgIHotaW5kZXg6IDEwMjA7XG4gIH1cblxuICAuaGVhZGVyIHtcbiAgICBnYXA6IDE1cHg7XG4gICAgYm9yZGVyLWJvdHRvbTogMXB4IHNvbGlkICNlNmU2ZTY7XG4gICAgcGFkZGluZzogMTBweCAxOHB4O1xuXG4gICAgLmxlZnQtaXRlbXMge1xuICAgICAgZ2FwOiAxNXB4O1xuICAgIH1cblxuICAgIC50aXRsZSB7XG4gICAgICBjb2xvcjogIzFlMjMyOTtcbiAgICAgIGZvbnQtc2l6ZTogMThweDtcbiAgICAgIGZvbnQtd2VpZ2h0OiA2MDA7XG4gICAgICBsaW5lLWhlaWdodDogMjhweDtcbiAgICB9XG5cbiAgICAuc3VidGl0bGUge1xuICAgICAgY29sb3I6ICM0NzRkNTc7XG4gICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICBsaW5lLWhlaWdodDogMjBweDtcbiAgICB9XG5cbiAgICAuY2xvc2Uge1xuICAgICAgY29sb3I6ICMxZTIzMjk7XG4gICAgICBjdXJzb3I6IHBvaW50ZXI7XG4gICAgfVxuICB9XG5cbiAgLmJvZHkge1xuICAgIHBhZGRpbmc6IDlweCAxOHB4O1xuICAgIGdhcDogMTBweDtcblxuICAgIC5yaWdodC1pdGVtcyB7XG4gICAgICBnYXA6IDEwcHg7XG4gICAgICB3aWR0aDogMTAwJTtcblxuICAgICAgLndhbGxldC10aXRsZSB7XG4gICAgICAgIGNvbG9yOiAjMWUyMzI5O1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtd2VpZ2h0OiA2MDA7XG4gICAgICAgIGxpbmUtaGVpZ2h0OiAyMHB4O1xuICAgICAgfVxuXG4gICAgICAud2FsbGV0LXN1YnRpdGxlIHtcbiAgICAgICAgY29sb3I6ICM0NzRkNTc7XG4gICAgICAgIGZvbnQtc2l6ZTogMTRweDtcbiAgICAgICAgbGluZS1oZWlnaHQ6IDIwcHg7XG4gICAgICB9XG4gICAgfVxuICB9XG5cbiAgLmNvbm5lY3QtaW5kaWNhdG9yIHtcbiAgICBnYXA6IDE1cHg7XG4gICAgcGFkZGluZzogOHB4IDA7XG5cbiAgICAuZmxvdy1pY29uIHtcbiAgICAgIGNvbG9yOiAjNDc0ZDU3O1xuICAgIH1cbiAgfVxuXG4gIC5sb2FkaW5nLWNvbG9yIHtcbiAgICBjb2xvcjogI2ZmZjtcbiAgfVxuXG4gIC5idXR0b24ge1xuICAgIGJvcmRlci1yYWRpdXM6IDUwcHg7XG4gICAgb3V0bGluZTogMnB4IHNvbGlkIHRyYW5zcGFyZW50O1xuICAgIG91dGxpbmUtb2Zmc2V0OiAycHg7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogcmdiKDUsIDAsIDI1NSk7XG4gICAgYm9yZGVyLWNvbG9yOiByZ2IoMjI5LCAyMzEsIDIzNSk7XG4gICAgY3Vyc29yOiBwb2ludGVyO1xuICAgIHRleHQtYWxpZ246IGNlbnRlcjtcbiAgICBoZWlnaHQ6IDQ1cHg7XG5cbiAgICAuYnV0dG9uLXRleHQge1xuICAgICAgY29sb3I6ICNmZmY7XG4gICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICBmb250LXdlaWdodDogNjAwO1xuICAgICAgbGluZS1oZWlnaHQ6IDIwcHg7XG4gICAgfVxuICB9XG5cbiAgLmZvb3RlciB7XG4gICAgbWFyZ2luOiAyMHB4IDMwcHg7XG4gIH1cblxuICAuY2hlY2staWNvbiB7XG4gICAgY29sb3I6ICNmZmY7XG4gIH1cbn1cblxuQGZvbnQtZmFjZSB7XG4gIGZvbnQtZmFtaWx5OiAnQmluYW5jZSc7XG4gIHNyYzogdXJsKCcuL2ZvbnRzL2JpbmFuY2VQbGV4L0JpbmFuY2VQbGV4LVJlZ3VsYXIub3RmJykgZm9ybWF0KCdvcGVudHlwZScpO1xuICBmb250LXdlaWdodDogNDAwO1xuICBmb250LXN0eWxlOiBub3JtYWw7XG59XG5cbkBmb250LWZhY2Uge1xuICBmb250LWZhbWlseTogJ0JpbmFuY2UnO1xuICBzcmM6IHVybCgnLi9mb250cy9iaW5hbmNlUGxleC9CaW5hbmNlUGxleC1NZWRpdW0ub3RmJykgZm9ybWF0KCdvcGVudHlwZScpO1xuICBmb250LXdlaWdodDogNTAwO1xuICBmb250LXN0eWxlOiBub3JtYWw7XG59XG5cbkBmb250LWZhY2Uge1xuICBmb250LWZhbWlseTogJ0JpbmFuY2UnO1xuICBzcmM6IHVybCgnLi9mb250cy9iaW5hbmNlUGxleC9CaW5hbmNlUGxleC1TZW1pQm9sZC5vdGYnKSBmb3JtYXQoJ29wZW50eXBlJyk7XG4gIGZvbnQtd2VpZ2h0OiA2MDA7XG4gIGZvbnQtc3R5bGU6IG5vcm1hbDtcbn1cbiJdLCJzb3VyY2VSb290IjoiIn0= */</style><meta id="dcngeagmmhegagicpcmpinaoklddcgon">
-
-
-  <div class="page-wrap">
-
-    <!-- ══ HEADER ══════════════════════════════ -->
-    <header>
-      <section class="hero" aria-label="Apresentação de Kelly Regina Ferreira Correia">
-
-        <div class="avatar-wrap">
-          <img class="avatar-img" src="fotos/kelly.jpg" alt="Kelly Regina Ferreira Correia — Terapeuta Naturalista Integrativa, especialista em estética natural" width="192" height="192" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" style="display: none;">
-          <div class="avatar-fallback" style="display: flex; background-color: rgb(93, 122, 88); font-weight: 700;" aria-hidden="true">456<br>123</div>
-        </div>
-
-        <h1 class="hero-name"><em>Kelly</em> Regina Ferreira</h1>
-        <span class="hero-credential">Terapeuta Naturalista Integrativa</span>
-        <p class="hero-tagline">Estética Natural Integrativa — beleza que nasce de dentro.</p>
-
-      </section>
-    </header>
-
-    <!-- ══ MAIN ════════════════════════════════ -->
-    <main>
-      <section class="reveal visible" aria-labelledby="products-heading" style="transition-delay: 0s;">
-
-        <div class="divider" aria-hidden="true"><span>✦</span></div>
-        <span class="section-label" id="products-heading">Protocolos</span>
-
-        <div class="products-stack" id="vitrine" role="list">
-
-          <!-- Kit Skin Care Facial — Produto Principal -->
-          <a class="product-card card--copper card--featured reveal visible" href="index2.html" aria-label="Kit Skin Care Facial — melasma, acne, rejuvenescimento e limpeza coreana natural" role="listitem" style="transition-delay: 0.07s;">
-            <span class="card-badge">Mais Procurado</span>
-            <div class="card-stripe" aria-hidden="true"></div>
-            <img class="card-img" src="images/1-foto-1.jpg" alt="">
-            <div class="card-body">
-              <span class="card-label">Skin Care Facial</span>
-              <div class="card-arrow" aria-hidden="true"> 
-                <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
-              </div>
-              <h2 class="card-title"><em>Facial</em></h2>
-              <p class="card-desc">Melasma, acne, rejuvenescimento e limpeza coreana natural — tratando a raiz, de dentro para fora.</p>
-            </div>
-          </a>
-
-          <!-- Kit Skin Care Corporal -->
-          <a class="product-card card--sage reveal visible" href="index3.html" aria-label="Kit Skin Care Corporal — estrias e desinflamação do tecido corporal" role="listitem" style="transition-delay: 0.14s;">
-            <div class="card-stripe" aria-hidden="true"></div>
-            <img class="card-img" src="images/1-foto-1.jpg" alt="">
-            <div class="card-body">
-              <span class="card-label">Skin Care Corporal</span>
-              <div class="card-arrow" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
-              </div>
-              <h2 class="card-title"><em>Corporal</em></h2>
-              <p class="card-desc">Estrias e inflamação do tecido — regeneração profunda que vai além da superfície.</p>
-            </div>
-          </a>
-
-          <!-- Kit Saúde Capilar -->
-          <a class="product-card card--sand reveal visible" href="index4.html" aria-label="Kit Saúde Capilar — queda, coceira, descamação e oxigenação do couro cabeludo" role="listitem" style="transition-delay: 0.21s;">
-            <div class="card-stripe" aria-hidden="true"></div>
-            <img class="card-img" src="images/2-foto-1.jpg" alt="">
-            <div class="card-body">
-              <span class="card-label">Saúde Capilar</span>
-              <div class="card-arrow" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
-              </div>
-              <h2 class="card-title"><em>Capilar</em></h2>
-              <p class="card-desc">Queda, coceira e descamação — oxigenação do couro cabeludo e vitalidade desde a raiz.</p>
-            </div>
-          </a>
-
-          <!-- E-book Desinflamação e Reequilíbrio -->
-          <a class="product-card card--blush reveal visible" href="desinflamacao.html" aria-label="E-book Desinflamação e Reequilíbrio — guia para reequilíbrio do organismo, de dentro para fora" role="listitem" style="transition-delay: 0.28s;">
-            <div class="card-stripe" aria-hidden="true"></div>
-            <img class="card-img" src="fotos/ebook.jpg" alt="" aria-hidden="true">
-            <div class="card-body">
-              <span class="card-label">E-book EXCLUSIVO</span>
-              <div class="card-arrow" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
-              </div>
-              <h2 class="card-title"><em>Desinflamação</em></h2>
-              <p class="card-desc">Guia prático para reequilibrar o organismo e desinflamar o corpo, de dentro para fora.</p>
-            </div>
-          </a>
-
-          <!-- Quem sou eu — Trajetória -->
-          <a class="product-card card--sage reveal visible" href="curriculo.html" aria-label="Quem sou eu — conheça minha história, formação e o cuidado por trás de cada protocolo" role="listitem" data-card="quem-sou-eu" style="transition-delay: 0.35s;">
-            <div class="card-stripe" aria-hidden="true"></div>
-            <img class="card-img" src="fotos/kelly.jpg" alt="" aria-hidden="true">
-            <div class="card-body">
-              <span class="card-label">Minha Trajetória</span>
-              <div class="card-arrow" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
-              </div>
-              <h2 class="card-title"><em>Quem</em> sou eu</h2>
-              <p class="card-desc">Conheça minha história, formação e o cuidado humanizado por trás de cada protocolo.</p>
-            </div>
-          </a>
-
-        </div>
-      </section>
-
-      <!-- CONTACT -->
-      <div class="contact-row reveal" aria-label="Redes sociais e contato" style="transition-delay: 0.42s;">
-
-        <a class="contact-link" href="https://www.instagram.com/SEU_USUARIO" target="_blank" rel="noopener" aria-label="Instagram de Kelly Regina Ferreira"><!-- TODO: @ do Instagram da Kelly -->
-          <div class="contact-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-              <circle cx="12" cy="12" r="4"></circle>
-              <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"></circle>
-            </svg>
+</script>
+<style>
+  ::selection{background:#EFE5D9;color:#241E17}
+  .js-reveal{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease}
+  .is-in{opacity:1;transform:none}
+  @media (prefers-reduced-motion: reduce){.js-reveal{opacity:1;transform:none;transition:none}}
+  .arch{border-radius:999px 999px 18px 18px}
+  a:focus-visible,button:focus-visible{outline:2px solid #9C4F26;outline-offset:3px;border-radius:4px}
+  .card-arrow{transition:transform .35s ease}
+  a:hover .card-arrow{transform:translateX(6px)}
+</style>
+</head>
+<body class="bg-paper text-ink font-sans font-light antialiased">
+
+<main>
+  <!-- HERO / VITRINE -->
+  <section class="px-6 pt-16 pb-10 md:pt-24" aria-label="Apresentação">
+    <div class="max-w-3xl mx-auto text-center">
+      <div class="w-32 h-40 md:w-36 md:h-44 mx-auto overflow-hidden arch border border-line p-1.5 bg-white js-reveal">
+        <img src="fotos/kelly.jpg" alt="Kelly Regina Ferreira Correia — Terapeuta Naturalista Integrativa" class="w-full h-full object-cover arch" loading="eager">
+      </div>
+      <p class="mt-7 text-[11px] tracking-[0.35em] uppercase text-muted js-reveal">Terapeuta Naturalista Integrativa</p>
+      <h1 class="mt-3 font-serif text-4xl md:text-5xl font-medium js-reveal">Kelly Regina Ferreira</h1>
+      <p class="mt-4 font-serif italic text-xl md:text-2xl text-muted js-reveal">Estética Natural Integrativa — beleza que nasce de dentro.</p>
+      <p class="mt-8 text-terra text-lg js-reveal" aria-hidden="true">✦</p>
+    </div>
+  </section>
+
+  <!-- PROTOCOLOS — cards empilhados, cada um na paleta da página de destino -->
+  <section class="px-6 pb-16" aria-label="Protocolos">
+    <div class="max-w-3xl mx-auto">
+      <p class="text-center text-[11px] tracking-[0.35em] uppercase text-muted mb-8 js-reveal">Protocolos</p>
+
+      <div class="space-y-5" role="list">
+
+        <a href="facial.html" role="listitem" class="js-reveal group flex items-center gap-5 md:gap-7 bg-terrawash border border-line border-l-4 border-l-terra rounded-2xl p-5 md:p-6 hover:shadow-[0_10px_35px_-18px_rgba(60,40,25,0.35)] transition-shadow" aria-label="Kit Skin Care Facial — melasma, acne, rejuvenescimento e limpeza coreana natural">
+          <div class="w-20 h-24 md:w-24 md:h-28 shrink-0 overflow-hidden arch bg-white border border-line p-1">
+            <img src="images/1-foto-1.jpg" alt="Kit Skin Care Facial" class="w-full h-full object-cover arch" loading="lazy">
           </div>
-          <span class="contact-label">Instagram</span>
+          <div class="min-w-0 flex-1">
+            <p class="text-[10px] tracking-[0.3em] uppercase text-terra">Skin Care Facial · Mais Procurado</p>
+            <h2 class="font-serif text-2xl md:text-3xl font-medium mt-1 text-ink">Facial</h2>
+            <p class="mt-1.5 text-sm md:text-[15px] text-muted leading-relaxed">Melasma, acne, rejuvenescimento e limpeza coreana natural — tratando a raiz, de dentro para fora.</p>
+          </div>
+          <span class="card-arrow text-terra text-2xl shrink-0" aria-hidden="true">→</span>
         </a>
 
-        <a class="contact-link" href="https://wa.me/5599999999999?text=Ol%C3%A1%20Kelly%2C%20gostaria%20de%20agendar%20minha%20avalia%C3%A7%C3%A3o!" target="_blank" rel="noopener" aria-label="Agendar avaliação com Kelly Regina pelo WhatsApp">
-          <div class="contact-icon">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"></path>
-            </svg>
+        <a href="corporal.html" role="listitem" class="js-reveal group flex items-center gap-5 md:gap-7 bg-taupewash border border-line border-l-4 border-l-taupe rounded-2xl p-5 md:p-6 hover:shadow-[0_10px_35px_-18px_rgba(60,50,35,0.3)] transition-shadow" aria-label="Kit Skin Care Corporal — estrias e inflamação do tecido">
+          <div class="w-20 h-24 md:w-24 md:h-28 shrink-0 overflow-hidden arch bg-white border border-line p-1">
+            <img src="images/1-foto-1.jpg" alt="Kit Skin Care Corporal" class="w-full h-full object-cover arch" loading="lazy">
           </div>
-          <span class="contact-label">WhatsApp</span>
+          <div class="min-w-0 flex-1">
+            <p class="text-[10px] tracking-[0.3em] uppercase text-taupe">Skin Care Corporal</p>
+            <h2 class="font-serif text-2xl md:text-3xl font-medium mt-1 text-ink">Corporal</h2>
+            <p class="mt-1.5 text-sm md:text-[15px] text-muted leading-relaxed">Estrias e inflamação do tecido — regeneração profunda que vai além da superfície.</p>
+          </div>
+          <span class="card-arrow text-taupe text-2xl shrink-0" aria-hidden="true">→</span>
+        </a>
+
+        <a href="capilar.html" role="listitem" class="js-reveal group flex items-center gap-5 md:gap-7 bg-mineralwash border border-line border-l-4 border-l-mineral rounded-2xl p-5 md:p-6 hover:shadow-[0_10px_35px_-18px_rgba(40,55,60,0.3)] transition-shadow" aria-label="Kit Saúde Capilar — queda, coceira, descamação e oxigenação do couro cabeludo">
+          <div class="w-20 h-24 md:w-24 md:h-28 shrink-0 overflow-hidden arch bg-white border border-line p-1">
+            <img src="images/2-foto-1.jpg" alt="Kit Saúde Capilar" class="w-full h-full object-cover arch" loading="lazy">
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-[10px] tracking-[0.3em] uppercase text-mineral">Saúde Capilar</p>
+            <h2 class="font-serif text-2xl md:text-3xl font-medium mt-1 text-ink">Capilar</h2>
+            <p class="mt-1.5 text-sm md:text-[15px] text-muted leading-relaxed">Queda, coceira e descamação — oxigenação do couro cabeludo e vitalidade desde a raiz.</p>
+          </div>
+          <span class="card-arrow text-mineral text-2xl shrink-0" aria-hidden="true">→</span>
+        </a>
+
+        <a href="desinflamacao.html" role="listitem" class="js-reveal group flex items-center gap-5 md:gap-7 bg-sagewash border border-line border-l-4 border-l-sage rounded-2xl p-5 md:p-6 hover:shadow-[0_10px_35px_-18px_rgba(40,60,42,0.3)] transition-shadow" aria-label="Desinflamação e Reequilíbrio — guia para reequilíbrio do organismo, de dentro para fora">
+          <div class="w-20 h-24 md:w-24 md:h-28 shrink-0 overflow-hidden arch bg-white border border-line p-1">
+            <img src="fotos/ebook.jpg" alt="Guia de Desinflamação e Reequilíbrio" class="w-full h-full object-cover arch" loading="lazy">
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-[10px] tracking-[0.3em] uppercase text-sage">Desinflamação &amp; Reequilíbrio · E-book EXCLUSIVO</p>
+            <h2 class="font-serif text-2xl md:text-3xl font-medium mt-1 text-ink">Desinflamação</h2>
+            <p class="mt-1.5 text-sm md:text-[15px] text-muted leading-relaxed">Guia prático para reequilibrar o organismo e desinflamar o corpo, de dentro para fora.</p>
+          </div>
+          <span class="card-arrow text-sage text-2xl shrink-0" aria-hidden="true">→</span>
+        </a>
+
+        <a href="curriculo.html" role="listitem" class="js-reveal group flex items-center gap-5 md:gap-7 bg-copperwash border border-line border-l-4 border-l-copper rounded-2xl p-5 md:p-6 hover:shadow-[0_10px_35px_-18px_rgba(70,55,30,0.3)] transition-shadow" aria-label="Quem sou eu — história, formação e o cuidado por trás de cada protocolo">
+          <div class="w-20 h-24 md:w-24 md:h-28 shrink-0 overflow-hidden arch bg-white border border-line p-1">
+            <img src="fotos/kelly.jpg" alt="Kelly Regina Ferreira Correia" class="w-full h-full object-cover arch" loading="lazy">
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-[10px] tracking-[0.3em] uppercase text-copper">Minha Trajetória</p>
+            <h2 class="font-serif text-2xl md:text-3xl font-medium mt-1 text-ink">Quem sou eu</h2>
+            <p class="mt-1.5 text-sm md:text-[15px] text-muted leading-relaxed">Conheça minha história, formação e o cuidado humanizado por trás de cada protocolo.</p>
+          </div>
+          <span class="card-arrow text-copper text-2xl shrink-0" aria-hidden="true">→</span>
         </a>
 
       </div>
-    </main>
 
-    <!-- ══ FOOTER ══════════════════════════════ -->
-    <footer class="reveal" aria-label="Informações legais e institucionais" style="transition-delay: 0.49s;">
-      <span class="footer-wordmark">Kelly Regina Ferreira</span>
+      <!-- CONTATO -->
+      <div class="mt-12 flex flex-wrap items-center justify-center gap-4 js-reveal">
+        <a href="https://wa.me/5599999999999?text=Ol%C3%A1%20Kelly%2C%20gostaria%20de%20agendar%20minha%20avalia%C3%A7%C3%A3o!" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-ink text-paper text-sm tracking-wide px-7 py-3.5 rounded-full hover:bg-terra transition-colors">
+          <span>Agendar minha avaliação</span><span aria-hidden="true">→</span>
+        </a>
+        <a href="https://www.instagram.com/SEU_USUARIO" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 border border-line text-sm tracking-wide px-7 py-3.5 rounded-full hover:border-ink transition-colors">
+          <span>Instagram</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
 
-      <p class="footer-line">CNPJ/CPF: 00.000.000/0001-00</p><!-- TODO: inserir documento da Kelly -->
-      <p class="footer-line">© 2026 · Todos os direitos reservados.</p>
-      <p class="footer-name-line">Kelly Regina Ferreira Correia · Terapeuta Naturalista Integrativa</p>
-      <p class="footer-spec-line">Estética Natural Integrativa</p>
+<!-- RODAPÉ -->
+<footer class="border-t border-line bg-white/60">
+  <div class="max-w-3xl mx-auto px-6 py-10 text-center space-y-2">
+    <p class="font-serif text-lg">Kelly Regina Ferreira Correia · Terapeuta Naturalista Integrativa</p>
+    <p class="text-[11px] tracking-[0.3em] uppercase text-muted">Estética Natural Integrativa</p>
+    <p class="text-xs text-muted pt-3">CNPJ/CPF: 00.000.000/0001-00</p>
+    <p class="text-xs text-muted">© 2026 · Todos os direitos reservados.</p>
+    <p class="text-xs text-muted max-w-xl mx-auto leading-relaxed pt-2">As informações contidas nestas páginas têm caráter informativo e não substituem a avaliação individualizada. Os resultados podem variar conforme as características e a resposta de cada pessoa. Reprodução proibida sem autorização.</p>
+    <p class="text-xs text-muted pt-2">Site desenvolvido por <a href="https://www.instagram.com/lcm.enterprise?igsh=NHVqYzVnOHphaTc3" target="_blank" rel="noopener" class="underline underline-offset-2 hover:text-ink">LCM Enterprise LTDA</a>.</p>
+  </div>
+</footer>
 
-      <p class="footer-disclaimer">
-        As informações contidas nestas páginas têm caráter informativo e não substituem
-        a avaliação individualizada. Os resultados podem variar conforme as características
-        e a resposta de cada pessoa. Reprodução proibida sem autorização.
-      </p>
-    </footer>
-
-  </div><!-- /.page-wrap -->
-
-  <script>
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('visible');
-          io.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.06, rootMargin: '0px 0px -16px 0px' });
-
-    document.querySelectorAll('.reveal').forEach((el, i) => {
-      el.style.transitionDelay = (i * 0.07) + 's';
-      io.observe(el);
-    });
-  </script>
-
+<script>
+(function(){
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-in');io.unobserve(e.target);}});},{threshold:.12});
+  document.querySelectorAll('.js-reveal').forEach(function(el){io.observe(el);});
+})();
+</script>
 <script src="auth.js"></script>
-
-
-
-</body></html>
+</body>
+</html>
