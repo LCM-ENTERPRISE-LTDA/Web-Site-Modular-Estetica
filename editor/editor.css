@@ -1,5 +1,5 @@
 /* ============================================================
-   VisualEditor — Global Inline Visual Editor  (v2.1.0)
+   VisualEditor — Global Inline Visual Editor  (v2.5.0)
    Every selector is namespaced with .editor-* and isolated so it
    NEVER interferes with the host site's own design / layout.
    ============================================================ */
@@ -113,9 +113,20 @@ body.editor-active:not(.editor-preview) img { pointer-events: auto !important; }
   transition: opacity 0.15s ease;
 }
 .editor-img-overlay.editor-show { opacity: 1; pointer-events: auto; }
-.editor-img-overlay-inner { display: flex; flex-direction: column; align-items: center; gap: 6px; max-width: 90%; }
-.editor-img-overlay-ic { font-size: 26px; line-height: 1; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
+.editor-img-overlay-inner { display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: 92%; }
+.editor-img-overlay-ic { font-size: 22px; line-height: 1; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
 .editor-img-overlay-label { font-size: 12px; font-weight: 600; letter-spacing: 0.03em; line-height: 1.35; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+.editor-img-overlay-cta,
+.editor-img-overlay-swap {
+  appearance: none; border: 1px solid rgba(255,255,255,0.55); color: #fff;
+  font-family: inherit; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 14px; border-radius: 7px; cursor: pointer;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+.editor-img-overlay-cta { background: var(--editor-accent); border-color: var(--editor-accent); font-weight: 600; }
+.editor-img-overlay-cta:hover { background: #a85e30; transform: translateY(-1px); }
+.editor-img-overlay-swap { background: rgba(0,0,0,0.35); }
+.editor-img-overlay-swap:hover { background: rgba(0,0,0,0.5); }
 .editor-img-overlay-gear {
   position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border-radius: 50%;
   border: 1.5px solid #fff; background: var(--editor-accent); color: #fff;
@@ -243,8 +254,129 @@ body.editor-preview .editor-img-hl { outline: none !important; }
 body.editor-preview .editor-toolbar,
 body.editor-preview .editor-img-overlay,
 body.editor-preview .editor-panel,
+body.editor-preview .editor-studio,
 body.editor-preview .editor-skill-badge { display: none !important; }
 body.editor-preview .editor-image-hover::after { display: none !important; }
+
+/* ============================================================
+   9. IMAGE STUDIO (Canva-like framing panel)
+   ============================================================ */
+.editor-studio {
+  position: fixed; inset: 0; z-index: calc(var(--editor-z) + 20);
+  display: none; align-items: stretch; justify-content: center;
+  font-family: 'Jost', 'DM Sans', system-ui, sans-serif;
+  color: var(--editor-ink);
+}
+.editor-studio.editor-show { display: flex; }
+.editor-studio-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(20, 14, 10, 0.55);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+.editor-studio-panel {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column;
+  width: min(1080px, 96vw); max-height: min(92vh, 860px);
+  margin: auto; background: #fbf8f5;
+  border-radius: 14px; overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.38);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.editor-studio-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  padding: 14px 16px; background: #fff; border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+.editor-studio-title {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--editor-accent);
+}
+.editor-studio-sub { font-size: 13px; color: #8a7268; margin-top: 4px; }
+.editor-studio-head-actions { display: flex; align-items: center; gap: 6px; }
+.editor-studio-x {
+  appearance: none; border: none; background: transparent; font-size: 22px; line-height: 1;
+  color: #8a7268; cursor: pointer; padding: 4px 8px; border-radius: 6px;
+}
+.editor-studio-x:hover { color: var(--editor-ink); background: rgba(0,0,0,0.04); }
+
+.editor-studio-body {
+  flex: 1 1 auto; min-height: 0;
+  display: grid; grid-template-columns: minmax(0, 1fr) 300px;
+  overflow: hidden;
+}
+.editor-studio-stage-wrap {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; padding: 18px; background:
+    radial-gradient(ellipse at 30% 20%, rgba(184,110,62,0.08), transparent 50%),
+    linear-gradient(160deg, #f3ece6 0%, #ebe3db 100%);
+  overflow: auto;
+}
+.editor-studio-devices { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: center; }
+.editor-studio-devices-label {
+  width: 100%; text-align: center; font-size: 10px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #8a7268; margin-bottom: 2px;
+}
+.editor-studio-frame {
+  background: #fff; border-radius: 12px; padding: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.06);
+  transition: width 0.25s ease;
+}
+.editor-studio-crop {
+  position: relative; margin: 0 auto; overflow: hidden; border-radius: 8px;
+  background: #1f1813; cursor: grab; touch-action: none; user-select: none;
+}
+.editor-studio-crop.editor-dragging { cursor: grabbing; }
+.editor-studio-preview {
+  width: 100% !important; height: 100% !important; max-width: none !important;
+  display: block; object-fit: cover; pointer-events: none;
+  will-change: transform, object-position;
+}
+.editor-studio-safe-overlay {
+  display: none; pointer-events: none; position: absolute; inset: 10%;
+  border: 1.5px dashed rgba(255,255,255,0.7); border-radius: 50%;
+  box-shadow: 0 0 0 999px rgba(0,0,0,0.28);
+}
+.editor-studio-frame.editor-studio-safe .editor-studio-safe-overlay { display: block; }
+.editor-studio-drag-hint {
+  position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(255,255,255,0.85); background: rgba(0,0,0,0.45);
+  padding: 4px 10px; border-radius: 999px; pointer-events: none;
+  opacity: 0.9; transition: opacity 0.2s ease;
+}
+.editor-studio-crop.editor-dragging .editor-studio-drag-hint { opacity: 0; }
+
+.editor-studio-controls {
+  overflow-y: auto; background: #fff; border-left: 1px solid rgba(0,0,0,0.08);
+  padding: 8px 0 24px;
+}
+.editor-studio-group { padding: 12px 16px 16px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+.editor-studio-group h3 {
+  margin: 0 0 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--editor-accent);
+}
+.editor-studio-hint { font-size: 12px; color: #8a7268; margin: 8px 0 12px; }
+.editor-studio-zoom-presets,
+.editor-studio-fits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.editor-studio-fits { grid-template-columns: repeat(2, 1fr); }
+.editor-studio-nudge { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.editor-studio-nudge .editor-seg-btn { min-width: 44px; }
+.editor-studio-quick {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+}
+.editor-studio-foot {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 12px 16px; background: #fff; border-top: 1px solid rgba(0,0,0,0.08);
+}
+.editor-studio .editor-btn:disabled,
+.editor-studio .editor-seg-btn:disabled { opacity: 0.35; cursor: default; }
+body.editor-studio-open { overflow: hidden; }
+
+@media (max-width: 860px) {
+  .editor-studio-body { grid-template-columns: 1fr; grid-template-rows: auto minmax(220px, 42vh); }
+  .editor-studio-controls { border-left: none; border-top: 1px solid rgba(0,0,0,0.08); }
+  .editor-studio-panel { max-height: 96vh; width: 100vw; border-radius: 0; margin: 0; }
+  .editor-studio-stage-wrap { padding: 12px; }
+}
 
 @media (max-width: 600px) {
   .editor-bar { gap: 8px; padding: 0 10px; }
@@ -252,6 +384,9 @@ body.editor-preview .editor-image-hover::after { display: none !important; }
   .editor-bar-title { font-size: 11px; letter-spacing: 0.08em; }
   .editor-bar-actions { gap: 6px; }
   .editor-btn { padding: 6px 9px; font-size: 10px; letter-spacing: 0.04em; }
+  .editor-studio-head { flex-wrap: wrap; }
+  .editor-studio-foot { flex-wrap: wrap; }
+  .editor-studio-foot .editor-btn { flex: 1 1 auto; text-align: center; }
 }
 
 /* Telas estreitas: o titulo vira so o marcador, liberando espaco p/ os botoes */

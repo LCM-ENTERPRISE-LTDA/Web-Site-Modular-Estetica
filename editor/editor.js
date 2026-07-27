@@ -1,22 +1,22 @@
 /* ============================================================
-   VisualEditor — Global Inline Visual Editor  (v2.1.0)
+   VisualEditor — Global Inline Visual Editor  (v2.5.0)
    Vanilla JS. Single file. Loaded on every page.
 
-   v2.1 highlights
+   v2.5 highlights
    -------------------------------------------------------------
+   • IMAGE STUDIO   — Canva-like framing panel (zoom, pan, drag,
+     object-fit, quick positions, safe area, device preview,
+     undo/redo). Draft edits apply live; commit on "Salvar Alterações".
    • DEEP TARGETING  — hover / select / edit the EXACT element.
    • FOOTER BLACKLIST — <footer>, .footer + descendants are inert.
-   • IMAGE EDITING   — every <img> is clickable (pointer-events
-     neutralised in edit mode); hover shows an overlay affordance.
+   • IMAGE EDITING   — every <img> opens the studio; overlay has
+     "Editar imagem" + "Trocar".
    • BACKGROUND IMG  — Inspector lets you upload a background-image
      for the selected container.
    • ZIP EXPORT      — "Salvar" builds a deploy-ready package with
      JSZip: web_site_official/<page>.html + web_site_official/images/.
-     Changed/added images are written as real files and referenced
-     as images/<name> in the clean HTML (no base64 bloat, no blob:).
-   • USABILITY       — robust nested selection, no self-highlight of
-     the active text node, live inspector re-render on re-select,
-     Esc to deselect, graceful fallback if JSZip is offline.
+   • USABILITY       — Esc to deselect / close studio, graceful
+     fallback if JSZip is offline.
 
    Public API: window.VisualEditor
    ============================================================ */
@@ -282,14 +282,19 @@
       var ov = el('div', { class: 'editor-img-overlay editor-root' }, [
         el('div', { class: 'editor-img-overlay-inner' }, [
           el('span', { class: 'editor-img-overlay-ic', text: '\uD83D\uDCF7' }),
-          el('span', { class: 'editor-img-overlay-label', text: 'Clique para alterar/adicionar imagem' })
+          el('button', { class: 'editor-img-overlay-cta', type: 'button', text: 'Editar imagem' }),
+          el('button', { class: 'editor-img-overlay-swap', type: 'button', text: 'Trocar arquivo' })
         ]),
-        el('button', { class: 'editor-img-overlay-gear', title: 'Ajustar imagem (bordas, recorte, alt)', text: '\u2699' })
+        el('button', { class: 'editor-img-overlay-gear', title: 'Inspector da imagem', text: '\u2699' })
       ]);
       document.body.appendChild(ov);
       this.imgOverlay = ov;
 
-      ov.querySelector('.editor-img-overlay-inner').addEventListener('click', function (e) {
+      ov.querySelector('.editor-img-overlay-cta').addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+        if (state.hoverImage) ImageStudio.open(state.hoverImage);
+      });
+      ov.querySelector('.editor-img-overlay-swap').addEventListener('click', function (e) {
         e.preventDefault(); e.stopPropagation();
         if (state.hoverImage) ImageEditor.pick(state.hoverImage);
       });
@@ -355,9 +360,15 @@
       ['background-color','background','background-image','background-size','background-position',
        'background-repeat','color','font-family','font-size','line-height','letter-spacing',
        'text-align','padding','margin','border','border-radius','border-width','border-style',
-       'border-color','box-shadow','font-weight','object-fit']
+       'border-color','box-shadow','font-weight','object-fit','object-position','transform',
+       'transform-origin']
         .forEach(function (p) { node.style.removeProperty(p); });
       node.removeAttribute('data-export-bg');
+      node.removeAttribute('data-img-zoom');
+      node.removeAttribute('data-img-x');
+      node.removeAttribute('data-img-y');
+      node.removeAttribute('data-img-fit');
+      node.removeAttribute('data-img-lock');
       if (tagOf(node) !== 'img') node.removeAttribute('data-export-src');
     }
   };
@@ -487,12 +498,527 @@
   };
 
   // ============================================================
+  // 8b. IMAGE STUDIO — Canva-like framing (draft → commit)
+  // ============================================================
+  // Framing is stored on the <img> as:
+  //   data-img-zoom / data-img-x / data-img-y / data-img-fit / data-img-lock
+  // and mirrored into inline styles (object-fit, object-position, transform,
+  // transform-origin) so the published HTML keeps the exact crop.
+  var ImageStudio = {
+    isOpen: false,
+    target: null,
+    snapshot: null,
+    draft: null,
+    history: [],
+    future: [],
+    device: 'desktop',
+    safeArea: true,
+    root: null,
+    stageImg: null,
+    dragging: false,
+    dragStart: null,
+    _raf: 0,
+
+    DEFAULTS: { zoom: 100, x: 50, y: 50, fit: 'cover', lock: true },
+
+    readFrom: function (img) {
+      var d = ImageStudio.DEFAULTS;
+      var zoom = parseFloat(img.getAttribute('data-img-zoom'));
+      var x = parseFloat(img.getAttribute('data-img-x'));
+      var y = parseFloat(img.getAttribute('data-img-y'));
+      var fit = img.getAttribute('data-img-fit') || img.style.objectFit || '';
+      if (!fit) {
+        try { fit = getComputedStyle(img).objectFit; } catch (e) { fit = 'cover'; }
+      }
+      if (!fit || fit === 'none' || fit === 'initial') fit = 'cover';
+      var lock = img.getAttribute('data-img-lock');
+      if (lock == null) lock = '1';
+      // Fallback from object-position if data attrs missing
+      if (isNaN(x) || isNaN(y)) {
+        var pos = img.style.objectPosition || '';
+        var m = pos.match(/([\d.]+)%\s+([\d.]+)%/);
+        if (m) { x = parseFloat(m[1]); y = parseFloat(m[2]); }
+      }
+      if (isNaN(zoom)) {
+        var tr = img.style.transform || '';
+        var sm = tr.match(/scale\(\s*([\d.]+)\s*\)/);
+        if (sm) zoom = Math.round(parseFloat(sm[1]) * 100);
+      }
+      return {
+        zoom: isNaN(zoom) ? d.zoom : Math.max(50, Math.min(200, Math.round(zoom))),
+        x: isNaN(x) ? d.x : Math.max(0, Math.min(100, x)),
+        y: isNaN(y) ? d.y : Math.max(0, Math.min(100, y)),
+        fit: fit,
+        lock: lock !== '0'
+      };
+    },
+
+    captureSnapshot: function (img) {
+      return {
+        zoom: img.getAttribute('data-img-zoom'),
+        x: img.getAttribute('data-img-x'),
+        y: img.getAttribute('data-img-y'),
+        fit: img.getAttribute('data-img-fit'),
+        lock: img.getAttribute('data-img-lock'),
+        objectFit: img.style.objectFit,
+        objectPosition: img.style.objectPosition,
+        transform: img.style.transform,
+        transformOrigin: img.style.transformOrigin,
+        parentOverflow: img.parentElement ? img.parentElement.style.overflow : ''
+      };
+    },
+
+    restoreSnapshot: function (img, snap) {
+      if (!img || !snap) return;
+      function setAttr(k, v) { if (v == null || v === '') img.removeAttribute(k); else img.setAttribute(k, v); }
+      setAttr('data-img-zoom', snap.zoom);
+      setAttr('data-img-x', snap.x);
+      setAttr('data-img-y', snap.y);
+      setAttr('data-img-fit', snap.fit);
+      setAttr('data-img-lock', snap.lock);
+      img.style.objectFit = snap.objectFit || '';
+      img.style.objectPosition = snap.objectPosition || '';
+      img.style.transform = snap.transform || '';
+      img.style.transformOrigin = snap.transformOrigin || '';
+      if (img.parentElement) img.parentElement.style.overflow = snap.parentOverflow || '';
+    },
+
+    applyFraming: function (img, draft, live) {
+      if (!img || !draft) return;
+      var z = (draft.zoom / 100);
+      var ox = draft.x + '%';
+      var oy = draft.y + '%';
+      var fit = draft.lock && draft.fit === 'fill' ? 'cover' : draft.fit;
+
+      img.setAttribute('data-img-zoom', String(draft.zoom));
+      img.setAttribute('data-img-x', String(Math.round(draft.x * 10) / 10));
+      img.setAttribute('data-img-y', String(Math.round(draft.y * 10) / 10));
+      img.setAttribute('data-img-fit', fit);
+      img.setAttribute('data-img-lock', draft.lock ? '1' : '0');
+
+      img.style.objectFit = fit;
+      img.style.objectPosition = ox + ' ' + oy;
+      img.style.transformOrigin = ox + ' ' + oy;
+      img.style.transform = z === 1 ? '' : ('scale(' + z + ')');
+
+      // Clip zoom overflow inside the original frame
+      var parent = img.parentElement;
+      if (parent) {
+        try {
+          var cs = getComputedStyle(parent);
+          if (cs.overflow === 'visible') parent.style.overflow = 'hidden';
+        } catch (e) { parent.style.overflow = 'hidden'; }
+      }
+
+      if (live && ImageStudio.stageImg && ImageStudio.stageImg !== img) {
+        ImageStudio.stageImg.style.objectFit = fit;
+        ImageStudio.stageImg.style.objectPosition = ox + ' ' + oy;
+        ImageStudio.stageImg.style.transformOrigin = ox + ' ' + oy;
+        ImageStudio.stageImg.style.transform = z === 1 ? 'none' : ('scale(' + z + ')');
+      }
+    },
+
+    pushHistory: function () {
+      if (!this.draft) return;
+      this.history.push(JSON.parse(JSON.stringify(this.draft)));
+      if (this.history.length > 40) this.history.shift();
+      this.future = [];
+      this._syncHistoryBtns();
+    },
+
+    undo: function () {
+      if (!this.history.length) return;
+      this.future.push(JSON.parse(JSON.stringify(this.draft)));
+      this.draft = this.history.pop();
+      this._paint(false);
+      this._syncHistoryBtns();
+    },
+
+    redo: function () {
+      if (!this.future.length) return;
+      this.history.push(JSON.parse(JSON.stringify(this.draft)));
+      this.draft = this.future.pop();
+      this._paint(false);
+      this._syncHistoryBtns();
+    },
+
+    _syncHistoryBtns: function () {
+      if (!this.root) return;
+      var u = this.root.querySelector('[data-studio="undo"]');
+      var r = this.root.querySelector('[data-studio="redo"]');
+      if (u) u.disabled = !this.history.length;
+      if (r) r.disabled = !this.future.length;
+    },
+
+    _paint: function (record) {
+      if (record) this.pushHistory();
+      if (this.target) this.applyFraming(this.target, this.draft, true);
+      this._syncControls();
+    },
+
+    _syncControls: function () {
+      if (!this.root || !this.draft) return;
+      var d = this.draft;
+      var zoom = this.root.querySelector('[data-studio="zoom"]');
+      var zoomLabel = this.root.querySelector('[data-studio="zoom-label"]');
+      if (zoom) zoom.value = String(d.zoom);
+      if (zoomLabel) zoomLabel.textContent = d.zoom + '%';
+      $$('[data-fit]', this.root).forEach(function (b) {
+        b.classList.toggle('editor-on', b.getAttribute('data-fit') === d.fit);
+      });
+      $$('[data-device]', this.root).forEach(function (b) {
+        b.classList.toggle('editor-on', b.getAttribute('data-device') === ImageStudio.device);
+      });
+      var lock = this.root.querySelector('[data-studio="lock"]');
+      if (lock) lock.classList.toggle('editor-on', !!d.lock);
+      var safe = this.root.querySelector('[data-studio="safe"]');
+      if (safe) safe.classList.toggle('editor-on', !!ImageStudio.safeArea);
+      var frame = this.root.querySelector('.editor-studio-frame');
+      if (frame) {
+        frame.classList.toggle('editor-studio-safe', !!ImageStudio.safeArea);
+        frame.setAttribute('data-device', ImageStudio.device);
+      }
+    },
+
+    _ensureShell: function () {
+      if (this.root) return this.root;
+      var root = el('div', { class: 'editor-studio editor-root', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Editor de imagem' });
+      root.innerHTML =
+        '<div class="editor-studio-backdrop" data-studio="cancel"></div>' +
+        '<div class="editor-studio-panel">' +
+          '<header class="editor-studio-head">' +
+            '<div><div class="editor-studio-title">Editor de imagem</div>' +
+            '<div class="editor-studio-sub">Arraste, enquadre e ajuste — como no Canva</div></div>' +
+            '<div class="editor-studio-head-actions">' +
+              '<button type="button" class="editor-btn editor-btn--ghost" data-studio="undo" title="Desfazer">↶</button>' +
+              '<button type="button" class="editor-btn editor-btn--ghost" data-studio="redo" title="Refazer">↷</button>' +
+              '<button type="button" class="editor-studio-x" data-studio="cancel" aria-label="Fechar">×</button>' +
+            '</div>' +
+          '</header>' +
+          '<div class="editor-studio-body">' +
+            '<div class="editor-studio-stage-wrap">' +
+              '<div class="editor-studio-devices" role="group" aria-label="Responsividade">' +
+                '<span class="editor-studio-devices-label">Responsividade</span>' +
+                '<button type="button" class="editor-seg-btn" data-device="desktop">Desktop</button>' +
+                '<button type="button" class="editor-seg-btn" data-device="tablet">Tablet</button>' +
+                '<button type="button" class="editor-seg-btn" data-device="mobile">Mobile</button>' +
+              '</div>' +
+              '<div class="editor-studio-frame" data-device="desktop">' +
+                '<div class="editor-studio-crop">' +
+                  '<img class="editor-studio-preview" alt="Prévia do enquadramento" draggable="false" />' +
+                  '<div class="editor-studio-safe-overlay" aria-hidden="true"></div>' +
+                  '<div class="editor-studio-drag-hint">Arraste a imagem</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<aside class="editor-studio-controls">' +
+              '<section class="editor-studio-group">' +
+                '<h3>Imagem</h3>' +
+                '<button type="button" class="editor-btn editor-btn--primary" data-studio="replace" style="width:100%">Trocar imagem</button>' +
+                '<button type="button" class="editor-btn" data-studio="auto" style="width:100%;margin-top:8px">Ajustar automaticamente</button>' +
+                '<button type="button" class="editor-btn" data-studio="lock" style="width:100%;margin-top:8px">Bloquear proporção</button>' +
+              '</section>' +
+              '<section class="editor-studio-group">' +
+                '<h3>Zoom</h3>' +
+                '<div class="editor-studio-zoom-presets">' +
+                  '<button type="button" class="editor-seg-btn" data-zoom="50">50%</button>' +
+                  '<button type="button" class="editor-seg-btn" data-zoom="75">75%</button>' +
+                  '<button type="button" class="editor-seg-btn" data-zoom="100">100%</button>' +
+                  '<button type="button" class="editor-seg-btn" data-zoom="125">125%</button>' +
+                  '<button type="button" class="editor-seg-btn" data-zoom="150">150%</button>' +
+                  '<button type="button" class="editor-seg-btn" data-zoom="200">200%</button>' +
+                '</div>' +
+                '<label class="editor-label" style="margin-top:10px">Profundidade <span data-studio="zoom-label">100%</span></label>' +
+                '<input type="range" class="editor-range" data-studio="zoom" min="50" max="200" step="1" value="100" />' +
+                '<div class="editor-row" style="margin-top:8px;gap:6px">' +
+                  '<button type="button" class="editor-seg-btn" data-studio="zoom-out" title="Afastar">−</button>' +
+                  '<button type="button" class="editor-seg-btn" data-studio="zoom-center" title="Centralizar zoom">◎</button>' +
+                  '<button type="button" class="editor-seg-btn" data-studio="zoom-in" title="Aproximar">+</button>' +
+                '</div>' +
+              '</section>' +
+              '<section class="editor-studio-group">' +
+                '<h3>Posição</h3>' +
+                '<div class="editor-studio-nudge">' +
+                  '<button type="button" class="editor-seg-btn" data-nudge="0,-8" title="Subir">↑</button>' +
+                  '<div class="editor-row" style="gap:6px">' +
+                    '<button type="button" class="editor-seg-btn" data-nudge="-8,0" title="Esquerda">←</button>' +
+                    '<button type="button" class="editor-seg-btn" data-nudge="8,0" title="Direita">→</button>' +
+                  '</div>' +
+                  '<button type="button" class="editor-seg-btn" data-nudge="0,8" title="Descer">↓</button>' +
+                '</div>' +
+                '<p class="editor-studio-hint">Ou arraste a imagem na prévia</p>' +
+                '<label class="editor-label">Posições rápidas</label>' +
+                '<div class="editor-studio-quick">' +
+                  '<button type="button" class="editor-seg-btn" data-pos="0,0" title="Superior esquerda">↖</button>' +
+                  '<button type="button" class="editor-seg-btn" data-pos="50,0" title="Superior">↑</button>' +
+                  '<button type="button" class="editor-seg-btn" data-pos="100,0" title="Superior direita">↗</button>' +
+                  '<button type="button" class="editor-seg-btn" data-pos="0,50" title="Esquerda">←</button>' +
+                  '<button type="button" class="editor-seg-btn" data-pos="50,50" title="Centro">◎</button>' +
+                  '<button type="button" class="editor-seg-btn" data-pos="100,50" title="Direita">→</button>' +
+                  '<button type="button" class="editor-seg-btn" data-pos="0,100" title="Inferior esquerda">↙</button>' +
+                  '<button type="button" class="editor-seg-btn" data-pos="50,100" title="Inferior">↓</button>' +
+                  '<button type="button" class="editor-seg-btn" data-pos="100,100" title="Inferior direita">↘</button>' +
+                '</div>' +
+                '<button type="button" class="editor-reset-btn" data-studio="reset" style="margin-top:12px">Restaurar posição original</button>' +
+              '</section>' +
+              '<section class="editor-studio-group">' +
+                '<h3>Enquadramento</h3>' +
+                '<div class="editor-studio-fits">' +
+                  '<button type="button" class="editor-seg-btn" data-fit="cover">Cover</button>' +
+                  '<button type="button" class="editor-seg-btn" data-fit="contain">Contain</button>' +
+                  '<button type="button" class="editor-seg-btn" data-fit="fill">Fill</button>' +
+                  '<button type="button" class="editor-seg-btn" data-fit="scale-down">Scale Down</button>' +
+                  '<button type="button" class="editor-seg-btn" data-fit="none">Original</button>' +
+                '</div>' +
+                '<button type="button" class="editor-btn" data-studio="safe" style="width:100%;margin-top:10px">Área segura</button>' +
+              '</section>' +
+            '</aside>' +
+          '</div>' +
+          '<footer class="editor-studio-foot">' +
+            '<button type="button" class="editor-btn" data-studio="cancel">Cancelar</button>' +
+            '<button type="button" class="editor-btn editor-btn--primary" data-studio="save">Salvar Alterações</button>' +
+          '</footer>' +
+        '</div>';
+
+      document.body.appendChild(root);
+      this.root = root;
+      this.stageImg = root.querySelector('.editor-studio-preview');
+      this._bindShell();
+      return root;
+    },
+
+    _bindShell: function () {
+      var self = this;
+      var root = this.root;
+      var crop = root.querySelector('.editor-studio-crop');
+
+      root.addEventListener('click', function (e) {
+        var t = e.target.closest('[data-studio],[data-zoom],[data-nudge],[data-pos],[data-fit],[data-device]');
+        if (!t) return;
+        e.preventDefault();
+
+        if (t.hasAttribute('data-studio')) {
+          var act = t.getAttribute('data-studio');
+          if (act === 'cancel') return self.close(false);
+          if (act === 'save') return self.close(true);
+          if (act === 'undo') return self.undo();
+          if (act === 'redo') return self.redo();
+          if (act === 'replace') {
+            return ImageEditor.pick(self.target, function () {
+              self.stageImg.src = self.target.src;
+              Toast.show('Imagem trocada — ajuste o enquadramento');
+            });
+          }
+          if (act === 'auto') {
+            self.pushHistory();
+            self.draft = { zoom: 100, x: 50, y: 50, fit: 'cover', lock: true };
+            self._paint(false);
+            Toast.show('Enquadramento automático aplicado');
+            return;
+          }
+          if (act === 'lock') {
+            self.pushHistory();
+            self.draft.lock = !self.draft.lock;
+            if (self.draft.lock && self.draft.fit === 'fill') self.draft.fit = 'cover';
+            self._paint(false);
+            Toast.show(self.draft.lock ? 'Proporção bloqueada' : 'Proporção liberada');
+            return;
+          }
+          if (act === 'safe') {
+            self.safeArea = !self.safeArea;
+            self._syncControls();
+            return;
+          }
+          if (act === 'reset') {
+            self.pushHistory();
+            self.draft = JSON.parse(JSON.stringify(self.DEFAULTS));
+            self._paint(false);
+            Toast.show('Posição original restaurada');
+            return;
+          }
+          if (act === 'zoom-in') {
+            self.pushHistory();
+            self.draft.zoom = Math.min(200, self.draft.zoom + 10);
+            self._paint(false);
+            return;
+          }
+          if (act === 'zoom-out') {
+            self.pushHistory();
+            self.draft.zoom = Math.max(50, self.draft.zoom - 10);
+            self._paint(false);
+            return;
+          }
+          if (act === 'zoom-center') {
+            self.pushHistory();
+            self.draft.x = 50; self.draft.y = 50; self.draft.zoom = 100;
+            self._paint(false);
+            return;
+          }
+        }
+
+        if (t.hasAttribute('data-zoom')) {
+          self.pushHistory();
+          self.draft.zoom = parseInt(t.getAttribute('data-zoom'), 10);
+          self._paint(false);
+          return;
+        }
+        if (t.hasAttribute('data-nudge')) {
+          var n = t.getAttribute('data-nudge').split(',');
+          self.pushHistory();
+          self.draft.x = Math.max(0, Math.min(100, self.draft.x + parseFloat(n[0])));
+          self.draft.y = Math.max(0, Math.min(100, self.draft.y + parseFloat(n[1])));
+          self._paint(false);
+          return;
+        }
+        if (t.hasAttribute('data-pos')) {
+          var p = t.getAttribute('data-pos').split(',');
+          self.pushHistory();
+          self.draft.x = parseFloat(p[0]);
+          self.draft.y = parseFloat(p[1]);
+          self._paint(false);
+          return;
+        }
+        if (t.hasAttribute('data-fit')) {
+          self.pushHistory();
+          var fit = t.getAttribute('data-fit');
+          if (self.draft.lock && fit === 'fill') {
+            Toast.show('Desbloqueie a proporção para usar Fill');
+            return;
+          }
+          self.draft.fit = fit;
+          self._paint(false);
+          return;
+        }
+        if (t.hasAttribute('data-device')) {
+          self.device = t.getAttribute('data-device');
+          self._syncControls();
+          self._sizeStage();
+        }
+      });
+
+      var zoom = root.querySelector('[data-studio="zoom"]');
+      zoom.addEventListener('pointerdown', function () { self.pushHistory(); });
+      zoom.addEventListener('input', function () {
+        self.draft.zoom = parseInt(zoom.value, 10);
+        self.applyFraming(self.target, self.draft, true);
+        self._syncControls();
+      });
+
+      function pointerDown(ev) {
+        if (!self.isOpen) return;
+        ev.preventDefault();
+        self.pushHistory();
+        self.dragging = true;
+        var pt = ev.touches ? ev.touches[0] : ev;
+        self.dragStart = { x: pt.clientX, y: pt.clientY, ox: self.draft.x, oy: self.draft.y };
+        crop.classList.add('editor-dragging');
+      }
+      function pointerMove(ev) {
+        if (!self.dragging) return;
+        var pt = ev.touches ? ev.touches[0] : ev;
+        var rect = crop.getBoundingClientRect();
+        var dx = ((pt.clientX - self.dragStart.x) / rect.width) * 100;
+        var dy = ((pt.clientY - self.dragStart.y) / rect.height) * 100;
+        // Dragging the image: move opposite to finger (natural pan)
+        self.draft.x = Math.max(0, Math.min(100, self.dragStart.ox - dx));
+        self.draft.y = Math.max(0, Math.min(100, self.dragStart.oy - dy));
+        if (self._raf) cancelAnimationFrame(self._raf);
+        self._raf = requestAnimationFrame(function () {
+          self.applyFraming(self.target, self.draft, true);
+          self._syncControls();
+        });
+      }
+      function pointerUp() {
+        if (!self.dragging) return;
+        self.dragging = false;
+        crop.classList.remove('editor-dragging');
+      }
+
+      crop.addEventListener('mousedown', pointerDown);
+      crop.addEventListener('touchstart', pointerDown, { passive: false });
+      window.addEventListener('mousemove', pointerMove);
+      window.addEventListener('touchmove', pointerMove, { passive: false });
+      window.addEventListener('mouseup', pointerUp);
+      window.addEventListener('touchend', pointerUp);
+
+      document.addEventListener('keydown', function (e) {
+        if (!self.isOpen) return;
+        if (e.key === 'Escape') { e.preventDefault(); self.close(false); }
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) { e.preventDefault(); self.undo(); }
+        if ((e.metaKey || e.ctrlKey) && (e.key.toLowerCase() === 'y' || (e.key.toLowerCase() === 'z' && e.shiftKey))) { e.preventDefault(); self.redo(); }
+      });
+    },
+
+    _sizeStage: function () {
+      if (!this.root || !this.target) return;
+      var frame = this.root.querySelector('.editor-studio-frame');
+      var crop = this.root.querySelector('.editor-studio-crop');
+      var r = this.target.getBoundingClientRect();
+      var aspect = (r.width > 0 && r.height > 0) ? (r.width / r.height) : (4 / 3);
+      var maxW = this.device === 'mobile' ? 280 : (this.device === 'tablet' ? 420 : 560);
+      var w = Math.min(maxW, window.innerWidth * 0.55);
+      var h = w / aspect;
+      var maxH = Math.min(window.innerHeight * 0.55, 480);
+      if (h > maxH) { h = maxH; w = h * aspect; }
+      crop.style.width = Math.round(w) + 'px';
+      crop.style.height = Math.round(h) + 'px';
+      frame.style.width = Math.round(w + 24) + 'px';
+    },
+
+    open: function (img) {
+      if (!img || tagOf(img) !== 'img') return;
+      UI.hideImageOverlay();
+      Inspector.close();
+      UI.hideToolbar();
+
+      this._ensureShell();
+      this.target = img;
+      this.snapshot = this.captureSnapshot(img);
+      this.draft = this.readFrom(img);
+      this.history = [];
+      this.future = [];
+      this.device = 'desktop';
+      this.safeArea = true;
+      this.isOpen = true;
+
+      this.stageImg.src = img.currentSrc || img.src;
+      this.applyFraming(img, this.draft, true);
+      this._sizeStage();
+      this._syncControls();
+      this._syncHistoryBtns();
+
+      this.root.classList.add('editor-show');
+      document.body.classList.add('editor-studio-open');
+      selectElement(img);
+      Toast.show('Editor de imagem aberto');
+    },
+
+    close: function (commit) {
+      if (!this.isOpen) return;
+      if (commit) {
+        this.applyFraming(this.target, this.draft, false);
+        markDirty();
+        Toast.show('Enquadramento salvo — publique quando quiser');
+      } else {
+        this.restoreSnapshot(this.target, this.snapshot);
+        Toast.show('Alterações do enquadramento descartadas');
+      }
+      this.isOpen = false;
+      this.root.classList.remove('editor-show');
+      document.body.classList.remove('editor-studio-open');
+      this.target = null;
+      this.snapshot = null;
+      this.draft = null;
+    }
+  };
+
+  // ============================================================
   // 9. IMAGE EDITOR (overlay + clickable everywhere + asset track)
   // ============================================================
   var ImageEditor = {
     enable: function () {
       document.addEventListener('mouseover', function (e) {
-        if (state.isPreview) return;
+        if (state.isPreview || ImageStudio.isOpen) return;
         var t = e.target;
         if (tagOf(t) !== 'img' || isEditorNode(t) || isRestricted(t)) return;
         if (state.hoverImage && state.hoverImage !== t) state.hoverImage.classList.remove('editor-img-hl');
@@ -501,15 +1027,13 @@
         UI.positionImageOverlay(t);
       }, true);
 
-      // Direct click on ANY <img> → replace. pointer-events neutralised
-      // in edit mode (CSS). Capture + preventDefault stops the parent
-      // anchor from navigating.
+      // Click on ANY <img> → open Image Studio (Canva-like).
       document.addEventListener('click', function (e) {
-        if (state.isPreview) return;
+        if (state.isPreview || ImageStudio.isOpen) return;
         var t = e.target;
         if (tagOf(t) !== 'img' || isEditorNode(t) || isRestricted(t)) return;
         e.preventDefault(); e.stopPropagation();
-        ImageEditor.pick(t);
+        ImageStudio.open(t);
       }, true);
 
       // [data-editable-image] empty drop-zones
@@ -543,7 +1067,7 @@
       });
     },
 
-    pick: function (img) {
+    pick: function (img, onDone) {
       this._filePrompt().then(function (file) {
         if (!file) return;
         var path = Assets.set(img, 'src', file);
@@ -555,16 +1079,17 @@
           markDirty();
           UI.positionImageOverlay(img);
           Toast.show('Imagem atualizada');
+          if (typeof onDone === 'function') onDone(img);
         });
       });
     },
 
     pickForZone: function (zone) {
       var existing = zone.querySelector('img');
-      if (existing) return this.pick(existing);
+      if (existing) return this.pick(existing, function (img) { ImageStudio.open(img); });
       this._filePrompt().then(function (file) {
         if (!file) return;
-        var img = el('img', { alt: '', style: { maxWidth: '100%', display: 'block' } });
+        var img = el('img', { alt: '', style: { maxWidth: '100%', display: 'block', width: '100%', height: '100%', objectFit: 'cover' } });
         zone.appendChild(img);
         var path = Assets.set(img, 'src', file);
         readAsDataURL(file).then(function (durl) {
@@ -573,6 +1098,7 @@
           zone.classList.remove('editor-image-hover');
           markDirty();
           Toast.show('Imagem adicionada');
+          ImageStudio.open(img);
         });
       });
     },
@@ -790,16 +1316,15 @@
       if (isImg) {
         var altIn = el('input', { type: 'text', class: 'editor-input', value: target.alt || '' });
         altIn.addEventListener('input', function () { target.alt = altIn.value; markDirty(); });
-        var fitSel = el('select', { class: 'editor-select' });
-        ['cover','contain','fill','none','scale-down'].forEach(function (f) {
-          var o = el('option', { value: f, text: f });
-          if ((target.style.objectFit || getComputedStyle(target).objectFit) === f) o.selected = true;
-          fitSel.appendChild(o);
-        });
-        fitSel.addEventListener('change', function () { target.style.objectFit = fitSel.value; markDirty(); });
-        var replace = el('button', { class: 'editor-btn editor-btn--primary', style: { width: '100%' }, text: 'Trocar imagem' });
+        var openStudio = el('button', { class: 'editor-btn editor-btn--primary', style: { width: '100%' }, text: 'Editar imagem' });
+        openStudio.addEventListener('click', function () { ImageStudio.open(target); });
+        var replace = el('button', { class: 'editor-btn', style: { width: '100%', marginTop: '8px' }, text: 'Trocar arquivo' });
         replace.addEventListener('click', function () { ImageEditor.pick(target); });
-        body.appendChild(section('Imagem', el('div', {}, [ field('alt', altIn), field('object-fit', fitSel), replace ]), focusSection && focusSection !== 'image'));
+        body.appendChild(section('Imagem', el('div', {}, [
+          field('Texto alternativo (alt)', altIn),
+          openStudio,
+          replace
+        ]), focusSection && focusSection !== 'image'));
       }
 
       body.appendChild(el('div', { class: 'editor-reset-row' }, [
@@ -860,6 +1385,7 @@
 
     $$('.editor-root', clone).forEach(function (n) { n.remove(); });
 
+    // Strip editor-only attrs; keep framing data-* so published pages retain crop.
     $$('*', clone).forEach(function (n) {
       if (n.classList && n.classList.length) {
         [].slice.call(n.classList).forEach(function (c) { if (c.indexOf('editor-') === 0) n.classList.remove(c); });
@@ -988,7 +1514,7 @@
   }
 
   var VisualEditor = {
-    version: '2.4.0',
+    version: '2.5.0',
 
     init: function () {
       if (this._inited) return;
@@ -1045,6 +1571,7 @@
         if (state.selected) state.selected.classList.remove('editor-selected');
         UI.hideToolbar();
         Inspector.close();
+        if (ImageStudio.isOpen) ImageStudio.close(false);
       }
       if (btn) btn.classList.toggle('editor-on', state.isPreview);
       Toast.show(state.isPreview ? 'Pré-visualização ativa' : 'Edição ativa');
@@ -1063,9 +1590,10 @@
     download: downloadStandaloneHTML,
 
     destroy: function () {
+      if (ImageStudio.isOpen) ImageStudio.close(false);
       $$('.editor-root').forEach(function (n) { n.remove(); });
       document.documentElement.classList.remove('editor-active');
-      document.body.classList.remove('editor-active', 'editor-preview');
+      document.body.classList.remove('editor-active', 'editor-preview', 'editor-studio-open');
       this._inited = false;
     }
   };
