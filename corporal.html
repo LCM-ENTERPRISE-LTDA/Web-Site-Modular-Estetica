@@ -55,6 +55,31 @@ tailwind.config = {
   }
   @media (max-width:360px){.media-frame{border-radius:16px}}
   a:focus-visible,button:focus-visible{outline:2px solid #8A7967;outline-offset:3px;border-radius:4px}
+  /* Lightbox — Resultados & Depoimentos */
+  .lb-gallery .lb-item{cursor:zoom-in;padding:0;appearance:none;-webkit-appearance:none;font:inherit;color:inherit;text-align:inherit;display:block;width:100%}
+  .lb-gallery .lb-item:focus-visible{outline:2px solid #8A7967;outline-offset:3px}
+  .lb-root{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));background:rgba(38,34,29,0.88);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+  .lb-root.is-open{display:flex}
+  .lb-root[hidden]{display:none!important}
+  .lb-dialog{position:relative;width:min(960px,100%);max-height:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
+  .lb-stage{position:relative;width:100%;display:flex;align-items:center;justify-content:center;min-height:0}
+  .lb-img{max-width:100%;max-height:min(78vh,860px);width:auto;height:auto;object-fit:contain;border-radius:12px;background:#1a1714;box-shadow:0 18px 48px rgba(0,0,0,0.35)}
+  .lb-caption{margin:0;font-family:Cormorant Garamond,serif;font-style:italic;font-size:1.05rem;color:#F3EFE7;text-align:center;letter-spacing:0.02em}
+  .lb-meta{font-family:Jost,sans-serif;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(243,239,231,0.62)}
+  .lb-btn{appearance:none;border:1px solid rgba(243,239,231,0.22);background:rgba(38,34,29,0.55);color:#F3EFE7;width:44px;height:44px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s ease,border-color .2s ease;-webkit-tap-highlight-color:transparent}
+  .lb-btn:hover{background:rgba(138,121,103,0.85);border-color:rgba(243,239,231,0.4)}
+  .lb-btn svg{width:20px;height:20px;display:block}
+  .lb-close{position:absolute;top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right));z-index:2}
+  .lb-prev,.lb-next{position:absolute;top:50%;transform:translateY(-50%);z-index:2}
+  .lb-prev{left:max(6px,env(safe-area-inset-left))}
+  .lb-next{right:max(6px,env(safe-area-inset-right))}
+  @media (max-width:640px){
+    .lb-img{max-height:68vh;border-radius:8px}
+    .lb-prev,.lb-next{width:40px;height:40px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .lb-btn{transition:none}
+  }
   /* CTAs — centralização garantida (WhatsApp e ações principais) */
   .cta-row{
     display:flex !important;
@@ -232,13 +257,43 @@ tailwind.config = {
       <p class="text-[10px] tracking-[0.3em] uppercase text-taupe text-center js-reveal">Antes &amp; Depois</p>
       <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium text-center js-reveal">Resultados</h2>
       <p class="mt-4 text-center text-sm text-muted js-reveal">Atenção: Seu corpo, sua resposta. Cada organismo é único e responde de uma forma diferente.</p>
-      <div class="mt-10 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-        <figure class="js-reveal"><div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/1-foto-1.jpg" alt="Resultado após 2 sessões de tratamento de estrias" class="w-full object-cover" loading="lazy"></div><figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>2 sessões</span></figcaption></figure>
-        <figure class="js-reveal"><div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/1-foto2.jpg" alt="Resultado após 1 sessão de tratamento de estrias" class="w-full object-cover" loading="lazy"></div><figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>1 sessão</span></figcaption></figure>
-        <figure class="js-reveal"><div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/2-foto-1.jpg" alt="Resultado após 1 sessão de tratamento de estrias" class="w-full object-cover" loading="lazy"></div><figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>1 sessão</span></figcaption></figure>
-        <figure class="js-reveal"><div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/3-detalhe-de-pele-do-corpo.png" alt="Resultado após 3 sessões de tratamento de estrias" class="w-full object-cover" loading="lazy"></div><figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>3 sessões</span></figcaption></figure>
-        <figure class="js-reveal"><div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/2-foto-1.jpg" alt="Resultado após 1 sessão de tratamento de estrias" class="w-full object-cover" loading="lazy"></div><figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>1 sessão</span></figcaption></figure>
-        <figure class="js-reveal"><div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/5-detalhe-de-pele-do-corpo-1-.png" alt="Resultado após 1 sessão de tratamento de estrias, ainda em cicatrização" class="w-full object-cover" loading="lazy"></div><figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>1 sessão (ainda em cicatrização)</span></figcaption></figure>
+      <div class="mt-10 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 lb-gallery" data-lb-gallery="resultados">
+        <figure class="js-reveal">
+          <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 lb-item" aria-label="Ampliar foto: resultado após 2 sessões">
+            <img src="images/1-foto-1.jpg" alt="Resultado após 2 sessões de tratamento de estrias" class="w-full object-cover" loading="lazy" data-lb-caption="2 sessões">
+          </button>
+          <figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>2 sessões</span></figcaption>
+        </figure>
+        <figure class="js-reveal">
+          <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 lb-item" aria-label="Ampliar foto: resultado após 1 sessão">
+            <img src="images/1-foto2.jpg" alt="Resultado após 1 sessão de tratamento de estrias" class="w-full object-cover" loading="lazy" data-lb-caption="1 sessão">
+          </button>
+          <figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>1 sessão</span></figcaption>
+        </figure>
+        <figure class="js-reveal">
+          <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 lb-item" aria-label="Ampliar foto: resultado após 1 sessão">
+            <img src="images/2-foto-1.jpg" alt="Resultado após 1 sessão de tratamento de estrias" class="w-full object-cover" loading="lazy" data-lb-caption="1 sessão">
+          </button>
+          <figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>1 sessão</span></figcaption>
+        </figure>
+        <figure class="js-reveal">
+          <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 lb-item" aria-label="Ampliar foto: resultado após 3 sessões">
+            <img src="images/3-detalhe-de-pele-do-corpo.png" alt="Resultado após 3 sessões de tratamento de estrias" class="w-full object-cover" loading="lazy" data-lb-caption="3 sessões">
+          </button>
+          <figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>3 sessões</span></figcaption>
+        </figure>
+        <figure class="js-reveal">
+          <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 lb-item" aria-label="Ampliar foto: resultado após 1 sessão">
+            <img src="images/2-foto-1.jpg" alt="Resultado após 1 sessão de tratamento de estrias" class="w-full object-cover" loading="lazy" data-lb-caption="1 sessão">
+          </button>
+          <figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>1 sessão</span></figcaption>
+        </figure>
+        <figure class="js-reveal">
+          <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 lb-item" aria-label="Ampliar foto: resultado após 1 sessão, ainda em cicatrização">
+            <img src="images/5-detalhe-de-pele-do-corpo-1-.png" alt="Resultado após 1 sessão de tratamento de estrias, ainda em cicatrização" class="w-full object-cover" loading="lazy" data-lb-caption="1 sessão (ainda em cicatrização)">
+          </button>
+          <figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>1 sessão (ainda em cicatrização)</span></figcaption>
+        </figure>
       </div>
     </div>
   </section>
@@ -249,13 +304,25 @@ tailwind.config = {
       <p class="text-[10px] tracking-[0.3em] uppercase text-taupe text-center js-reveal">Clientes Reais</p>
       <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium text-center js-reveal">Depoimentos Reais</h2>
       <p class="mt-4 text-center text-[15px] text-muted max-w-2xl mx-auto js-reveal">Nossas clientes estão encantadas com os resultados do Tratamento. Veja o que elas têm a dizer:</p>
-      <div class="mt-10 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal"><img src="images/1-foto-1.jpg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy"></div>
-        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal"><img src="images/1-foto2.jpg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy"></div>
-        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal"><img src="images/2-foto-1.jpg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy"></div>
-        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal"><img src="images/1-10.png" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy"></div>
-        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal"><img src="images/6-21.png" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy"></div>
-        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal"><img src="images/1-foto-1.jpg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy"></div>
+      <div class="mt-10 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 lb-gallery" data-lb-gallery="depoimentos">
+        <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal lb-item" aria-label="Ampliar depoimento 1">
+          <img src="images/1-foto-1.jpg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy" data-lb-caption="Depoimento">
+        </button>
+        <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal lb-item" aria-label="Ampliar depoimento 2">
+          <img src="images/1-foto2.jpg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy" data-lb-caption="Depoimento">
+        </button>
+        <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal lb-item" aria-label="Ampliar depoimento 3">
+          <img src="images/2-foto-1.jpg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy" data-lb-caption="Depoimento">
+        </button>
+        <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal lb-item" aria-label="Ampliar depoimento 4">
+          <img src="images/1-10.png" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy" data-lb-caption="Depoimento">
+        </button>
+        <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal lb-item" aria-label="Ampliar depoimento 5">
+          <img src="images/6-21.png" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy" data-lb-caption="Depoimento">
+        </button>
+        <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal lb-item" aria-label="Ampliar depoimento 6">
+          <img src="images/1-foto-1.jpg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy" data-lb-caption="Depoimento">
+        </button>
       </div>
     </div>
   </section>
@@ -359,6 +426,25 @@ tailwind.config = {
   </div>
 </footer>
 
+<div id="lightbox" class="lb-root" hidden aria-hidden="true">
+  <button type="button" class="lb-btn lb-close" data-lb="close" aria-label="Fechar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <div class="lb-dialog" role="dialog" aria-modal="true" aria-label="Foto ampliada">
+    <div class="lb-stage">
+      <button type="button" class="lb-btn lb-prev" data-lb="prev" aria-label="Foto anterior">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <img class="lb-img" src="" alt="">
+      <button type="button" class="lb-btn lb-next" data-lb="next" aria-label="Próxima foto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+    <p class="lb-caption" data-lb="caption"></p>
+    <p class="lb-meta" data-lb="meta" aria-live="polite"></p>
+  </div>
+</div>
+
 <script>
 (function(){
   var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-in');io.unobserve(e.target);}});},{threshold:.1});
@@ -379,6 +465,102 @@ tailwind.config = {
       btn.setAttribute('aria-expanded', open?'true':'false');
     });
   });
+
+  /* —— Lightbox (Resultados & Depoimentos) —— */
+  var root=document.getElementById('lightbox');
+  if(!root) return;
+  var imgEl=root.querySelector('.lb-img');
+  var capEl=root.querySelector('[data-lb="caption"]');
+  var metaEl=root.querySelector('[data-lb="meta"]');
+  var items=[];
+  var index=0;
+  var lastFocus=null;
+  var touchX=null;
+
+  function collect(gallery){
+    return Array.prototype.map.call(gallery.querySelectorAll('.lb-item'), function(btn){
+      var im=btn.querySelector('img');
+      return {
+        src: im.getAttribute('src'),
+        alt: im.getAttribute('alt') || '',
+        caption: im.getAttribute('data-lb-caption') || ''
+      };
+    });
+  }
+
+  function render(){
+    if(!items.length) return;
+    var it=items[index];
+    imgEl.src=it.src;
+    imgEl.alt=it.alt;
+    capEl.textContent=it.caption || it.alt;
+    metaEl.textContent=(index+1)+' / '+items.length;
+  }
+
+  function openAt(list, i, focusEl){
+    items=list;
+    index=((i%items.length)+items.length)%items.length;
+    lastFocus=focusEl||document.activeElement;
+    root.hidden=false;
+    root.setAttribute('aria-hidden','false');
+    root.classList.add('is-open');
+    document.documentElement.style.overflow='hidden';
+    render();
+    var closeBtn=root.querySelector('[data-lb="close"]');
+    if(closeBtn) closeBtn.focus();
+  }
+
+  function close(){
+    root.classList.remove('is-open');
+    root.hidden=true;
+    root.setAttribute('aria-hidden','true');
+    document.documentElement.style.overflow='';
+    imgEl.removeAttribute('src');
+    if(lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  function step(dir){
+    if(!items.length) return;
+    index=(index+dir+items.length)%items.length;
+    render();
+  }
+
+  document.querySelectorAll('.lb-gallery').forEach(function(gallery){
+    gallery.querySelectorAll('.lb-item').forEach(function(btn, i){
+      btn.addEventListener('click', function(){
+        openAt(collect(gallery), i, btn);
+      });
+    });
+  });
+
+  root.addEventListener('click', function(e){
+    var t=e.target.closest('[data-lb]');
+    if(t){
+      var act=t.getAttribute('data-lb');
+      if(act==='close'){ close(); return; }
+      if(act==='prev'){ step(-1); return; }
+      if(act==='next'){ step(1); return; }
+    }
+    if(e.target===root) close();
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(root.hidden) return;
+    if(e.key==='Escape'){ e.preventDefault(); close(); }
+    else if(e.key==='ArrowLeft'){ e.preventDefault(); step(-1); }
+    else if(e.key==='ArrowRight'){ e.preventDefault(); step(1); }
+  });
+
+  root.addEventListener('touchstart', function(e){
+    if(e.changedTouches && e.changedTouches[0]) touchX=e.changedTouches[0].clientX;
+  }, {passive:true});
+  root.addEventListener('touchend', function(e){
+    if(touchX==null || !e.changedTouches || !e.changedTouches[0]) return;
+    var dx=e.changedTouches[0].clientX-touchX;
+    touchX=null;
+    if(Math.abs(dx)<48) return;
+    step(dx>0?-1:1);
+  }, {passive:true});
 })();
 </script>
 <script src="auth.js"></script>
