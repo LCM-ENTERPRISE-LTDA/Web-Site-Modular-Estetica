@@ -2618,29 +2618,6 @@
   }
 
   // ============================================================
-  // 12. HOME-SPECIFIC: "Quem sou eu" card
-  // ============================================================
-  function setupHomeVitrineCard() {
-    var stack = document.querySelector('.products-stack') || document.querySelector('#vitrine');
-    if (!stack) return;
-    if (stack.querySelector('[data-card="quem-sou-eu"]')) return;
-    var refCard = stack.querySelector('.product-card') || stack.firstElementChild;
-    if (!refCard || typeof refCard.cloneNode !== 'function') return;
-    var newCard = refCard.cloneNode(true);
-    newCard.setAttribute('data-card', 'quem-sou-eu');
-    var badge = newCard.querySelector('.card-badge'); if (badge) badge.remove();
-    var img = newCard.querySelector('.card-img');     if (img) img.remove();
-    newCard.className = newCard.className.replace(/card--copper|card--sage|card--sand|card--blush|card--featured/g, '').trim() + ' card--sand';
-    var title = newCard.querySelector('.card-title'); if (title) title.innerHTML = '<em>Quem</em> sou eu';
-    var label = newCard.querySelector('.card-label'); if (label) label.textContent = 'TRAJETÓRIA';
-    var desc  = newCard.querySelector('.card-desc');  if (desc)  desc.textContent = 'Conheça minha trajetória, experiências, habilidades e formação profissional.';
-    newCard.setAttribute('href', 'curriculo.html');
-    newCard.removeAttribute('target');
-    newCard.setAttribute('aria-label', 'Currículo — Quem sou eu');
-    stack.appendChild(newCard);
-  }
-
-  // ============================================================
   // 13. CLEAN HTML EXPORT
   // ============================================================
   function buildCleanClone(rewriteToFolder) {
@@ -2810,7 +2787,6 @@
       guardNavigation();
 
       if (document.querySelector(SKILL_SELECTOR)) SkillBarEditor.setup();
-      setTimeout(setupHomeVitrineCard, 0);
 
       var images = $$('img').filter(function (n) { return !isEditorNode(n) && !isRestricted(n); });
       log('editable images:', images.length);
