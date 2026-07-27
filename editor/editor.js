@@ -385,7 +385,7 @@
        'background-repeat','color','font-family','font-size','line-height','letter-spacing',
        'text-align','padding','margin','border','border-radius','border-width','border-style',
        'border-color','box-shadow','font-weight','object-fit','object-position','transform',
-       'transform-origin']
+       'transform-origin','clip-path']
         .forEach(function (p) { node.style.removeProperty(p); });
       node.removeAttribute('data-export-bg');
       node.removeAttribute('data-img-zoom');
@@ -398,6 +398,9 @@
       node.removeAttribute('data-img-fy');
       node.removeAttribute('data-img-focal');
       node.removeAttribute('data-img-focal-src');
+      if (tagOf(node) === 'img' && typeof ImageStudio !== 'undefined' && ImageStudio._clearParentOverflowHack) {
+        ImageStudio._clearParentOverflowHack(node);
+      }
       if (tagOf(node) !== 'img') node.removeAttribute('data-export-src');
     }
   };
@@ -977,7 +980,7 @@
         objectPosition: img.style.objectPosition,
         transform: img.style.transform,
         transformOrigin: img.style.transformOrigin,
-        parentOverflow: img.parentElement ? img.parentElement.style.overflow : ''
+        clipPath: img.style.clipPath
       };
     },
 
@@ -994,7 +997,34 @@
       img.style.objectPosition = snap.objectPosition || '';
       img.style.transform = snap.transform || '';
       img.style.transformOrigin = snap.transformOrigin || '';
-      if (img.parentElement) img.parentElement.style.overflow = snap.parentOverflow || '';
+      img.style.clipPath = snap.clipPath || '';
+      // Undo legacy side-effect: older versions forced overflow on the parent
+      // (e.g. .avatar-wrap), which clipped decorative rings.
+      ImageStudio._clearParentOverflowHack(img);
+    },
+
+    // Circular / framed images must keep parent layout untouched (rings, masks).
+    _isSelfClipped: function (img) {
+      if (!img) return false;
+      if (img.classList && (img.classList.contains('avatar-img') || img.classList.contains('card-img'))) return true;
+      try {
+        var br = (getComputedStyle(img).borderRadius || '').trim();
+        if (br === '50%' || br === '9999px' || /^50%(\s+\/\s+50%)?$/.test(br)) return true;
+        if (parseFloat(br) >= 999) return true;
+      } catch (e) {}
+      var p = img.parentElement;
+      if (p && p.classList && (p.classList.contains('avatar-wrap') || p.classList.contains('media-frame'))) return true;
+      return false;
+    },
+
+    _clearParentOverflowHack: function (img) {
+      var parent = img && img.parentElement;
+      if (!parent) return;
+      // Only clear overflow we likely injected — leave intentional author CSS alone
+      // by only removing the *inline* overflow when parent is a known frame.
+      if (parent.classList && (parent.classList.contains('avatar-wrap') || parent.classList.contains('media-frame'))) {
+        parent.style.removeProperty('overflow');
+      }
     },
 
     applyFraming: function (img, draft, live) {
@@ -1004,6 +1034,7 @@
       var oy = draft.y + '%';
       var fit = draft.lock && draft.fit === 'fill' ? 'cover' : draft.fit;
       var transform = z === 1 ? '' : ('scale(' + z + ')');
+      var selfClip = ImageStudio._isSelfClipped(img);
 
       img.setAttribute('data-img-zoom', String(draft.zoom));
       img.setAttribute('data-img-x', String(Math.round(draft.x * 10) / 10));
@@ -1012,18 +1043,29 @@
       img.setAttribute('data-img-lock', draft.lock ? '1' : '0');
       img.setAttribute('data-img-auto', draft.auto ? '1' : '0');
 
+      // Framing lives ONLY on the <img> — never mutate parent layout/overflow.
       img.style.objectFit = fit;
       img.style.objectPosition = ox + ' ' + oy;
       img.style.transformOrigin = ox + ' ' + oy;
       img.style.transform = transform;
 
-      var parent = img.parentElement;
-      if (parent) {
+      // Keep circular avatars round when zoomed (clip the img itself, not the wrap).
+      if (selfClip && z !== 1) {
         try {
-          var cs = getComputedStyle(parent);
-          if (cs.overflow === 'visible') parent.style.overflow = 'hidden';
-        } catch (e) { parent.style.overflow = 'hidden'; }
+          var br = getComputedStyle(img).borderRadius || '50%';
+          if (br === '50%' || (img.classList && img.classList.contains('avatar-img'))) {
+            img.style.clipPath = 'circle(50%)';
+          } else {
+            img.style.clipPath = 'inset(0 round ' + br + ')';
+          }
+        } catch (e) {
+          img.style.clipPath = 'circle(50%)';
+        }
+      } else {
+        img.style.removeProperty('clip-path');
       }
+
+      ImageStudio._clearParentOverflowHack(img);
 
       if (live) {
         ImageStudio._paintPreviews(fit, ox, oy, transform || 'none');
@@ -1736,6 +1778,7 @@
       this.target = img;
       this.draft = ImageStudio.readFrom(img);
       this.beforeSnap = ImageStudio.captureSnapshot(img);
+      ImageStudio._clearParentOverflowHack(img);
       this._ensureUI();
       img.classList.add('editor-img-selected');
       img.classList.add('editor-img-canvas-active');
