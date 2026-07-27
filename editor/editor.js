@@ -204,11 +204,13 @@
     pan: function (dragStart, clientX, clientY, rect) {
       var w = Math.max(rect.width, 1);
       var h = Math.max(rect.height, 1);
+      // object-position % moves opposite to raw translate: add delta so the
+      // visible crop follows the pointer (drag left → content moves left).
       var dx = ((clientX - dragStart.x) / w) * 100;
       var dy = ((clientY - dragStart.y) / h) * 100;
       return {
-        x: clamp(dragStart.ox - dx, 0, 100),
-        y: clamp(dragStart.oy - dy, 0, 100)
+        x: clamp(dragStart.ox + dx, 0, 100),
+        y: clamp(dragStart.oy + dy, 0, 100)
       };
     },
     bestZoomForAspect: function (img) {
