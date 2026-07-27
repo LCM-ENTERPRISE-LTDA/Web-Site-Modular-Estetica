@@ -30,7 +30,23 @@ tailwind.config = {
   .js-reveal{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease}
   .is-in{opacity:1;transform:none}
   @media (prefers-reduced-motion: reduce){.js-reveal{opacity:1;transform:none;transition:none}}
-  .arch{border-radius:999px 999px 20px 20px}
+  .media-frame{border-radius:18px;overflow:hidden;max-width:100%}
+  .media-frame img,.media-frame > img{border-radius:inherit;width:100%;max-width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+  .media-frame--hero > img{height:clamp(240px,62vw,380px)}
+  .media-frame--portrait > img{height:clamp(260px,68vw,380px)}
+  .media-frame--mid > img{height:clamp(200px,52vw,288px)}
+  .media-frame--gallery > img{height:clamp(168px,46vw,256px)}
+  .media-frame--wide > img{height:clamp(220px,55vw,320px)}
+  @media (min-width:480px){.media-frame{border-radius:20px}}
+  @media (min-width:768px){
+    .media-frame{border-radius:24px}
+    .media-frame--hero > img{height:clamp(380px,40vw,460px)}
+    .media-frame--portrait > img{height:380px}
+    .media-frame--mid > img{height:288px}
+    .media-frame--gallery > img{height:256px}
+    .media-frame--wide > img{height:clamp(320px,36vw,420px)}
+  }
+  @media (max-width:360px){.media-frame{border-radius:16px}}
   a:focus-visible,button:focus-visible{outline:2px solid #5A7482;outline-offset:3px;border-radius:4px}
 </style>
 </head>
@@ -67,8 +83,8 @@ tailwind.config = {
         </div>
       </div>
       <div class="js-reveal">
-        <div class="arch overflow-hidden border border-line bg-white p-2 max-w-md mx-auto">
-          <img src="images/4-cabelo-couro-cabeludo-saud-vel.png" alt="Kelly Regina Ferreira Correia — Terapeuta Naturalista Integrativa" class="w-full h-[380px] md:h-[460px] object-cover arch" loading="eager">
+        <div class="media-frame media-frame--hero border border-line bg-white p-2 max-w-md mx-auto">
+          <img src="images/4-cabelo-couro-cabeludo-saud-vel.png" alt="Kelly Regina Ferreira Correia — Terapeuta Naturalista Integrativa" class="w-full object-cover" loading="eager">
         </div>
       </div>
     </div>
@@ -147,8 +163,8 @@ tailwind.config = {
   <section id="especialista" class="px-6 py-14 md:py-20" aria-label="A especialista">
     <div class="max-w-5xl mx-auto grid md:grid-cols-[minmax(0,320px)_1fr] gap-10 md:gap-14 items-center">
       <div class="js-reveal">
-        <div class="arch overflow-hidden border border-line bg-white p-2 max-w-xs mx-auto md:mx-0">
-          <img src="images/1-10.png" alt="Kelly Regina Ferreira Correia — Terapeuta Naturalista Integrativa" class="w-full h-[380px] object-cover arch" loading="lazy">
+        <div class="media-frame media-frame--portrait border border-line bg-white p-2 max-w-xs mx-auto md:mx-0">
+          <img src="images/1-10.png" alt="Kelly Regina Ferreira Correia — Terapeuta Naturalista Integrativa" class="w-full object-cover" loading="lazy">
         </div>
       </div>
       <div class="js-reveal">
@@ -173,8 +189,8 @@ tailwind.config = {
   <section id="protocolo" class="px-6 py-14 md:py-20 bg-mist border-y border-line" aria-label="O protocolo">
     <div class="max-w-5xl mx-auto grid md:grid-cols-[minmax(0,340px)_1fr] gap-10 md:gap-14 items-start">
       <div class="js-reveal md:sticky md:top-24">
-        <div class="rounded-3xl overflow-hidden border border-line bg-white p-2">
-          <img src="images/4-cabelo-couro-cabeludo-saud-vel.png" alt="Kit Saúde Capilar — protocolo natural de Kelly Regina Ferreira" class="w-full h-[420px] object-cover rounded-2xl" loading="lazy">
+        <div class="media-frame media-frame--portrait border border-line bg-white p-2">
+          <img src="images/4-cabelo-couro-cabeludo-saud-vel.png" alt="Kit Saúde Capilar — protocolo natural de Kelly Regina Ferreira" class="w-full object-cover" loading="lazy">
         </div>
       </div>
       <div>

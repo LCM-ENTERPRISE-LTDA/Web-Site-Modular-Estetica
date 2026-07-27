@@ -30,7 +30,23 @@ tailwind.config = {
   .js-reveal{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease}
   .is-in{opacity:1;transform:none}
   @media (prefers-reduced-motion: reduce){.js-reveal{opacity:1;transform:none;transition:none}}
-  .arch{border-radius:999px 999px 20px 20px}
+  .media-frame{border-radius:18px;overflow:hidden;max-width:100%}
+  .media-frame img,.media-frame > img{border-radius:inherit;width:100%;max-width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+  .media-frame--hero > img{height:clamp(240px,62vw,380px)}
+  .media-frame--portrait > img{height:clamp(260px,68vw,380px)}
+  .media-frame--mid > img{height:clamp(200px,52vw,288px)}
+  .media-frame--gallery > img{height:clamp(168px,46vw,256px)}
+  .media-frame--wide > img{height:clamp(220px,55vw,320px)}
+  @media (min-width:480px){.media-frame{border-radius:20px}}
+  @media (min-width:768px){
+    .media-frame{border-radius:24px}
+    .media-frame--hero > img{height:clamp(380px,40vw,460px)}
+    .media-frame--portrait > img{height:380px}
+    .media-frame--mid > img{height:288px}
+    .media-frame--gallery > img{height:256px}
+    .media-frame--wide > img{height:clamp(320px,36vw,420px)}
+  }
+  @media (max-width:360px){.media-frame{border-radius:16px}}
   a:focus-visible,button:focus-visible{outline:2px solid #9C4F26;outline-offset:3px;border-radius:4px}
   .faq-a{display:none}
   .faq-item.open .faq-a{display:block}
@@ -62,8 +78,8 @@ tailwind.config = {
         </div>
       </div>
       <div class="js-reveal">
-        <div class="arch overflow-hidden border border-line bg-white p-2 max-w-md mx-auto">
-          <img src="images/2-82.png" alt="Kit Skin Care Facial — protocolo natural para o melasma, de dentro para fora" class="w-full h-[380px] md:h-[460px] object-cover arch" loading="eager">
+        <div class="media-frame media-frame--hero border border-line bg-white p-2 max-w-md mx-auto">
+          <img src="images/2-82.png" alt="Kit Skin Care Facial — protocolo natural para o melasma, de dentro para fora" class="w-full object-cover" loading="eager">
         </div>
       </div>
     </div>
@@ -82,8 +98,8 @@ tailwind.config = {
         <p>Enquanto isso, o seu dia a dia mudou de forma que só você consegue sentir. Você não sai sem maquiagem. Evita fotos. Foge da luz do sol. A mancha no rosto tornou-se uma mancha na sua autoconfiança, e isso pesa mais do que qualquer marca na pele.</p>
       </div>
       <figure class="mt-10 js-reveal">
-        <div class="arch overflow-hidden border border-line bg-white p-2 max-w-sm mx-auto">
-          <img src="images/2-82.png" alt="Kit Skin Care Facial — protocolo natural para o melasma, de dentro para fora" class="w-full h-72 object-cover arch" loading="lazy">
+        <div class="media-frame media-frame--mid border border-line bg-white p-2 max-w-sm mx-auto">
+          <img src="images/2-82.png" alt="Kit Skin Care Facial — protocolo natural para o melasma, de dentro para fora" class="w-full object-cover" loading="lazy">
         </div>
         <figcaption class="mt-5 text-center font-serif italic text-xl text-terra"><span>"Quanto dinheiro já gastei tentando me livrar disso... e continuo sem resposta."</span></figcaption>
       </figure>
@@ -95,8 +111,8 @@ tailwind.config = {
   <section class="px-6 py-14 md:py-20 bg-wash border-y border-line" aria-label="A especialista">
     <div class="max-w-5xl mx-auto grid md:grid-cols-[minmax(0,340px)_1fr] gap-10 md:gap-14 items-center">
       <div class="js-reveal">
-        <div class="arch overflow-hidden border border-line bg-white p-2 max-w-xs mx-auto md:mx-0">
-          <img src="images/1-46.png" alt="Kelly Regina Ferreira Correia — Terapeuta Naturalista Integrativa" class="w-full h-[380px] object-cover arch" loading="lazy">
+        <div class="media-frame media-frame--portrait border border-line bg-white p-2 max-w-xs mx-auto md:mx-0">
+          <img src="images/1-46.png" alt="Kelly Regina Ferreira Correia — Terapeuta Naturalista Integrativa" class="w-full object-cover" loading="lazy">
         </div>
       </div>
       <div class="js-reveal">
@@ -121,15 +137,15 @@ tailwind.config = {
       <p class="mt-4 text-[15px] md:text-base text-muted max-w-2xl mx-auto js-reveal">Cada resultado é a consequência de um corpo que aprendeu a desinflamar. Não é magia, é ciência integrativa.</p>
       <div class="mt-10 grid sm:grid-cols-3 gap-6">
         <figure class="js-reveal">
-          <div class="rounded-2xl overflow-hidden border border-line bg-white p-1.5"><img src="images/1-foto-1.jpg" alt="Kit Skin Care Facial — resultado do protocolo natural para o melasma" class="w-full h-72 object-cover rounded-xl" loading="lazy"></div>
+          <div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/1-foto-1.jpg" alt="Kit Skin Care Facial — resultado do protocolo natural para o melasma" class="w-full object-cover" loading="lazy"></div>
           <figcaption class="mt-3 text-xs tracking-[0.25em] uppercase text-muted"><span>Paciente 01</span></figcaption>
         </figure>
         <figure class="js-reveal">
-          <div class="rounded-2xl overflow-hidden border border-line bg-white p-1.5"><img src="images/1-foto2.jpg" alt="Kit Skin Care Facial — resultado do protocolo natural para o melasma" class="w-full h-72 object-cover rounded-xl" loading="lazy"></div>
+          <div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/1-foto2.jpg" alt="Kit Skin Care Facial — resultado do protocolo natural para o melasma" class="w-full object-cover" loading="lazy"></div>
           <figcaption class="mt-3 text-xs tracking-[0.25em] uppercase text-muted"><span>Paciente 02</span></figcaption>
         </figure>
         <figure class="js-reveal">
-          <div class="rounded-2xl overflow-hidden border border-line bg-white p-1.5"><img src="images/2-foto-1.jpg" alt="Kit Skin Care Facial — resultado do protocolo natural para o melasma" class="w-full h-72 object-cover rounded-xl" loading="lazy"></div>
+          <div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/2-foto-1.jpg" alt="Kit Skin Care Facial — resultado do protocolo natural para o melasma" class="w-full object-cover" loading="lazy"></div>
           <figcaption class="mt-3 text-xs tracking-[0.25em] uppercase text-muted"><span>Paciente 03</span></figcaption>
         </figure>
       </div>
