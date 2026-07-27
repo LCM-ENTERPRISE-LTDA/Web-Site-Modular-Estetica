@@ -71,6 +71,17 @@
 html.editor-active { scroll-padding-top: var(--editor-bar-h); }
 body.editor-active { border-top: var(--editor-bar-h) solid transparent; background-clip: padding-box; }
 
+/*
+  Root cause: site <header class="fixed top-0 … z-40"> shares viewport top:0
+  with .editor-bar (z ≈ 2^31). Flow content is pushed by body border-top, but
+  fixed headers ignore that and sit under the editor chrome. Offset them so
+  they remain fully visible directly below the bar — without raising site
+  z-index above the editor (which would hide Salvar / Preview).
+*/
+body.editor-active > header.fixed {
+  top: var(--editor-bar-h) !important;
+}
+
 /* BUGFIX: some sites set pointer-events:none on decorative <img> (e.g.
    .card-img), which blocks hover/click in the editor. Re-enable images
    ONLY while editing (not in preview). Reverted automatically on export. */
