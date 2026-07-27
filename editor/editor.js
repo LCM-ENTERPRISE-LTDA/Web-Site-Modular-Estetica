@@ -307,9 +307,10 @@
             var bottom = 100 - top - (visH / nh) * 100;
             out.objectViewBox = 'inset(' + top.toFixed(4) + '% ' + right.toFixed(4) + '% ' +
               bottom.toFixed(4) + '% ' + left.toFixed(4) + '%)';
-            // Crop window already matches the element aspect — fill exactly.
+            // Crop window already matches the element aspect — cover stays
+            // responsive if the box ratio shifts slightly (no stretch).
             out.objectPosition = '50% 50%';
-            out.fit = 'fill';
+            out.fit = 'cover';
             out.mode = 'viewbox';
             return out;
           }
