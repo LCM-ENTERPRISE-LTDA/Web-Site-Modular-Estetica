@@ -1,5 +1,5 @@
 /* ============================================================
-   VisualEditor — Global Inline Visual Editor  (v2.5.0)
+   VisualEditor — Global Inline Visual Editor  (v2.6.0)
    Vanilla JS. Single file. Loaded on every page.
 
    v2.5 highlights
@@ -369,6 +369,7 @@
       node.removeAttribute('data-img-y');
       node.removeAttribute('data-img-fit');
       node.removeAttribute('data-img-lock');
+      node.removeAttribute('data-img-auto');
       if (tagOf(node) !== 'img') node.removeAttribute('data-export-src');
     }
   };
@@ -498,10 +499,167 @@
   };
 
   // ============================================================
+  // 8a. IMAGE AUTO-FIT — intelligent default framing
+  // ============================================================
+  var ImageAutoFit = {
+    _observers: typeof WeakMap !== 'undefined' ? new WeakMap() : null,
+    _enabled: false,
+
+    isAuto: function (img) {
+      return img && img.getAttribute('data-img-auto') === '1';
+    },
+
+    setAuto: function (img, on) {
+      if (!img) return;
+      img.setAttribute('data-img-auto', on ? '1' : '0');
+    },
+
+    containerSize: function (img) {
+      var cw = img.clientWidth || 0;
+      var ch = img.clientHeight || 0;
+      if (cw >= 8 && ch >= 8) return { w: cw, h: ch };
+      var p = img.parentElement;
+      if (p) {
+        cw = p.clientWidth || 0;
+        ch = p.clientHeight || 0;
+        if (cw >= 8 && ch >= 8) return { w: cw, h: ch };
+      }
+      var r = img.getBoundingClientRect();
+      return { w: Math.max(r.width, 120), h: Math.max(r.height, 80) };
+    },
+
+    // Heuristic smart crop — no ML, tuned for portraits / landscapes / squares.
+    compute: function (img) {
+      if (!img) return null;
+      var box = this.containerSize(img);
+      var cw = box.w;
+      var ch = box.h;
+      var iw = img.naturalWidth || img.width || 0;
+      var ih = img.naturalHeight || img.height || 0;
+      if (!iw || !ih) return null;
+
+      var car = cw / ch;
+      var iar = iw / ih;
+      var fit = 'cover';
+      var x = 50;
+      var y = 50;
+      var zoom = 100;
+      var lock = true;
+
+      // Portrait / retrato — bias upward to keep faces in frame
+      if (iar < 0.72) {
+        y = car > 1.2 ? 36 : 38;
+        x = 50;
+      } else if (iar < 0.92) {
+        y = 42;
+        x = 50;
+      } else if (iar > 2.4) {
+        // Panorâmica
+        x = 50;
+        y = 50;
+      } else if (iar > 1.15) {
+        // Paisagem
+        x = 50;
+        y = car < 0.7 ? 48 : 50;
+      } else {
+        // Quadrada ou quase
+        x = 50;
+        y = 50;
+      }
+
+      // Container muito largo (banner) + imagem vertical
+      if (car > 1.75 && iar < 1) y = Math.min(y, 40);
+      // Container muito alto (coluna mobile) + imagem horizontal
+      if (car < 0.55 && iar > 1.1) { x = 50; y = 50; }
+      // Container quadrado + imagem extrema
+      if (car > 0.85 && car < 1.15) {
+        if (iar < 0.6) y = 38;
+        if (iar > 1.8) y = 50;
+      }
+
+      return { zoom: zoom, x: x, y: y, fit: fit, lock: lock, auto: true };
+    },
+
+    apply: function (img, dirty) {
+      if (!img || !this.isAuto(img)) return null;
+      var draft = this.compute(img);
+      if (!draft) return null;
+      ImageStudio.applyFraming(img, draft, false);
+      img.setAttribute('data-img-auto', '1');
+      if (dirty) markDirty();
+      return draft;
+    },
+
+    applyWhenReady: function (img, cb) {
+      var self = this;
+      function run() {
+        var draft = self.apply(img, false);
+        if (typeof cb === 'function') cb(draft);
+      }
+      if (img.complete && img.naturalWidth > 0) {
+        run();
+      } else {
+        img.addEventListener('load', run, { once: true });
+        img.addEventListener('error', function () { if (typeof cb === 'function') cb(null); }, { once: true });
+      }
+    },
+
+    prepareNew: function (img, cb) {
+      if (!img) return;
+      this.setAuto(img, true);
+      this.watch(img);
+      var self = this;
+      this.applyWhenReady(img, function (draft) {
+        if (typeof cb === 'function') cb(draft);
+      });
+    },
+
+    watch: function (img) {
+      if (!img || isEditorNode(img) || isRestricted(img)) return;
+      if (!this._observers) return;
+      if (this._observers.has(img)) return;
+
+      var tick = rafThrottle(function () {
+        if (state.isPreview) return;
+        if (!ImageAutoFit.isAuto(img)) return;
+        if (ImageStudio.isOpen && ImageStudio.target === img) {
+          ImageStudio._runAuto(true);
+          return;
+        }
+        ImageAutoFit.apply(img, false);
+      });
+
+      var ro = new ResizeObserver(tick);
+      ro.observe(img);
+      if (img.parentElement) ro.observe(img.parentElement);
+      this._observers.set(img, ro);
+    },
+
+    _reflowAll: function () {
+      $$('img').forEach(function (img) {
+        if (isEditorNode(img) || isRestricted(img)) return;
+        if (ImageAutoFit.isAuto(img)) ImageAutoFit.apply(img, false);
+      });
+    },
+
+    enable: function () {
+      if (this._enabled) return;
+      this._enabled = true;
+      if (typeof ResizeObserver === 'undefined') {
+        window.addEventListener('resize', rafThrottle(function () { ImageAutoFit._reflowAll(); }));
+      }
+      $$('img').forEach(function (img) {
+        if (isEditorNode(img) || isRestricted(img)) return;
+        if (ImageAutoFit.isAuto(img)) ImageAutoFit.watch(img);
+      });
+    }
+  };
+
+  // ============================================================
   // 8b. IMAGE STUDIO — Canva-like framing (draft → commit)
   // ============================================================
   // Framing is stored on the <img> as:
-  //   data-img-zoom / data-img-x / data-img-y / data-img-fit / data-img-lock
+  //   data-img-zoom / data-img-x / data-img-y / data-img-fit / data-img-lock / data-img-auto
   // and mirrored into inline styles (object-fit, object-position, transform,
   // transform-origin) so the published HTML keeps the exact crop.
   var ImageStudio = {
@@ -509,6 +667,7 @@
     target: null,
     snapshot: null,
     draft: null,
+    _manualBackup: null,
     history: [],
     future: [],
     device: 'desktop',
@@ -519,10 +678,11 @@
     dragStart: null,
     _raf: 0,
 
-    DEFAULTS: { zoom: 100, x: 50, y: 50, fit: 'cover', lock: true },
+    DEFAULTS: { zoom: 100, x: 50, y: 50, fit: 'cover', lock: true, auto: false },
 
     readFrom: function (img) {
       var d = ImageStudio.DEFAULTS;
+      var auto = img.getAttribute('data-img-auto') === '1';
       var zoom = parseFloat(img.getAttribute('data-img-zoom'));
       var x = parseFloat(img.getAttribute('data-img-x'));
       var y = parseFloat(img.getAttribute('data-img-y'));
@@ -533,7 +693,6 @@
       if (!fit || fit === 'none' || fit === 'initial') fit = 'cover';
       var lock = img.getAttribute('data-img-lock');
       if (lock == null) lock = '1';
-      // Fallback from object-position if data attrs missing
       if (isNaN(x) || isNaN(y)) {
         var pos = img.style.objectPosition || '';
         var m = pos.match(/([\d.]+)%\s+([\d.]+)%/);
@@ -549,7 +708,8 @@
         x: isNaN(x) ? d.x : Math.max(0, Math.min(100, x)),
         y: isNaN(y) ? d.y : Math.max(0, Math.min(100, y)),
         fit: fit,
-        lock: lock !== '0'
+        lock: lock !== '0',
+        auto: auto
       };
     },
 
@@ -560,6 +720,7 @@
         y: img.getAttribute('data-img-y'),
         fit: img.getAttribute('data-img-fit'),
         lock: img.getAttribute('data-img-lock'),
+        auto: img.getAttribute('data-img-auto'),
         objectFit: img.style.objectFit,
         objectPosition: img.style.objectPosition,
         transform: img.style.transform,
@@ -576,6 +737,7 @@
       setAttr('data-img-y', snap.y);
       setAttr('data-img-fit', snap.fit);
       setAttr('data-img-lock', snap.lock);
+      setAttr('data-img-auto', snap.auto);
       img.style.objectFit = snap.objectFit || '';
       img.style.objectPosition = snap.objectPosition || '';
       img.style.transform = snap.transform || '';
@@ -595,13 +757,13 @@
       img.setAttribute('data-img-y', String(Math.round(draft.y * 10) / 10));
       img.setAttribute('data-img-fit', fit);
       img.setAttribute('data-img-lock', draft.lock ? '1' : '0');
+      img.setAttribute('data-img-auto', draft.auto ? '1' : '0');
 
       img.style.objectFit = fit;
       img.style.objectPosition = ox + ' ' + oy;
       img.style.transformOrigin = ox + ' ' + oy;
       img.style.transform = z === 1 ? '' : ('scale(' + z + ')');
 
-      // Clip zoom overflow inside the original frame
       var parent = img.parentElement;
       if (parent) {
         try {
@@ -616,6 +778,33 @@
         ImageStudio.stageImg.style.transformOrigin = ox + ' ' + oy;
         ImageStudio.stageImg.style.transform = z === 1 ? 'none' : ('scale(' + z + ')');
       }
+    },
+
+    _runAuto: function (silent) {
+      if (!this.target || !this.draft) return;
+      var computed = ImageAutoFit.compute(this.target);
+      if (!computed) {
+        var self = this;
+        ImageAutoFit.applyWhenReady(this.target, function (d) {
+          if (!d || !self.draft) return;
+          self.draft = Object.assign({}, self.draft, d, { auto: true });
+          self.applyFraming(self.target, self.draft, true);
+          self._syncControls();
+        });
+        return;
+      }
+      this.draft = Object.assign({}, this.draft, computed, { auto: true });
+      this.applyFraming(this.target, this.draft, true);
+      if (!silent) Toast.show('Enquadramento automático atualizado');
+    },
+
+    _isManualControl: function (node) {
+      if (!node || !node.getAttribute) return false;
+      if (node.hasAttribute('data-zoom') || node.hasAttribute('data-nudge') ||
+          node.hasAttribute('data-pos') || node.hasAttribute('data-fit')) return true;
+      var act = node.getAttribute('data-studio');
+      return act === 'zoom' || act === 'zoom-in' || act === 'zoom-out' || act === 'zoom-center' ||
+        act === 'reset' || act === 'lock' || act === 'safe';
     },
 
     pushHistory: function () {
@@ -661,18 +850,37 @@
       var d = this.draft;
       var zoom = this.root.querySelector('[data-studio="zoom"]');
       var zoomLabel = this.root.querySelector('[data-studio="zoom-label"]');
-      if (zoom) zoom.value = String(d.zoom);
+      if (zoom) { zoom.value = String(d.zoom); zoom.disabled = !!d.auto; }
       if (zoomLabel) zoomLabel.textContent = d.zoom + '%';
       $$('[data-fit]', this.root).forEach(function (b) {
         b.classList.toggle('editor-on', b.getAttribute('data-fit') === d.fit);
+        b.disabled = !!d.auto;
       });
       $$('[data-device]', this.root).forEach(function (b) {
         b.classList.toggle('editor-on', b.getAttribute('data-device') === ImageStudio.device);
+      });
+      $$('[data-zoom]', this.root).forEach(function (b) { b.disabled = !!d.auto; });
+      $$('[data-nudge]', this.root).forEach(function (b) { b.disabled = !!d.auto; });
+      $$('[data-pos]', this.root).forEach(function (b) { b.disabled = !!d.auto; });
+      ['zoom-in','zoom-out','zoom-center','reset','lock','safe'].forEach(function (k) {
+        var b = ImageStudio.root.querySelector('[data-studio="' + k + '"]');
+        if (b) b.disabled = !!d.auto;
       });
       var lock = this.root.querySelector('[data-studio="lock"]');
       if (lock) lock.classList.toggle('editor-on', !!d.lock);
       var safe = this.root.querySelector('[data-studio="safe"]');
       if (safe) safe.classList.toggle('editor-on', !!ImageStudio.safeArea);
+      var autoBtn = this.root.querySelector('[data-studio="toggle-auto"]');
+      if (autoBtn) autoBtn.classList.toggle('editor-on', !!d.auto);
+      var hint = this.root.querySelector('[data-studio="auto-hint"]');
+      if (hint) {
+        hint.textContent = d.auto
+          ? 'O sistema enquadra a foto por você. Desative para ajustes manuais.'
+          : 'Modo manual — use os controles abaixo para enquadrar.';
+      }
+      var crop = this.root.querySelector('.editor-studio-crop');
+      if (crop) crop.classList.toggle('editor-studio-crop--locked', !!d.auto);
+      this.root.classList.toggle('editor-studio--auto', !!d.auto);
       var frame = this.root.querySelector('.editor-studio-frame');
       if (frame) {
         frame.classList.toggle('editor-studio-safe', !!ImageStudio.safeArea);
@@ -712,12 +920,15 @@
               '</div>' +
             '</div>' +
             '<aside class="editor-studio-controls">' +
-              '<section class="editor-studio-group">' +
-                '<h3>Imagem</h3>' +
-                '<button type="button" class="editor-btn editor-btn--primary" data-studio="replace" style="width:100%">Trocar imagem</button>' +
-                '<button type="button" class="editor-btn" data-studio="auto" style="width:100%;margin-top:8px">Ajustar automaticamente</button>' +
-                '<button type="button" class="editor-btn" data-studio="lock" style="width:100%;margin-top:8px">Bloquear proporção</button>' +
+              '<section class="editor-studio-group editor-studio-group--auto">' +
+                '<h3>Enquadramento</h3>' +
+                '<button type="button" class="editor-studio-auto-toggle editor-btn editor-btn--primary" data-studio="toggle-auto">' +
+                  '<span class="editor-studio-auto-check">✓</span> Ajuste Automático' +
+                '</button>' +
+                '<p class="editor-studio-auto-hint" data-studio="auto-hint">O sistema enquadra a foto por você.</p>' +
+                '<button type="button" class="editor-btn" data-studio="replace" style="width:100%;margin-top:10px">Trocar imagem</button>' +
               '</section>' +
+              '<div class="editor-studio-manual">' +
               '<section class="editor-studio-group">' +
                 '<h3>Zoom</h3>' +
                 '<div class="editor-studio-zoom-presets">' +
@@ -762,7 +973,8 @@
                 '<button type="button" class="editor-reset-btn" data-studio="reset" style="margin-top:12px">Restaurar posição original</button>' +
               '</section>' +
               '<section class="editor-studio-group">' +
-                '<h3>Enquadramento</h3>' +
+                '<h3>Corte</h3>' +
+                '<button type="button" class="editor-btn" data-studio="lock" style="width:100%;margin-bottom:10px">Bloquear proporção</button>' +
                 '<div class="editor-studio-fits">' +
                   '<button type="button" class="editor-seg-btn" data-fit="cover">Cover</button>' +
                   '<button type="button" class="editor-seg-btn" data-fit="contain">Contain</button>' +
@@ -772,6 +984,7 @@
                 '</div>' +
                 '<button type="button" class="editor-btn" data-studio="safe" style="width:100%;margin-top:10px">Área segura</button>' +
               '</section>' +
+              '</div>' +
             '</aside>' +
           '</div>' +
           '<footer class="editor-studio-foot">' +
@@ -797,6 +1010,8 @@
         if (!t) return;
         e.preventDefault();
 
+        if (self.draft && self.draft.auto && self._isManualControl(t)) return;
+
         if (t.hasAttribute('data-studio')) {
           var act = t.getAttribute('data-studio');
           if (act === 'cancel') return self.close(false);
@@ -806,14 +1021,29 @@
           if (act === 'replace') {
             return ImageEditor.pick(self.target, function () {
               self.stageImg.src = self.target.src;
-              Toast.show('Imagem trocada — ajuste o enquadramento');
+              if (self.draft.auto) {
+                ImageAutoFit.setAuto(self.target, true);
+                self._runAuto(true);
+              }
+              Toast.show('Imagem trocada');
             });
           }
-          if (act === 'auto') {
+          if (act === 'toggle-auto') {
             self.pushHistory();
-            self.draft = { zoom: 100, x: 50, y: 50, fit: 'cover', lock: true };
-            self._paint(false);
-            Toast.show('Enquadramento automático aplicado');
+            if (self.draft.auto) {
+              self._manualBackup = JSON.parse(JSON.stringify(self.draft));
+              self._manualBackup.auto = false;
+              self.draft.auto = false;
+              Toast.show('Ajuste manual ativado');
+            } else {
+              self._manualBackup = JSON.parse(JSON.stringify(self.draft));
+              self._manualBackup.auto = false;
+              self.draft.auto = true;
+              self._runAuto(true);
+              Toast.show('Ajuste Automático ativado');
+            }
+            self.applyFraming(self.target, self.draft, true);
+            self._syncControls();
             return;
           }
           if (act === 'lock') {
@@ -831,9 +1061,14 @@
           }
           if (act === 'reset') {
             self.pushHistory();
-            self.draft = JSON.parse(JSON.stringify(self.DEFAULTS));
-            self._paint(false);
-            Toast.show('Posição original restaurada');
+            if (self.draft.auto) {
+              self._runAuto(false);
+            } else {
+              self.draft = JSON.parse(JSON.stringify(self.DEFAULTS));
+              self.draft.auto = false;
+              self._paint(false);
+              Toast.show('Posição original restaurada');
+            }
             return;
           }
           if (act === 'zoom-in') {
@@ -893,19 +1128,24 @@
           self.device = t.getAttribute('data-device');
           self._syncControls();
           self._sizeStage();
+          if (self.draft && self.draft.auto) self._runAuto(true);
         }
       });
 
       var zoom = root.querySelector('[data-studio="zoom"]');
-      zoom.addEventListener('pointerdown', function () { self.pushHistory(); });
+      zoom.addEventListener('pointerdown', function () {
+        if (self.draft && self.draft.auto) return;
+        self.pushHistory();
+      });
       zoom.addEventListener('input', function () {
+        if (self.draft && self.draft.auto) return;
         self.draft.zoom = parseInt(zoom.value, 10);
         self.applyFraming(self.target, self.draft, true);
         self._syncControls();
       });
 
       function pointerDown(ev) {
-        if (!self.isOpen) return;
+        if (!self.isOpen || (self.draft && self.draft.auto)) return;
         ev.preventDefault();
         self.pushHistory();
         self.dragging = true;
@@ -975,14 +1215,21 @@
       this.target = img;
       this.snapshot = this.captureSnapshot(img);
       this.draft = this.readFrom(img);
+      this._manualBackup = this.draft.auto ? null : JSON.parse(JSON.stringify(this.draft));
       this.history = [];
       this.future = [];
       this.device = 'desktop';
       this.safeArea = true;
       this.isOpen = true;
 
+      ImageAutoFit.watch(img);
       this.stageImg.src = img.currentSrc || img.src;
-      this.applyFraming(img, this.draft, true);
+
+      if (this.draft.auto) {
+        this._runAuto(true);
+      } else {
+        this.applyFraming(img, this.draft, true);
+      }
       this._sizeStage();
       this._syncControls();
       this._syncHistoryBtns();
@@ -990,13 +1237,14 @@
       this.root.classList.add('editor-show');
       document.body.classList.add('editor-studio-open');
       selectElement(img);
-      Toast.show('Editor de imagem aberto');
+      Toast.show(this.draft.auto ? 'Ajuste Automático ativo' : 'Editor de imagem aberto');
     },
 
     close: function (commit) {
       if (!this.isOpen) return;
       if (commit) {
         this.applyFraming(this.target, this.draft, false);
+        if (this.draft.auto) ImageAutoFit.watch(this.target);
         markDirty();
         Toast.show('Enquadramento salvo — publique quando quiser');
       } else {
@@ -1009,6 +1257,7 @@
       this.target = null;
       this.snapshot = null;
       this.draft = null;
+      this._manualBackup = null;
     }
   };
 
@@ -1077,9 +1326,11 @@
           img.style.display = '';
           img.removeAttribute('aria-hidden');
           markDirty();
-          UI.positionImageOverlay(img);
-          Toast.show('Imagem atualizada');
-          if (typeof onDone === 'function') onDone(img);
+          ImageAutoFit.prepareNew(img, function () {
+            UI.positionImageOverlay(img);
+            Toast.show('Imagem atualizada — enquadrada automaticamente');
+            if (typeof onDone === 'function') onDone(img);
+          });
         });
       });
     },
@@ -1097,8 +1348,10 @@
           img.setAttribute('data-export-src', path);
           zone.classList.remove('editor-image-hover');
           markDirty();
-          Toast.show('Imagem adicionada');
-          ImageStudio.open(img);
+          ImageAutoFit.prepareNew(img, function () {
+            Toast.show('Imagem adicionada — enquadrada automaticamente');
+            ImageStudio.open(img);
+          });
         });
       });
     },
@@ -1514,7 +1767,7 @@
   }
 
   var VisualEditor = {
-    version: '2.5.0',
+    version: '2.6.0',
 
     init: function () {
       if (this._inited) return;
@@ -1528,6 +1781,7 @@
 
       TextEditor.enable();
       ImageEditor.enable();
+      ImageAutoFit.enable();
       bindSelectionEvents();
       guardNavigation();
 
