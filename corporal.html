@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
+<html lang="pt-BR"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="index, follow">
@@ -20,8 +19,8 @@
 <link rel="manifest" href="site.webmanifest">
 <meta name="theme-color" content="#a05a30">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Jost:wght@300;400;500&amp;display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = {
@@ -74,74 +73,14 @@ tailwind.config = {
   .faq-item.open .faq-a{display:block}
   .faq-item.open .faq-ic{transform:rotate(45deg)}
   .faq-ic{transition:transform .3s ease}
-
-  /* Lightbox — Resultados & Depoimentos */
-  .lb-hit{display:block;width:100%;padding:0;border:0;background:transparent;cursor:zoom-in;border-radius:inherit;overflow:hidden}
-  .lb-hit:focus-visible{outline:2px solid #8A7967;outline-offset:3px}
-  .lb-hit img{pointer-events:none}
-  .lb{
-    position:fixed;inset:0;z-index:80;
-    display:flex;align-items:center;justify-content:center;
-    padding:max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
-    background:rgba(38,34,29,0.92);
-    opacity:0;visibility:hidden;pointer-events:none;
-    transition:opacity .22s ease, visibility .22s ease;
-  }
-  .lb.is-open{opacity:1;visibility:visible;pointer-events:auto}
-  .lb__stage{
-    position:relative;width:min(960px,100%);height:min(86vh,100%);
-    display:flex;align-items:center;justify-content:center;
-  }
-  .lb__img{
-    max-width:100%;max-height:100%;
-    width:auto;height:auto;object-fit:contain;
-    border-radius:8px;box-shadow:0 18px 48px rgba(0,0,0,0.35);
-    background:#1a1714;
-  }
-  .lb__caption{
-    position:fixed;left:50%;bottom:max(16px, env(safe-area-inset-bottom));
-    transform:translateX(-50%);
-    margin:0;padding:0 16px;max-width:min(90vw,640px);
-    font-family:'Jost',sans-serif;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;
-    color:rgba(251,250,247,0.78);text-align:center;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    pointer-events:none;
-  }
-  .lb__btn{
-    appearance:none;border:0;cursor:pointer;
-    position:absolute;z-index:2;
-    width:44px;height:44px;border-radius:999px;
-    display:inline-flex;align-items:center;justify-content:center;
-    background:rgba(251,250,247,0.12);color:#FBFAF7;
-    transition:background .2s ease, transform .2s ease;
-  }
-  .lb__btn:hover{background:rgba(251,250,247,0.22)}
-  .lb__btn:active{transform:scale(0.96)}
-  .lb__btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
-  .lb__close{top:max(10px, env(safe-area-inset-top));right:max(10px, env(safe-area-inset-right))}
-  .lb__prev{left:max(8px, env(safe-area-inset-left));top:50%;transform:translateY(-50%)}
-  .lb__next{right:max(8px, env(safe-area-inset-right));top:50%;transform:translateY(-50%)}
-  .lb__prev:hover,.lb__next:hover{transform:translateY(-50%)}
-  .lb__count{
-    position:absolute;top:max(18px, env(safe-area-inset-top));left:50%;transform:translateX(-50%);
-    font-size:11px;letter-spacing:0.16em;color:rgba(251,250,247,0.55);
-  }
-  @media (max-width:640px){
-    .lb__prev{left:4px}
-    .lb__next{right:4px}
-    .lb__btn{width:40px;height:40px}
-  }
-  @media (prefers-reduced-motion: reduce){
-    .lb{transition:none}
-  }
 </style>
-</head>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Jost, sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.inset-x-0{left:0px;right:0px}.-left-\[5px\]{left:-5px}.top-0{top:0px}.top-1{top:0.25rem}.z-40{z-index:40}.mx-auto{margin-left:auto;margin-right:auto}.mt-1{margin-top:0.25rem}.mt-1\.5{margin-top:0.375rem}.mt-10{margin-top:2.5rem}.mt-12{margin-top:3rem}.mt-2{margin-top:0.5rem}.mt-3{margin-top:0.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.mt-6{margin-top:1.5rem}.mt-7{margin-top:1.75rem}.mt-8{margin-top:2rem}.mt-9{margin-top:2.25rem}.block{display:block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-14{height:3.5rem}.h-\[9px\]{height:9px}.h-full{height:100%}.w-\[9px\]{width:9px}.w-full{width:100%}.max-w-2xl{max-width:42rem}.max-w-3xl{max-width:48rem}.max-w-5xl{max-width:64rem}.max-w-6xl{max-width:72rem}.max-w-xs{max-width:20rem}.shrink-0{flex-shrink:0}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-10{gap:2.5rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.gap-6{gap:1.5rem}.space-y-0 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0px * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0px * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.divide-y > :not([hidden]) ~ :not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px * var(--tw-divide-y-reverse))}.divide-line > :not([hidden]) ~ :not([hidden]){--tw-divide-opacity:1;border-color:rgb(231 225 214 / var(--tw-divide-opacity, 1))}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-y{border-top-width:1px;border-bottom-width:1px}.border-b{border-bottom-width:1px}.border-l{border-left-width:1px}.border-l-2{border-left-width:2px}.border-deep{--tw-border-opacity:1;border-color:rgb(58 52 43 / var(--tw-border-opacity, 1))}.border-line{--tw-border-opacity:1;border-color:rgb(231 225 214 / var(--tw-border-opacity, 1))}.border-paper\/20{border-color:rgb(251 250 247 / 0.2)}.border-taupe{--tw-border-opacity:1;border-color:rgb(138 121 103 / var(--tw-border-opacity, 1))}.border-taupe\/40{border-color:rgb(138 121 103 / 0.4)}.bg-deep{--tw-bg-opacity:1;background-color:rgb(58 52 43 / var(--tw-bg-opacity, 1))}.bg-linen{--tw-bg-opacity:1;background-color:rgb(243 239 231 / var(--tw-bg-opacity, 1))}.bg-paper{--tw-bg-opacity:1;background-color:rgb(251 250 247 / var(--tw-bg-opacity, 1))}.bg-paper\/5{background-color:rgb(251 250 247 / 0.05)}.bg-paper\/80{background-color:rgb(251 250 247 / 0.8)}.bg-taupe{--tw-bg-opacity:1;background-color:rgb(138 121 103 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.object-cover{object-fit:cover}.p-1\.5{padding:0.375rem}.p-2{padding:0.5rem}.p-5{padding:1.25rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.px-7{padding-left:1.75rem;padding-right:1.75rem}.px-8{padding-left:2rem;padding-right:2rem}.px-9{padding-left:2.25rem;padding-right:2.25rem}.py-14{padding-top:3.5rem;padding-bottom:3.5rem}.py-16{padding-top:4rem;padding-bottom:4rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-3\.5{padding-top:0.875rem;padding-bottom:0.875rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-5{padding-top:1.25rem;padding-bottom:1.25rem}.pb-12{padding-bottom:3rem}.pb-2{padding-bottom:0.5rem}.pb-5{padding-bottom:1.25rem}.pb-8{padding-bottom:2rem}.pl-6{padding-left:1.5rem}.pl-8{padding-left:2rem}.pt-14{padding-top:3.5rem}.text-left{text-align:left}.text-center{text-align:center}.font-sans{font-family:Jost, sans-serif}.font-serif{font-family:"Cormorant Garamond", serif}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-6xl{font-size:3.75rem;line-height:1}.text-\[10px\]{font-size:10px}.text-\[15px\]{font-size:15px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-light{font-weight:300}.font-medium{font-weight:500}.font-normal{font-weight:400}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.leading-tight{line-height:1.25}.tracking-\[0\.12em\]{letter-spacing:0.12em}.tracking-\[0\.15em\]{letter-spacing:0.15em}.tracking-\[0\.25em\]{letter-spacing:0.25em}.tracking-\[0\.2em\]{letter-spacing:0.2em}.tracking-\[0\.35em\]{letter-spacing:0.35em}.tracking-\[0\.3em\]{letter-spacing:0.3em}.tracking-tight{letter-spacing:-0.025em}.tracking-wide{letter-spacing:0.025em}.text-deep{--tw-text-opacity:1;color:rgb(58 52 43 / var(--tw-text-opacity, 1))}.text-ink{--tw-text-opacity:1;color:rgb(38 34 29 / var(--tw-text-opacity, 1))}.text-muted{--tw-text-opacity:1;color:rgb(126 115 101 / var(--tw-text-opacity, 1))}.text-paper{--tw-text-opacity:1;color:rgb(251 250 247 / var(--tw-text-opacity, 1))}.text-paper\/70{color:rgb(251 250 247 / 0.7)}.text-taupe{--tw-text-opacity:1;color:rgb(138 121 103 / var(--tw-text-opacity, 1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.hover\:bg-deep:hover{--tw-bg-opacity:1;background-color:rgb(58 52 43 / var(--tw-bg-opacity, 1))}.hover\:bg-linen:hover{--tw-bg-opacity:1;background-color:rgb(243 239 231 / var(--tw-bg-opacity, 1))}.hover\:bg-paper\/10:hover{background-color:rgb(251 250 247 / 0.1)}.hover\:bg-taupe:hover{--tw-bg-opacity:1;background-color:rgb(138 121 103 / var(--tw-bg-opacity, 1))}.hover\:text-ink:hover{--tw-text-opacity:1;color:rgb(38 34 29 / var(--tw-text-opacity, 1))}.hover\:text-paper:hover{--tw-text-opacity:1;color:rgb(251 250 247 / var(--tw-text-opacity, 1))}@media (min-width: 640px){.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}}@media (min-width: 768px){.md\:grid{display:grid}.md\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.md\:grid-cols-\[1fr_minmax\(0\2c 320px\)\]{grid-template-columns:1fr minmax(0,320px)}.md\:grid-cols-\[minmax\(0\2c 280px\)_1fr\]{grid-template-columns:minmax(0,280px) 1fr}.md\:gap-14{gap:3.5rem}.md\:gap-6{gap:1.5rem}.md\:py-20{padding-top:5rem;padding-bottom:5rem}.md\:py-24{padding-top:6rem;padding-bottom:6rem}.md\:pt-24{padding-top:6rem}.md\:text-center{text-align:center}.md\:text-4xl{font-size:2.25rem;line-height:2.5rem}.md\:text-7xl{font-size:4.5rem;line-height:1}.md\:text-\[2\.6rem\]{font-size:2.6rem}.md\:text-base{font-size:1rem;line-height:1.5rem}}@media (min-width: 1024px){.lg\:flex{display:flex}.lg\:hidden{display:none}}</style></head>
 <body class="bg-paper text-ink font-sans font-light antialiased pt-14">
 
 <!-- CABEÇALHO FIXO -->
 <header class="fixed top-0 inset-x-0 z-40 h-14 bg-paper/80 backdrop-blur border-b border-line">
   <div class="max-w-6xl mx-auto h-full px-5 flex items-center justify-between gap-4">
-    <a href="index.html" class="back-vitrine back-vitrine--taupe" aria-label="Voltar para a vitrine" title="Voltar para a vitrine"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 18l-6-6 6-6"/></svg></a>
+    <a href="index.html" class="back-vitrine back-vitrine--taupe" aria-label="Voltar para a vitrine" title="Voltar para a vitrine"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 18l-6-6 6-6"></path></svg></a>
     <nav class="hidden lg:flex items-center gap-6 text-xs tracking-[0.15em] uppercase text-muted" aria-label="Seções da página">
       <a href="#tratamento" class="hover:text-ink transition-colors">Tratamento</a>
       <a href="#porque" class="hover:text-ink transition-colors">Por que funciona</a>
@@ -158,19 +97,19 @@ tailwind.config = {
   <!-- HERO -->
   <section class="px-6 pt-14 md:pt-24 pb-12 text-center" aria-label="Apresentação">
     <div class="max-w-3xl mx-auto">
-      <p class="text-[10px] tracking-[0.35em] uppercase text-taupe js-reveal">Estética &amp; Saúde Integrativa</p>
-      <p class="mt-4 font-serif italic text-lg text-muted js-reveal">Seja bem-vinda ao Kit Skin Care Corporal</p>
-      <h1 class="mt-2 font-serif text-6xl md:text-7xl font-medium tracking-tight js-reveal">Corporal</h1>
-      <p class="mt-3 text-sm tracking-[0.25em] uppercase text-muted js-reveal">Tratamento Integrativo e Regenerativo de Estrias</p>
-      <div class="mt-8 space-y-4 text-[15px] md:text-base leading-relaxed text-muted text-left md:text-center js-reveal">
+      <p class="text-[10px] tracking-[0.35em] uppercase text-taupe js-reveal is-in">Estética &amp; Saúde Integrativa</p>
+      <p class="mt-4 font-serif italic text-lg text-muted js-reveal is-in">Seja bem-vinda ao Kit Skin Care Corporal</p>
+      <h1 class="mt-2 font-serif text-6xl md:text-7xl font-medium tracking-tight js-reveal is-in">Corporal</h1>
+      <p class="mt-3 text-sm tracking-[0.25em] uppercase text-muted js-reveal is-in">Tratamento Integrativo e Regenerativo de Estrias</p>
+      <div class="mt-8 space-y-4 text-[15px] md:text-base leading-relaxed text-muted text-left md:text-center js-reveal is-in">
         <p>Você merece se sentir linda, confiante e confortável em sua própria pele. As estrias têm afetado a sua autoestima e você está cansada de esconder seu corpo? Não se preocupe, nós temos a solução perfeita para você!</p>
         <p>Apresentamos o Tratamento de Regeneração Corporal, um método 100% natural e eficaz que vai transformar sua pele e fazer você se sentir incrível novamente.</p>
       </div>
-      <div class="cta-row mt-8 js-reveal">
+      <div class="cta-row mt-8 js-reveal is-in">
         <a href="https://wa.me/5511982899981?text=Ol%C3%A1!%20Gostaria%20de%20agendar%20uma%20avalia%C3%A7%C3%A3o%20do%20Tratamento%20Corporal." target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-deep text-paper text-sm tracking-wide px-8 py-4 rounded-full hover:bg-taupe transition-colors"><span>Agendar minha avaliação</span><span aria-hidden="true">→</span></a>
       </div>
-      <div class="mt-12 media-frame media-frame--wide border border-line bg-white p-2 max-w-2xl mx-auto js-reveal">
-        <img src="images/3-detalhe-de-pele-do-corpo.png" alt="Kit Skin Care Corporal — tratamento natural de estrias" class="w-full object-cover" loading="eager">
+      <div class="mt-12 media-frame media-frame--wide border border-line bg-white p-2 max-w-2xl mx-auto js-reveal is-in">
+        <img src="images/10-22asdazsd2.png" alt="Kit Skin Care Corporal — tratamento natural de estrias" class="w-full object-cover" loading="eager" data-img-zoom="100" data-img-x="59.7" data-img-y="55.8" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(27.1425% 0% 21.4813%);">
       </div>
     </div>
   </section>
@@ -180,14 +119,14 @@ tailwind.config = {
   <!-- TRATAMENTO -->
   <section id="tratamento" class="px-6 py-14 md:py-20" aria-label="O tratamento">
     <div class="max-w-3xl mx-auto">
-      <p class="text-[10px] tracking-[0.3em] uppercase text-taupe js-reveal">O Tratamento</p>
-      <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium js-reveal">Regeneração Tecidual de Alta Performance</h2>
-      <div class="mt-7 space-y-5 text-[15px] md:text-base leading-relaxed text-muted js-reveal">
+      <p class="text-[10px] tracking-[0.3em] uppercase text-taupe js-reveal is-in">O Tratamento</p>
+      <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium js-reveal is-in">Regeneração Tecidual de Alta Performance</h2>
+      <div class="mt-7 space-y-5 text-[15px] md:text-base leading-relaxed text-muted js-reveal is-in">
         <p>O meu Tratamento de Regeneração Tecidual é uma abordagem de alta performance que une o estímulo dérmico manual à Estética Integrativa.</p>
         <p>Além de reorganizar as fibras de colágeno, suavizar a textura e devolver a coloração da pele, atuamos no equilíbrio do seu terreno biológico, para uma regeneração profunda, real e duradoura.</p>
         <p>Seguro para qualquer cor de pele e eficaz em todos os tipos de estrias. Sem pigmento, sem ácido, apenas estímulo real de colágeno, elastina e melanina, com melhora de <strong class="text-ink font-normal">70% a 90%</strong>.</p>
       </div>
-      <ul class="mt-8 grid sm:grid-cols-2 gap-3 text-sm text-muted js-reveal">
+      <ul class="mt-8 grid sm:grid-cols-2 gap-3 text-sm text-muted js-reveal is-in">
         <li class="bg-linen border border-line rounded-xl px-4 py-3">Melhora da cor, profundidade e largura das estrias</li>
         <li class="bg-linen border border-line rounded-xl px-4 py-3">Estímulo massivo na produção de colágeno</li>
         <li class="bg-linen border border-line rounded-xl px-4 py-3">Melhora da flacidez</li>
@@ -200,21 +139,21 @@ tailwind.config = {
   <section id="porque" class="px-6 py-14 md:py-20 bg-linen border-y border-line" aria-label="Por que funciona">
     <div class="max-w-5xl mx-auto">
       <div class="max-w-3xl">
-        <p class="text-[10px] tracking-[0.3em] uppercase text-taupe js-reveal">Diferencial</p>
-        <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium js-reveal">Por que funciona tão bem?</h2>
-        <div class="mt-7 space-y-5 text-[15px] md:text-base leading-relaxed text-muted js-reveal">
+        <p class="text-[10px] tracking-[0.3em] uppercase text-taupe js-reveal is-in">Diferencial</p>
+        <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium js-reveal is-in">Por que funciona tão bem?</h2>
+        <div class="mt-7 space-y-5 text-[15px] md:text-base leading-relaxed text-muted js-reveal is-in">
           <p>Transformar pele é fácil. Transformar o terreno que sustenta essa pele é o meu diferencial.</p>
           <p>Inflamação, deficiências nutricionais e desequilíbrios intestinais dificultam a cicatrização e regeneração da pele.</p>
           <p>Por isso, eu avalio seu terreno biológico, identifico o que pode impedir sua pele de regenerar e ajusto com suplementação e orientações integrativas personalizadas.</p>
         </div>
-        <blockquote class="mt-8 font-serif italic text-2xl leading-snug text-deep border-l-2 border-taupe pl-6 js-reveal">Quando o corpo volta a funcionar como deveria, os resultados aparecem de forma muito mais rápida e intensa.</blockquote>
+        <blockquote class="mt-8 font-serif italic text-2xl leading-snug text-deep border-l-2 border-taupe pl-6 js-reveal is-in">Quando o corpo volta a funcionar como deveria, os resultados aparecem de forma muito mais rápida e intensa.</blockquote>
       </div>
-      <p class="mt-12 text-[10px] tracking-[0.3em] uppercase text-taupe js-reveal">Por dentro da abordagem</p>
-      <div class="mt-6 grid sm:grid-cols-2 gap-6 max-w-3xl js-reveal">
-        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/3-detalhe-de-pele-do-corpo.png" alt="Suplementação integrativa para saúde da pele" class="w-full object-cover" loading="lazy"></div>
-        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/5-detalhe-de-pele-do-corpo-1-.png" alt="Alimentação e equilíbrio biológico" class="w-full object-cover" loading="lazy"></div>
+      <p class="mt-12 text-[10px] tracking-[0.3em] uppercase text-taupe js-reveal is-in">Por dentro da abordagem</p>
+      <div class="mt-6 grid sm:grid-cols-2 gap-6 max-w-3xl js-reveal is-in">
+        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/11-22asdazsd2.png" alt="Suplementação integrativa para saúde da pele" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="61.5" data-img-y="59.4" data-img-fit="cover" data-img-lock="1" data-img-auto="1" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(25.4085% 0% 17.3848%);"></div>
+        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/12-22asdazsd2.png" alt="Alimentação e equilíbrio biológico" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="61.5" data-img-y="59.4" data-img-fit="cover" data-img-lock="1" data-img-auto="1" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(25.4085% 0% 17.3848%);"></div>
       </div>
-      <div class="mt-8 max-w-3xl space-y-4 text-[15px] md:text-base leading-relaxed text-muted js-reveal">
+      <div class="mt-8 max-w-3xl space-y-4 text-[15px] md:text-base leading-relaxed text-muted js-reveal is-in">
         <p>A abordagem integrativa avalia o organismo como um todo, não apenas a pele.</p>
         <p>Identificamos bloqueios metabólicos, inflamações silenciosas e deficiências que impedem a regeneração real, corrigindo-os antes e durante o tratamento.</p>
         <p>Isso garante que cada sessão seja mais eficaz, e que os resultados durem muito além do esperado.</p>
@@ -225,40 +164,40 @@ tailwind.config = {
   <!-- PRODUTOS -->
   <section class="px-6 py-14 md:py-20" aria-label="Os produtos">
     <div class="max-w-3xl mx-auto text-center">
-      <p class="text-[10px] tracking-[0.3em] uppercase text-taupe js-reveal">Tecnologia Regenerativa</p>
-      <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium js-reveal">Os Produtos: Biotecnológicos e Nanoparticulados</h2>
-      <p class="mt-5 text-[15px] md:text-base leading-relaxed text-muted max-w-2xl mx-auto js-reveal">Ricos em fatores de crescimento, peptídeos e ativos regeneradores dérmicos. Os ativos de máxima performance na estética regenerativa, os mais atuais.</p>
+      <p class="text-[10px] tracking-[0.3em] uppercase text-taupe js-reveal is-in">Tecnologia Regenerativa</p>
+      <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium js-reveal is-in">Os Produtos: Biotecnológicos e Nanoparticulados</h2>
+      <p class="mt-5 text-[15px] md:text-base leading-relaxed text-muted max-w-2xl mx-auto js-reveal is-in">Ricos em fatores de crescimento, peptídeos e ativos regeneradores dérmicos. Os ativos de máxima performance na estética regenerativa, os mais atuais.</p>
     </div>
   </section>
 
   <!-- PROCESSO -->
   <section id="processo" class="px-6 py-14 md:py-20 bg-linen border-y border-line" aria-label="Como funciona o processo">
     <div class="max-w-3xl mx-auto">
-      <p class="text-[10px] tracking-[0.3em] uppercase text-taupe js-reveal">Passo a Passo</p>
-      <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium js-reveal">Como funciona o processo?</h2>
+      <p class="text-[10px] tracking-[0.3em] uppercase text-taupe js-reveal is-in">Passo a Passo</p>
+      <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium js-reveal is-in">Como funciona o processo?</h2>
       <ol class="mt-9 space-y-0">
-        <li class="js-reveal relative pl-8 pb-8 border-l border-taupe/40">
+        <li class="js-reveal relative pl-8 pb-8 border-l border-taupe/40 is-in">
           <span class="absolute -left-[5px] top-1 w-[9px] h-[9px] rounded-full bg-taupe" aria-hidden="true"></span>
           <h3 class="font-serif text-xl font-medium">Avaliação Integrativa</h3>
           <p class="mt-1.5 text-[15px] leading-relaxed text-muted">Análise da pele + anamnese integrativa + rastreamento metabólico e inflamatório</p>
         </li>
-        <li class="js-reveal relative pl-8 pb-8 border-l border-taupe/40">
+        <li class="js-reveal relative pl-8 pb-8 border-l border-taupe/40 is-in">
           <span class="absolute -left-[5px] top-1 w-[9px] h-[9px] rounded-full bg-taupe" aria-hidden="true"></span>
           <h3 class="font-serif text-xl font-medium">Preparação da Pele e do Organismo</h3>
           <p class="mt-1.5 text-[15px] leading-relaxed text-muted">Ajustes essenciais para melhorar resposta ao procedimento.</p>
         </li>
-        <li class="js-reveal relative pl-8 pb-8 border-l border-taupe/40">
+        <li class="js-reveal relative pl-8 pb-8 border-l border-taupe/40 is-in">
           <span class="absolute -left-[5px] top-1 w-[9px] h-[9px] rounded-full bg-taupe" aria-hidden="true"></span>
           <h3 class="font-serif text-xl font-medium">Sessão do Tratamento</h3>
           <p class="mt-1.5 text-[15px] leading-relaxed text-muted">Técnica personalizada para cada tipo de estria e pele.</p>
         </li>
-        <li class="js-reveal relative pl-8">
+        <li class="js-reveal relative pl-8 is-in">
           <span class="absolute -left-[5px] top-1 w-[9px] h-[9px] rounded-full bg-taupe" aria-hidden="true"></span>
           <h3 class="font-serif text-xl font-medium">Pós e Suporte</h3>
           <p class="mt-1.5 text-[15px] leading-relaxed text-muted">Acompanhamento + cuidados individualizados.</p>
         </li>
       </ol>
-      <div class="cta-row mt-10 js-reveal">
+      <div class="cta-row mt-10 js-reveal is-in">
         <a href="https://wa.me/5511982899981?text=Ol%C3%A1!%20Gostaria%20de%20agendar%20uma%20avalia%C3%A7%C3%A3o%20do%20Tratamento%20Corporal." target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-deep text-paper text-sm tracking-wide px-8 py-4 rounded-full hover:bg-taupe transition-colors"><span>Começar pela avaliação</span><span aria-hidden="true">→</span></a>
       </div>
     </div>
@@ -267,7 +206,7 @@ tailwind.config = {
   <!-- QUEM SOU EU -->
   <section class="px-6 py-14 md:py-20" aria-label="Quem sou eu">
     <div class="max-w-5xl mx-auto grid md:grid-cols-[1fr_minmax(0,320px)] gap-10 md:gap-14 items-center">
-      <div class="js-reveal">
+      <div class="js-reveal is-in">
         <p class="text-[10px] tracking-[0.3em] uppercase text-taupe">A Profissional</p>
         <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium">Quem sou eu?</h2>
         <p class="mt-2 font-serif italic text-lg text-muted">Especialista em tratar a pele de dentro para fora.</p>
@@ -278,9 +217,9 @@ tailwind.config = {
         </div>
         <blockquote class="mt-7 font-serif italic text-xl leading-snug text-deep border-l-2 border-taupe pl-6">Minha missão é simples: cuidar da sua pele com profundidade, responsabilidade e muita seriedade, sempre respeitando a individualidade de cada corpo.</blockquote>
       </div>
-      <div class="js-reveal">
+      <div class="js-reveal is-in">
         <div class="media-frame media-frame--portrait border border-line bg-white p-2 max-w-xs mx-auto">
-          <img src="images/1-46.png" alt="Kelly Regina Ferreira Correia — Terapeuta Naturalista Integrativa" class="w-full object-cover" loading="lazy">
+          <img src="images/13-63.png" alt="Kelly Regina Ferreira Correia — Terapeuta Naturalista Integrativa" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="41.6" data-img-y="22.4" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(6.5419% 0% 22.68%);">
         </div>
       </div>
     </div>
@@ -289,75 +228,33 @@ tailwind.config = {
   <!-- RESULTADOS -->
   <section id="resultados" class="px-6 py-14 md:py-20 bg-linen border-y border-line" aria-label="Resultados">
     <div class="max-w-5xl mx-auto">
-      <p class="text-[10px] tracking-[0.3em] uppercase text-taupe text-center js-reveal">Antes &amp; Depois</p>
-      <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium text-center js-reveal">Resultados</h2>
-      <p class="mt-4 text-center text-sm text-muted js-reveal">Atenção: Seu corpo, sua resposta. Cada organismo é único e responde de uma forma diferente.</p>
-      <div class="mt-10 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6" data-lb-gallery="resultados">
-        <figure class="js-reveal">
-          <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 lb-hit" data-lb-src="images/1-foto-1.jpg" data-lb-alt="Resultado após 2 sessões de tratamento de estrias" data-lb-caption="2 sessões" aria-label="Ampliar foto: 2 sessões">
-            <img src="images/1-foto-1.jpg" alt="Resultado após 2 sessões de tratamento de estrias" class="w-full object-cover" loading="lazy">
-          </button>
-          <figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>2 sessões</span></figcaption>
-        </figure>
-        <figure class="js-reveal">
-          <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 lb-hit" data-lb-src="images/1-foto2.jpg" data-lb-alt="Resultado após 1 sessão de tratamento de estrias" data-lb-caption="1 sessão" aria-label="Ampliar foto: 1 sessão">
-            <img src="images/1-foto2.jpg" alt="Resultado após 1 sessão de tratamento de estrias" class="w-full object-cover" loading="lazy">
-          </button>
-          <figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>1 sessão</span></figcaption>
-        </figure>
-        <figure class="js-reveal">
-          <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 lb-hit" data-lb-src="images/2-foto-1.jpg" data-lb-alt="Resultado após 1 sessão de tratamento de estrias" data-lb-caption="1 sessão" aria-label="Ampliar foto: 1 sessão">
-            <img src="images/2-foto-1.jpg" alt="Resultado após 1 sessão de tratamento de estrias" class="w-full object-cover" loading="lazy">
-          </button>
-          <figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>1 sessão</span></figcaption>
-        </figure>
-        <figure class="js-reveal">
-          <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 lb-hit" data-lb-src="images/3-detalhe-de-pele-do-corpo.png" data-lb-alt="Resultado após 3 sessões de tratamento de estrias" data-lb-caption="3 sessões" aria-label="Ampliar foto: 3 sessões">
-            <img src="images/3-detalhe-de-pele-do-corpo.png" alt="Resultado após 3 sessões de tratamento de estrias" class="w-full object-cover" loading="lazy">
-          </button>
-          <figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>3 sessões</span></figcaption>
-        </figure>
-        <figure class="js-reveal">
-          <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 lb-hit" data-lb-src="images/2-foto-1.jpg" data-lb-alt="Resultado após 1 sessão de tratamento de estrias" data-lb-caption="1 sessão" aria-label="Ampliar foto: 1 sessão">
-            <img src="images/2-foto-1.jpg" alt="Resultado após 1 sessão de tratamento de estrias" class="w-full object-cover" loading="lazy">
-          </button>
-          <figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>1 sessão</span></figcaption>
-        </figure>
-        <figure class="js-reveal">
-          <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 lb-hit" data-lb-src="images/5-detalhe-de-pele-do-corpo-1-.png" data-lb-alt="Resultado após 1 sessão de tratamento de estrias, ainda em cicatrização" data-lb-caption="1 sessão (ainda em cicatrização)" aria-label="Ampliar foto: 1 sessão (ainda em cicatrização)">
-            <img src="images/5-detalhe-de-pele-do-corpo-1-.png" alt="Resultado após 1 sessão de tratamento de estrias, ainda em cicatrização" class="w-full object-cover" loading="lazy">
-          </button>
-          <figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>1 sessão (ainda em cicatrização)</span></figcaption>
-        </figure>
+      <p class="text-[10px] tracking-[0.3em] uppercase text-taupe text-center js-reveal is-in">Antes &amp; Depois</p>
+      <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium text-center js-reveal is-in">Resultados</h2>
+      <p class="mt-4 text-center text-sm text-muted js-reveal is-in">Atenção: Seu corpo, sua resposta. Cada organismo é único e responde de uma forma diferente.</p>
+      <div class="mt-10 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+        <figure class="js-reveal is-in"><div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/14-22asdazsd2.png" alt="Resultado após 2 sessões de tratamento de estrias" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="61.5" data-img-y="59.4" data-img-fit="cover" data-img-lock="1" data-img-auto="1" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(20.2753% 0% 13.8726%);"></div><figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>2 sessões</span></figcaption></figure>
+        <figure class="js-reveal is-in"><div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/15-22asdazsd2.png" alt="Resultado após 1 sessão de tratamento de estrias" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="61.5" data-img-y="59.4" data-img-fit="cover" data-img-lock="1" data-img-auto="1" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(20.2753% 0% 13.8726%);"></div><figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>1 sessão</span></figcaption></figure>
+        <figure class="js-reveal is-in"><div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/16-detalhe-de-pele-do-corpo.png" alt="Resultado após 1 sessão de tratamento de estrias" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="50" data-img-y="50" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(17.074% 0%);"></div><figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>1 sessão</span></figcaption></figure>
+        <figure class="js-reveal is-in"><div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/17-22asdazsd2.png" alt="Resultado após 3 sessões de tratamento de estrias" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="61.5" data-img-y="59.4" data-img-fit="cover" data-img-lock="1" data-img-auto="1" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(20.2753% 0% 13.8726%);"></div><figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>3 sessões</span></figcaption></figure>
+        <figure class="js-reveal is-in"><div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/18-22asdazsd2.png" alt="Resultado após 1 sessão de tratamento de estrias" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="61.5" data-img-y="59.4" data-img-fit="cover" data-img-lock="1" data-img-auto="1" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(20.2753% 0% 13.8726%);"></div><figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>1 sessão</span></figcaption></figure>
+        <figure class="js-reveal is-in"><div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/19-22asdazsd2.png" alt="Resultado após 1 sessão de tratamento de estrias, ainda em cicatrização" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="61.5" data-img-y="59.4" data-img-fit="cover" data-img-lock="1" data-img-auto="1" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(20.2753% 0% 13.8726%);"></div><figcaption class="mt-2 text-center text-xs tracking-[0.2em] uppercase text-muted"><span>1 sessão (ainda em cicatrização)</span></figcaption></figure>
       </div>
     </div>
   </section>
 
   <!-- DEPOIMENTOS -->
-  <section id="depoimentos" class="px-6 py-14 md:py-20" aria-label="Depoimentos">
+  <section class="px-6 py-14 md:py-20" aria-label="Depoimentos">
     <div class="max-w-5xl mx-auto">
-      <p class="text-[10px] tracking-[0.3em] uppercase text-taupe text-center js-reveal">Clientes Reais</p>
-      <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium text-center js-reveal">Depoimentos Reais</h2>
-      <p class="mt-4 text-center text-[15px] text-muted max-w-2xl mx-auto js-reveal">Nossas clientes estão encantadas com os resultados do Tratamento. Veja o que elas têm a dizer:</p>
-      <div class="mt-10 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6" data-lb-gallery="depoimentos">
-        <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal lb-hit" data-lb-src="images/1-foto-1.jpg" data-lb-alt="Depoimento de cliente satisfeita com o tratamento" aria-label="Ampliar depoimento 1">
-          <img src="images/1-foto-1.jpg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy">
-        </button>
-        <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal lb-hit" data-lb-src="images/1-foto2.jpg" data-lb-alt="Depoimento de cliente satisfeita com o tratamento" aria-label="Ampliar depoimento 2">
-          <img src="images/1-foto2.jpg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy">
-        </button>
-        <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal lb-hit" data-lb-src="images/2-foto-1.jpg" data-lb-alt="Depoimento de cliente satisfeita com o tratamento" aria-label="Ampliar depoimento 3">
-          <img src="images/2-foto-1.jpg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy">
-        </button>
-        <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal lb-hit" data-lb-src="images/1-10.png" data-lb-alt="Depoimento de cliente satisfeita com o tratamento" aria-label="Ampliar depoimento 4">
-          <img src="images/1-10.png" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy">
-        </button>
-        <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal lb-hit" data-lb-src="images/6-21.png" data-lb-alt="Depoimento de cliente satisfeita com o tratamento" aria-label="Ampliar depoimento 5">
-          <img src="images/6-21.png" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy">
-        </button>
-        <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal lb-hit" data-lb-src="images/1-foto-1.jpg" data-lb-alt="Depoimento de cliente satisfeita com o tratamento" aria-label="Ampliar depoimento 6">
-          <img src="images/1-foto-1.jpg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy">
-        </button>
+      <p class="text-[10px] tracking-[0.3em] uppercase text-taupe text-center js-reveal is-in">Clientes Reais</p>
+      <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium text-center js-reveal is-in">Depoimentos Reais</h2>
+      <p class="mt-4 text-center text-[15px] text-muted max-w-2xl mx-auto js-reveal is-in">Nossas clientes estão encantadas com os resultados do Tratamento. Veja o que elas têm a dizer:</p>
+      <div class="mt-10 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal is-in"><img src="images/1-whatsapp-image-2026-07-23-at-22.06.38-3-.jpeg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="88.5" data-img-y="92" data-img-fit="cover" data-img-lock="1" data-img-auto="1" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(57.0696% 0% 4.9626%);"></div>
+        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal is-in"><img src="images/2-whatsapp-image-2026-07-23-at-22.06.38.jpeg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="50" data-img-y="21.3" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(13.2128% 0% 48.8193%);"></div>
+        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal is-in"><img src="images/3-whatsapp-image-2026-07-23-at-22.06.39-1-.jpeg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="32.3" data-img-y="11.5" data-img-fit="cover" data-img-lock="1" data-img-auto="1" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(7.214% 0% 55.7442%);"></div>
+        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal is-in"><img src="images/4-whatsapp-image-2026-07-23-at-22.06.39-3-.jpeg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="84.4" data-img-y="11.5" data-img-fit="cover" data-img-lock="1" data-img-auto="1" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(7.214% 0% 55.7442%);"></div>
+        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal is-in"><img src="images/5-whatsapp-image-2026-07-23-at-22.06.39.jpeg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="33.3" data-img-y="11.5" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(7.2447% 0% 55.7526%);"></div>
+        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5 js-reveal is-in"><img src="images/6-whatsapp-image-2026-07-23-at-22.06.40-1-.jpeg" alt="Depoimento de cliente satisfeita com o tratamento" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="29" data-img-y="50" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(31.4995% 0%);"></div>
       </div>
     </div>
   </section>
@@ -365,41 +262,41 @@ tailwind.config = {
   <!-- FAQ -->
   <section id="faq" class="px-6 py-14 md:py-20 bg-linen border-y border-line" aria-label="Perguntas frequentes">
     <div class="max-w-5xl mx-auto grid md:grid-cols-[minmax(0,280px)_1fr] gap-10 items-start">
-      <div class="hidden md:grid gap-5 js-reveal" aria-hidden="true">
-        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/3-detalhe-de-pele-do-corpo.png" alt="Ilustração tratamento de estrias" class="w-full object-cover" loading="lazy"></div>
-        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/5-detalhe-de-pele-do-corpo-1-.png" alt="Resultado do tratamento regenerativo" class="w-full object-cover" loading="lazy"></div>
-        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/3-detalhe-de-pele-do-corpo.png" alt="Estética integrativa e suplementação" class="w-full object-cover" loading="lazy"></div>
+      <div class="hidden md:grid gap-5 js-reveal is-in" aria-hidden="true">
+        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/7-10.png" alt="Ilustração tratamento de estrias" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="71.9" data-img-y="42.7" data-img-fit="cover" data-img-lock="1" data-img-auto="1" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(19.588% 0% 26.2766%);"></div>
+        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/8-70.png" alt="Resultado do tratamento regenerativo" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="33.3" data-img-y="25.3" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(11.5898% 0% 34.2749%);"></div>
+        <div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/9-59.png" alt="Estética integrativa e suplementação" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="56.4" data-img-y="8.2" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: fill; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(3.739% 0% 42.1256%);"></div>
       </div>
       <div>
-        <p class="text-[10px] tracking-[0.3em] uppercase text-taupe js-reveal">Tire suas dúvidas</p>
-        <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium js-reveal">Perguntas Frequentes</h2>
-        <div class="mt-8 divide-y divide-line border-y border-line js-reveal">
+        <p class="text-[10px] tracking-[0.3em] uppercase text-taupe js-reveal is-in">Tire suas dúvidas</p>
+        <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium js-reveal is-in">Perguntas Frequentes</h2>
+        <div class="mt-8 divide-y divide-line border-y border-line js-reveal is-in">
           <div class="faq-item">
-            <button class="faq-q w-full flex items-center justify-between gap-4 py-5 text-left" aria-expanded="false"><span class="text-[15px] md:text-base">Quanto tempo dura o resultado?</span><span class="faq-ic text-taupe text-xl shrink-0" aria-hidden="true">+</span></button>
-            <div class="faq-a pb-5"><p class="text-[15px] leading-relaxed text-muted">Definitivo, desde que a pele e o organismo sejam cuidados e não ocorram novos fatores que gerem novas estrias.</p></div>
+            <button class="faq-q w-full flex items-center justify-between gap-4 py-5 text-left" aria-expanded="false" id="faq-btn-0" aria-controls="faq-panel-0"><span class="text-[15px] md:text-base">Quanto tempo dura o resultado?</span><span class="faq-ic text-taupe text-xl shrink-0" aria-hidden="true">+</span></button>
+            <div class="faq-a pb-5" id="faq-panel-0" role="region" aria-labelledby="faq-btn-0"><p class="text-[15px] leading-relaxed text-muted">Definitivo, desde que a pele e o organismo sejam cuidados e não ocorram novos fatores que gerem novas estrias.</p></div>
           </div>
           <div class="faq-item">
-            <button class="faq-q w-full flex items-center justify-between gap-4 py-5 text-left" aria-expanded="false"><span class="text-[15px] md:text-base">Usa tinta/camuflagem ou ácidos?</span><span class="faq-ic text-taupe text-xl shrink-0" aria-hidden="true">+</span></button>
-            <div class="faq-a pb-5"><p class="text-[15px] leading-relaxed text-muted">Não. O método estimula colágeno e melanina de forma natural.</p></div>
+            <button class="faq-q w-full flex items-center justify-between gap-4 py-5 text-left" aria-expanded="false" id="faq-btn-1" aria-controls="faq-panel-1"><span class="text-[15px] md:text-base">Usa tinta/camuflagem ou ácidos?</span><span class="faq-ic text-taupe text-xl shrink-0" aria-hidden="true">+</span></button>
+            <div class="faq-a pb-5" id="faq-panel-1" role="region" aria-labelledby="faq-btn-1"><p class="text-[15px] leading-relaxed text-muted">Não. O método estimula colágeno e melanina de forma natural.</p></div>
           </div>
           <div class="faq-item">
-            <button class="faq-q w-full flex items-center justify-between gap-4 py-5 text-left" aria-expanded="false"><span class="text-[15px] md:text-base">Em quanto tempo vejo diferença?</span><span class="faq-ic text-taupe text-xl shrink-0" aria-hidden="true">+</span></button>
-            <div class="faq-a pb-5"><p class="text-[15px] leading-relaxed text-muted">Desde a primeira sessão. Lembrando que cada organismo é único e responde de uma forma.</p></div>
+            <button class="faq-q w-full flex items-center justify-between gap-4 py-5 text-left" aria-expanded="false" id="faq-btn-2" aria-controls="faq-panel-2"><span class="text-[15px] md:text-base">Em quanto tempo vejo diferença?</span><span class="faq-ic text-taupe text-xl shrink-0" aria-hidden="true">+</span></button>
+            <div class="faq-a pb-5" id="faq-panel-2" role="region" aria-labelledby="faq-btn-2"><p class="text-[15px] leading-relaxed text-muted">Desde a primeira sessão. Lembrando que cada organismo é único e responde de uma forma.</p></div>
           </div>
           <div class="faq-item">
-            <button class="faq-q w-full flex items-center justify-between gap-4 py-5 text-left" aria-expanded="false"><span class="text-[15px] md:text-base">Quantas sessões preciso?</span><span class="faq-ic text-taupe text-xl shrink-0" aria-hidden="true">+</span></button>
-            <div class="faq-a pb-5"><p class="text-[15px] leading-relaxed text-muted">De 3 a 6 sessões, dependendo do grau da estria.</p></div>
+            <button class="faq-q w-full flex items-center justify-between gap-4 py-5 text-left" aria-expanded="false" id="faq-btn-3" aria-controls="faq-panel-3"><span class="text-[15px] md:text-base">Quantas sessões preciso?</span><span class="faq-ic text-taupe text-xl shrink-0" aria-hidden="true">+</span></button>
+            <div class="faq-a pb-5" id="faq-panel-3" role="region" aria-labelledby="faq-btn-3"><p class="text-[15px] leading-relaxed text-muted">De 3 a 6 sessões, dependendo do grau da estria.</p></div>
           </div>
           <div class="faq-item">
-            <button class="faq-q w-full flex items-center justify-between gap-4 py-5 text-left" aria-expanded="false"><span class="text-[15px] md:text-base">Posso pegar sol na região?</span><span class="faq-ic text-taupe text-xl shrink-0" aria-hidden="true">+</span></button>
-            <div class="faq-a pb-5"><p class="text-[15px] leading-relaxed text-muted">Não. Mínimo 30 dias sem exposição solar após a sessão.</p></div>
+            <button class="faq-q w-full flex items-center justify-between gap-4 py-5 text-left" aria-expanded="false" id="faq-btn-4" aria-controls="faq-panel-4"><span class="text-[15px] md:text-base">Posso pegar sol na região?</span><span class="faq-ic text-taupe text-xl shrink-0" aria-hidden="true">+</span></button>
+            <div class="faq-a pb-5" id="faq-panel-4" role="region" aria-labelledby="faq-btn-4"><p class="text-[15px] leading-relaxed text-muted">Não. Mínimo 30 dias sem exposição solar após a sessão.</p></div>
           </div>
           <div class="faq-item">
-            <button class="faq-q w-full flex items-center justify-between gap-4 py-5 text-left" aria-expanded="false"><span class="text-[15px] md:text-base">Como sei o valor do orçamento?</span><span class="faq-ic text-taupe text-xl shrink-0" aria-hidden="true">+</span></button>
-            <div class="faq-a pb-5"><p class="text-[15px] leading-relaxed text-muted">Os valores são totalmente personalizados. Entre em contato e realize a avaliação.</p></div>
+            <button class="faq-q w-full flex items-center justify-between gap-4 py-5 text-left" aria-expanded="false" id="faq-btn-5" aria-controls="faq-panel-5"><span class="text-[15px] md:text-base">Como sei o valor do orçamento?</span><span class="faq-ic text-taupe text-xl shrink-0" aria-hidden="true">+</span></button>
+            <div class="faq-a pb-5" id="faq-panel-5" role="region" aria-labelledby="faq-btn-5"><p class="text-[15px] leading-relaxed text-muted">Os valores são totalmente personalizados. Entre em contato e realize a avaliação.</p></div>
           </div>
         </div>
-        <div class="cta-row mt-8 js-reveal">
+        <div class="cta-row mt-8 js-reveal is-in">
           <a href="https://wa.me/5511982899981?text=Ol%C3%A1!%20Tenho%20algumas%20d%C3%BAvidas%20sobre%20o%20Tratamento%20Corporal." target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 border border-deep text-deep text-sm tracking-wide px-7 py-3.5 rounded-full hover:bg-deep hover:text-paper transition-colors"><span>Ainda tenho uma dúvida</span></a>
         </div>
       </div>
@@ -409,9 +306,9 @@ tailwind.config = {
   <!-- CONTRAINDICAÇÕES -->
   <section class="px-6 py-14 md:py-20" aria-label="Contraindicações">
     <div class="max-w-3xl mx-auto">
-      <p class="text-[10px] tracking-[0.3em] uppercase text-taupe js-reveal">Segurança em Primeiro Lugar</p>
-      <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium js-reveal">Contraindicações</h2>
-      <ul class="mt-8 grid sm:grid-cols-2 gap-3 text-[15px] text-muted js-reveal">
+      <p class="text-[10px] tracking-[0.3em] uppercase text-taupe js-reveal is-in">Segurança em Primeiro Lugar</p>
+      <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium js-reveal is-in">Contraindicações</h2>
+      <ul class="mt-8 grid sm:grid-cols-2 gap-3 text-[15px] text-muted js-reveal is-in">
         <li class="border border-line rounded-xl px-4 py-3 bg-white">Gestantes</li>
         <li class="border border-line rounded-xl px-4 py-3 bg-white">Lactantes (região dos seios)</li>
         <li class="border border-line rounded-xl px-4 py-3 bg-white">Infecções ativas</li>
@@ -427,8 +324,8 @@ tailwind.config = {
   <!-- CTA / CONTATO -->
   <section id="agendar" class="px-6 py-16 md:py-24 bg-deep text-paper" aria-label="Contato">
     <div class="max-w-3xl mx-auto text-center">
-      <h2 class="font-serif text-3xl md:text-[2.6rem] font-medium leading-tight js-reveal">Está pronta para transformar sua pele e sua liberdade?</h2>
-      <div class="mt-10 grid sm:grid-cols-3 gap-4 text-left js-reveal">
+      <h2 class="font-serif text-3xl md:text-[2.6rem] font-medium leading-tight js-reveal is-in">Está pronta para transformar sua pele e sua liberdade?</h2>
+      <div class="mt-10 grid sm:grid-cols-3 gap-4 text-left js-reveal is-in">
         <a href="https://wa.me/5511982899981" target="_blank" rel="noopener noreferrer" class="block bg-paper/5 border border-paper/20 rounded-2xl p-5 hover:bg-paper/10 transition-colors">
           <h3 class="font-serif text-lg font-medium">WhatsApp</h3>
           <p class="mt-1 text-sm text-paper/70">Atendimento direto e humano</p>
@@ -442,29 +339,12 @@ tailwind.config = {
           <p class="mt-1 text-sm text-paper/70">contato@kellyregina.com.br</p>
         </a>
       </div>
-      <div class="cta-row mt-10 js-reveal">
+      <div class="cta-row mt-10 js-reveal is-in">
         <a href="https://wa.me/5511982899981?text=Ol%C3%A1!%20Gostaria%20de%20agendar%20uma%20avalia%C3%A7%C3%A3o%20do%20Tratamento%20Corporal." target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-paper text-deep text-sm tracking-wide px-9 py-4 rounded-full hover:bg-linen transition-colors"><span>Agendar minha avaliação</span><span aria-hidden="true">→</span></a>
       </div>
     </div>
   </section>
 </main>
-
-<div class="lb" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Visualização ampliada">
-  <span class="lb__count" data-lb-count hidden></span>
-  <button type="button" class="lb__btn lb__close" data-lb-close aria-label="Fechar">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-  </button>
-  <button type="button" class="lb__btn lb__prev" data-lb-prev aria-label="Foto anterior">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
-  </button>
-  <div class="lb__stage">
-    <img class="lb__img" data-lb-img alt="">
-    <p class="lb__caption" data-lb-caption hidden></p>
-  </div>
-  <button type="button" class="lb__btn lb__next" data-lb-next aria-label="Próxima foto">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
-  </button>
-</div>
 
 <footer class="site-footer" aria-label="Informações institucionais">
   <div class="site-footer__inner">
@@ -498,110 +378,9 @@ tailwind.config = {
       btn.setAttribute('aria-expanded', open?'true':'false');
     });
   });
-
-  /* Lightbox — Resultados & Depoimentos */
-  var root=document.getElementById('lightbox');
-  if(!root) return;
-  var imgEl=root.querySelector('[data-lb-img]');
-  var capEl=root.querySelector('[data-lb-caption]');
-  var countEl=root.querySelector('[data-lb-count]');
-  var btnPrev=root.querySelector('[data-lb-prev]');
-  var btnNext=root.querySelector('[data-lb-next]');
-  var items=[];
-  var index=0;
-  var lastFocus=null;
-  var touchX=null;
-
-  function collect(gallery){
-    return Array.prototype.map.call(gallery.querySelectorAll('.lb-hit'), function(btn){
-      return {
-        src: btn.getAttribute('data-lb-src') || (btn.querySelector('img') && btn.querySelector('img').src) || '',
-        alt: btn.getAttribute('data-lb-alt') || (btn.querySelector('img') && btn.querySelector('img').alt) || '',
-        caption: btn.getAttribute('data-lb-caption') || ''
-      };
-    }).filter(function(it){ return !!it.src; });
-  }
-
-  function render(){
-    if(!items.length) return;
-    var it=items[index];
-    imgEl.src=it.src;
-    imgEl.alt=it.alt || '';
-    if(it.caption){
-      capEl.hidden=false;
-      capEl.textContent=it.caption;
-    } else {
-      capEl.hidden=true;
-      capEl.textContent='';
-    }
-    countEl.hidden=items.length < 2;
-    countEl.textContent=(index + 1) + ' / ' + items.length;
-    var multi=items.length > 1;
-    btnPrev.hidden=!multi;
-    btnNext.hidden=!multi;
-  }
-
-  function openAt(list, i){
-    items=list;
-    index=((i % items.length) + items.length) % items.length;
-    lastFocus=document.activeElement;
-    render();
-    root.classList.add('is-open');
-    root.setAttribute('aria-hidden','false');
-    document.documentElement.style.overflow='hidden';
-    (btnNext.hidden ? root.querySelector('[data-lb-close]') : btnNext).focus();
-  }
-
-  function close(){
-    if(!root.classList.contains('is-open')) return;
-    root.classList.remove('is-open');
-    root.setAttribute('aria-hidden','true');
-    document.documentElement.style.overflow='';
-    imgEl.removeAttribute('src');
-    if(lastFocus && lastFocus.focus) lastFocus.focus();
-  }
-
-  function step(delta){
-    if(items.length < 2) return;
-    index=(index + delta + items.length) % items.length;
-    render();
-  }
-
-  document.querySelectorAll('[data-lb-gallery]').forEach(function(gallery){
-    var list=collect(gallery);
-    gallery.querySelectorAll('.lb-hit').forEach(function(btn, i){
-      btn.addEventListener('click', function(){
-        openAt(list, i);
-      });
-    });
-  });
-
-  root.querySelector('[data-lb-close]').addEventListener('click', close);
-  btnPrev.addEventListener('click', function(e){ e.stopPropagation(); step(-1); });
-  btnNext.addEventListener('click', function(e){ e.stopPropagation(); step(1); });
-  root.addEventListener('click', function(e){
-    if(e.target === root) close();
-  });
-
-  document.addEventListener('keydown', function(e){
-    if(!root.classList.contains('is-open')) return;
-    if(e.key === 'Escape'){ e.preventDefault(); close(); }
-    else if(e.key === 'ArrowLeft'){ e.preventDefault(); step(-1); }
-    else if(e.key === 'ArrowRight'){ e.preventDefault(); step(1); }
-  });
-
-  root.addEventListener('touchstart', function(e){
-    if(e.changedTouches && e.changedTouches[0]) touchX=e.changedTouches[0].clientX;
-  }, {passive:true});
-  root.addEventListener('touchend', function(e){
-    if(touchX == null || !e.changedTouches || !e.changedTouches[0]) return;
-    var dx=e.changedTouches[0].clientX - touchX;
-    touchX=null;
-    if(Math.abs(dx) < 48) return;
-    step(dx > 0 ? -1 : 1);
-  }, {passive:true});
 })();
 </script>
 <script src="auth.js"></script>
-</body>
-</html>
+
+
+</body></html>
