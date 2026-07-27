@@ -36,7 +36,7 @@ tailwind.config = {
   .js-reveal{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease}
   .is-in{opacity:1;transform:none}
   @media (prefers-reduced-motion: reduce){.js-reveal{opacity:1;transform:none;transition:none}}
-  /* media-frame: css/site-components.css */
+  /* media-frame + lightbox: css/site-components.css */
   a:focus-visible,button:focus-visible{outline:2px solid #9C4F26;outline-offset:3px;border-radius:4px}
   /* CTAs — centralização garantida (WhatsApp e ações principais) */
   .cta-row{
@@ -141,18 +141,30 @@ tailwind.config = {
       <p class="text-[10px] tracking-[0.3em] uppercase text-terra js-reveal">Resultados Reais</p>
       <h2 class="mt-3 font-serif text-3xl md:text-4xl font-medium js-reveal">A desinflamação visível em 90 dias</h2>
       <p class="mt-4 text-[15px] md:text-base text-muted max-w-2xl mx-auto js-reveal">Cada resultado é a consequência de um corpo que aprendeu a desinflamar. Não é magia, é ciência integrativa.</p>
-      <div class="mt-10 grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-6">
+      <div class="mt-10 grid grid-cols-2 gap-4 md:gap-6 max-w-3xl mx-auto lb-gallery" data-lb-gallery="resultados">
         <figure class="js-reveal">
-          <div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/1-foto-1.jpg" alt="Kit Skin Care Facial — resultado do protocolo natural para o melasma" class="w-full object-cover" loading="lazy" data-img-zoom="100" data-img-x="50" data-img-y="50" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: cover; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(22.5616% 0%);"></div>
+          <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 lb-item" aria-label="Ampliar foto: Paciente 01">
+            <img src="images/1-foto-1.jpg" alt="Resultado real do protocolo facial — Paciente 01" class="w-full object-cover" loading="lazy" data-lb-caption="Paciente 01" data-img-zoom="100" data-img-x="50" data-img-y="50" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: cover; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(22.5616% 0%);">
+          </button>
           <figcaption class="mt-3 text-xs tracking-[0.25em] uppercase text-muted"><span>Paciente 01</span></figcaption>
         </figure>
         <figure class="js-reveal">
-          <div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/1-foto2.jpg" alt="Kit Skin Care Facial — resultado do protocolo natural para o melasma" class="w-full object-cover" loading="lazy"></div>
+          <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 lb-item" aria-label="Ampliar foto: Paciente 02">
+            <img src="images/1-foto2.jpg" alt="Resultado real do protocolo facial — Paciente 02" class="w-full object-cover" loading="lazy" data-lb-caption="Paciente 02">
+          </button>
           <figcaption class="mt-3 text-xs tracking-[0.25em] uppercase text-muted"><span>Paciente 02</span></figcaption>
         </figure>
         <figure class="js-reveal">
-          <div class="media-frame media-frame--gallery border border-line bg-white p-1.5"><img src="images/2-foto-1.jpg" alt="Kit Skin Care Facial — resultado do protocolo natural para o melasma" class="w-full object-cover" loading="lazy"></div>
+          <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 lb-item" aria-label="Ampliar foto: Paciente 03">
+            <img src="images/2-foto-1.jpg" alt="Resultado real do protocolo facial — Paciente 03" class="w-full object-cover" loading="lazy" data-lb-caption="Paciente 03">
+          </button>
           <figcaption class="mt-3 text-xs tracking-[0.25em] uppercase text-muted"><span>Paciente 03</span></figcaption>
+        </figure>
+        <figure class="js-reveal">
+          <button type="button" class="media-frame media-frame--gallery border border-line bg-white p-1.5 lb-item" aria-label="Ampliar foto: Paciente 04">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='800' viewBox='0 0 640 800'%3E%3Crect fill='%23F5EADF' width='640' height='800'/%3E%3Crect x='24' y='24' width='592' height='752' fill='none' stroke='%239C4F26' stroke-opacity='0.28' stroke-width='2' stroke-dasharray='8 7' rx='18'/%3E%3Ctext x='320' y='390' text-anchor='middle' fill='%239C4F26' font-family='Georgia,serif' font-size='28' font-style='italic'%3EPaciente 04%3C/text%3E%3Ctext x='320' y='430' text-anchor='middle' fill='%2383705F' font-family='system-ui,sans-serif' font-size='14'%3EAdicionar foto do resultado%3C/text%3E%3C/svg%3E" alt="Paciente 04 — adicione a foto do resultado" class="w-full object-cover slot" loading="lazy" data-lb-caption="Paciente 04">
+          </button>
+          <figcaption class="mt-3 text-xs tracking-[0.25em] uppercase text-muted"><span>Paciente 04</span></figcaption>
         </figure>
       </div>
       <p class="mt-6 text-xs text-muted js-reveal">Resultados individuais. O protocolo trata a causa, os resultados são consequência natural.</p>
@@ -275,6 +287,27 @@ tailwind.config = {
   </div>
 </footer>
 
+</footer>
+
+<div id="lightbox" class="lb-root lb-root--terra" hidden aria-hidden="true">
+  <button type="button" class="lb-btn lb-close" data-lb="close" aria-label="Fechar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <div class="lb-dialog" role="dialog" aria-modal="true" aria-label="Foto ampliada">
+    <div class="lb-stage">
+      <button type="button" class="lb-btn lb-prev" data-lb="prev" aria-label="Foto anterior">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <img class="lb-img" src="" alt="">
+      <button type="button" class="lb-btn lb-next" data-lb="next" aria-label="Próxima foto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+    <p class="lb-caption" data-lb="caption"></p>
+    <p class="lb-meta" data-lb="meta" aria-live="polite"></p>
+  </div>
+</div>
+
 <script>
 (function(){
   var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-in');io.unobserve(e.target);}});},{threshold:.12});
@@ -295,6 +328,102 @@ tailwind.config = {
       btn.setAttribute('aria-expanded', open?'true':'false');
     });
   });
+
+  /* —— Lightbox (Resultados reais) —— */
+  var root=document.getElementById('lightbox');
+  if(!root) return;
+  var imgEl=root.querySelector('.lb-img');
+  var capEl=root.querySelector('[data-lb="caption"]');
+  var metaEl=root.querySelector('[data-lb="meta"]');
+  var items=[];
+  var index=0;
+  var lastFocus=null;
+  var touchX=null;
+
+  function collect(gallery){
+    return Array.prototype.map.call(gallery.querySelectorAll('.lb-item'), function(btn){
+      var im=btn.querySelector('img');
+      return {
+        src: im.getAttribute('src'),
+        alt: im.getAttribute('alt') || '',
+        caption: im.getAttribute('data-lb-caption') || ''
+      };
+    });
+  }
+
+  function render(){
+    if(!items.length) return;
+    var it=items[index];
+    imgEl.src=it.src;
+    imgEl.alt=it.alt;
+    capEl.textContent=it.caption || it.alt;
+    metaEl.textContent=(index+1)+' / '+items.length;
+  }
+
+  function openAt(list, i, focusEl){
+    items=list;
+    index=((i%items.length)+items.length)%items.length;
+    lastFocus=focusEl||document.activeElement;
+    root.hidden=false;
+    root.setAttribute('aria-hidden','false');
+    root.classList.add('is-open');
+    document.documentElement.style.overflow='hidden';
+    render();
+    var closeBtn=root.querySelector('[data-lb="close"]');
+    if(closeBtn) closeBtn.focus();
+  }
+
+  function close(){
+    root.classList.remove('is-open');
+    root.hidden=true;
+    root.setAttribute('aria-hidden','true');
+    document.documentElement.style.overflow='';
+    imgEl.removeAttribute('src');
+    if(lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  function step(dir){
+    if(!items.length) return;
+    index=(index+dir+items.length)%items.length;
+    render();
+  }
+
+  document.querySelectorAll('.lb-gallery').forEach(function(gallery){
+    gallery.querySelectorAll('.lb-item').forEach(function(btn, i){
+      btn.addEventListener('click', function(){
+        openAt(collect(gallery), i, btn);
+      });
+    });
+  });
+
+  root.addEventListener('click', function(e){
+    var t=e.target.closest('[data-lb]');
+    if(t){
+      var act=t.getAttribute('data-lb');
+      if(act==='close'){ close(); return; }
+      if(act==='prev'){ step(-1); return; }
+      if(act==='next'){ step(1); return; }
+    }
+    if(e.target===root) close();
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(root.hidden) return;
+    if(e.key==='Escape'){ e.preventDefault(); close(); }
+    else if(e.key==='ArrowLeft'){ e.preventDefault(); step(-1); }
+    else if(e.key==='ArrowRight'){ e.preventDefault(); step(1); }
+  });
+
+  root.addEventListener('touchstart', function(e){
+    if(e.changedTouches && e.changedTouches[0]) touchX=e.changedTouches[0].clientX;
+  }, {passive:true});
+  root.addEventListener('touchend', function(e){
+    if(touchX==null || !e.changedTouches || !e.changedTouches[0]) return;
+    var dx=e.changedTouches[0].clientX-touchX;
+    touchX=null;
+    if(Math.abs(dx)<48) return;
+    step(dx>0?-1:1);
+  }, {passive:true});
 })();
 </script>
 <script src="auth.js"></script>
