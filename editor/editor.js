@@ -201,28 +201,20 @@
   // FRAMING MATH — shared pan for Studio + Canvas
   // ============================================================
   var FramingMath = {
-    panMode: function (draft) {
-      var fit = (draft && draft.fit) || 'cover';
-      if (draft && draft.lock && fit === 'fill') fit = 'cover';
-      // Contain / scale-down / none: object-position only moves the letterbox axis.
-      // Use translate so both X and Y always work inside the fixed box.
-      if (fit === 'contain' || fit === 'scale-down' || fit === 'none') return 'translate';
-      return 'position';
-    },
+    // object-view-box zooms/pans the bitmap WITHOUT transform — critical for
+    // avatars whose border/radius live on the <img> (scale would grow the frame).
+    _ovb: (function () {
+      try {
+        return typeof CSS !== 'undefined' && CSS.supports && CSS.supports('object-view-box', 'inset(10%)');
+      } catch (e) { return false; }
+    })(),
 
-    pan: function (dragStart, clientX, clientY, rect, mode) {
+    pan: function (dragStart, clientX, clientY, rect) {
       var w = Math.max(rect.width, 1);
       var h = Math.max(rect.height, 1);
       var dx = ((clientX - dragStart.x) / w) * 100;
       var dy = ((clientY - dragStart.y) / h) * 100;
-      // translate: +delta follows the finger.
-      // object-position: −delta follows the finger (CSS alignment is inverted).
-      if (mode === 'translate') {
-        return {
-          x: clamp(dragStart.ox + dx, 0, 100),
-          y: clamp(dragStart.oy + dy, 0, 100)
-        };
-      }
+      // Follow the pointer with object-position / object-view-box.
       return {
         x: clamp(dragStart.ox - dx, 0, 100),
         y: clamp(dragStart.oy - dy, 0, 100)
@@ -234,48 +226,78 @@
       return iar < 0.85 ? 108 : 100;
     },
 
-    // Cover: pan via object-position (crop inside fixed box).
-    // Contain: pan via translate (free X+Y inside fixed box).
-    // Zoom: scale only — never changes layout size of the container.
+    layoutRect: function (el) {
+      if (!el) return null;
+      var prev = el.style.transform;
+      var prevOvb = el.style.objectViewBox;
+      el.style.transform = 'none';
+      el.style.removeProperty('object-view-box');
+      void el.offsetWidth;
+      var r = el.getBoundingClientRect();
+      el.style.transform = prev;
+      if (prevOvb) el.style.objectViewBox = prevOvb;
+      else el.style.removeProperty('object-view-box');
+      return {
+        top: r.top,
+        left: r.left,
+        width: r.width,
+        height: r.height,
+        bottom: r.bottom,
+        right: r.right
+      };
+    },
+
+    // Zoom/pan the PHOTO only. The <img> layout box (and its border/radius) never scale.
     paint: function (draft) {
       var z = clamp((draft && draft.zoom ? draft.zoom : 100) / 100, 0.5, 2);
       var fit = draft.lock && draft.fit === 'fill' ? 'cover' : (draft.fit || 'cover');
       var x = clamp(draft.x, 0, 100);
       var y = clamp(draft.y, 0, 100);
-      var mode = FramingMath.panMode({ fit: fit, lock: draft.lock });
 
-      if (mode === 'translate') {
-        // Room to slide in both axes (letterbox + zoom-out slack).
-        var maxPan = 42 + 58 * Math.max(Math.abs(z - 1), 0.25);
-        var tx = ((x - 50) / 50) * maxPan;
-        var ty = ((y - 50) / 50) * maxPan;
-        var parts = [];
-        if (Math.abs(tx) > 0.001 || Math.abs(ty) > 0.001) {
-          parts.push('translate(' + tx.toFixed(3) + '%, ' + ty.toFixed(3) + '%)');
-        }
-        if (Math.abs(z - 1) > 0.001) parts.push('scale(' + z + ')');
-        return {
-          fit: fit,
-          objectPosition: '50% 50%',
-          transformOrigin: '50% 50%',
-          transform: parts.join(' '),
-          z: z,
-          x: x,
-          y: y,
-          mode: mode
-        };
-      }
-
-      return {
+      var out = {
         fit: fit,
         objectPosition: x + '% ' + y + '%',
         transformOrigin: '50% 50%',
-        transform: Math.abs(z - 1) > 0.001 ? ('scale(' + z + ')') : '',
+        transform: '',
+        objectViewBox: '',
         z: z,
         x: x,
         y: y,
-        mode: mode
+        mode: 'position'
       };
+
+      if (z > 1.001 && FramingMath._ovb) {
+        // Zoom in = show a smaller slice of the source (box/border stay put).
+        var visible = 100 / z;
+        var gap = 100 - visible;
+        var left = gap * (x / 100);
+        var top = gap * (y / 100);
+        var right = gap - left;
+        var bottom = gap - top;
+        out.objectViewBox = 'inset(' + top.toFixed(3) + '% ' + right.toFixed(3) + '% ' +
+          bottom.toFixed(3) + '% ' + left.toFixed(3) + '%)';
+        out.objectPosition = '50% 50%';
+        out.fit = (fit === 'contain' || fit === 'scale-down') ? 'contain' : 'cover';
+        return out;
+      }
+
+      if (z > 1.001 && !FramingMath._ovb) {
+        // Rare fallback: keep box fixed via clip; avoid growing avatar borders.
+        out.transform = 'scale(' + z + ')';
+        out.objectPosition = x + '% ' + y + '%';
+        return out;
+      }
+
+      if (z < 0.999) {
+        // Zoom out: show full bitmap inside the fixed frame (no transform/grow).
+        out.fit = (fit === 'cover' || fit === 'fill') ? 'contain' : fit;
+        out.objectPosition = x + '% ' + y + '%';
+        return out;
+      }
+
+      // 100%: normal fit + position (Contain also pans on letterbox axes).
+      out.objectPosition = x + '% ' + y + '%';
+      return out;
     }
   };
 
@@ -1182,7 +1204,8 @@
         objectPosition: img.style.objectPosition,
         transform: img.style.transform,
         transformOrigin: img.style.transformOrigin,
-        clipPath: img.style.clipPath
+        clipPath: img.style.clipPath,
+        objectViewBox: img.style.objectViewBox
       };
     },
 
@@ -1200,8 +1223,8 @@
       img.style.transform = snap.transform || '';
       img.style.transformOrigin = snap.transformOrigin || '';
       img.style.clipPath = snap.clipPath || '';
-      // Undo legacy side-effect: older versions forced overflow on the parent
-      // (e.g. .avatar-wrap), which clipped decorative rings.
+      if (snap.objectViewBox) img.style.objectViewBox = snap.objectViewBox;
+      else img.style.removeProperty('object-view-box');
       ImageStudio._clearParentOverflowHack(img);
     },
 
@@ -1232,7 +1255,6 @@
     applyFraming: function (img, draft, live) {
       if (!img || !draft) return;
       var paint = FramingMath.paint(draft);
-      var selfClip = ImageStudio._isSelfClipped(img);
 
       img.setAttribute('data-img-zoom', String(draft.zoom));
       img.setAttribute('data-img-x', String(Math.round(draft.x * 10) / 10));
@@ -1241,26 +1263,19 @@
       img.setAttribute('data-img-lock', draft.lock ? '1' : '0');
       img.setAttribute('data-img-auto', draft.auto ? '1' : '0');
 
-      // Paint ONLY on the <img>. Never touch parent size/overflow/position —
-      // containers stay fixed; zoom = scale, position = translate.
+      // Only paint properties — never width/height/parent size.
       img.style.objectFit = paint.fit;
       img.style.objectPosition = paint.objectPosition;
       img.style.transformOrigin = paint.transformOrigin;
-      img.style.transform = paint.transform;
+      img.style.transform = paint.transform || '';
 
-      // Keep circular/rounded images clipped to their own box (not the parent).
-      var needsClip = selfClip && (paint.z !== 1 || paint.x !== 50 || paint.y !== 50 || !!paint.transform);
-      if (needsClip) {
-        try {
-          var br = getComputedStyle(img).borderRadius || '50%';
-          if (br === '50%' || (img.classList && img.classList.contains('avatar-img'))) {
-            img.style.clipPath = 'circle(50% at 50% 50%)';
-          } else {
-            img.style.clipPath = 'inset(0 round ' + br + ')';
-          }
-        } catch (e) {
-          img.style.clipPath = 'circle(50% at 50% 50%)';
-        }
+      if (paint.objectViewBox) img.style.objectViewBox = paint.objectViewBox;
+      else img.style.removeProperty('object-view-box');
+
+      // Fallback scale path only: clip so the frame cannot appear to grow.
+      if (paint.transform) {
+        if (ImageStudio._isSelfClipped(img)) img.style.clipPath = 'circle(50% at 50% 50%)';
+        else img.style.clipPath = 'inset(0)';
       } else {
         img.style.removeProperty('clip-path');
       }
@@ -1282,6 +1297,8 @@
         node.style.objectPosition = paint.objectPosition;
         node.style.transformOrigin = paint.transformOrigin;
         node.style.transform = paint.transform || 'none';
+        if (paint.objectViewBox) node.style.objectViewBox = paint.objectViewBox;
+        else node.style.removeProperty('object-view-box');
       };
       if (!list || !list.length) {
         apply(ImageStudio.stageImg);
@@ -1784,7 +1801,7 @@
       function pointerMove(ev) {
         if (!self.dragging || !self.isOpen || !self.draft || !self.target) return;
         var pt = ev.touches ? ev.touches[0] : ev;
-        var next = FramingMath.pan(self.dragStart, pt.clientX, pt.clientY, crop.getBoundingClientRect(), FramingMath.panMode(self.draft));
+        var next = FramingMath.pan(self.dragStart, pt.clientX, pt.clientY, crop.getBoundingClientRect());
         self.draft.x = next.x;
         self.draft.y = next.y;
         if (self._raf) cancelAnimationFrame(self._raf);
@@ -1979,8 +1996,12 @@
       if (this.target && this.target !== img) this.deselect(true);
       this.target = img;
       this.draft = ImageStudio.readFrom(img);
-      this.beforeSnap = ImageStudio.captureSnapshot(img);
       ImageStudio._clearParentOverflowHack(img);
+      // Normalize paint model (clears legacy transform:scale that grew the avatar frame).
+      ImageStudio._suppressDirty = true;
+      ImageStudio.applyFraming(img, this.draft, false);
+      ImageStudio._suppressDirty = false;
+      this.beforeSnap = ImageStudio.captureSnapshot(img);
       this._ensureUI();
       img.classList.add('editor-img-selected');
       img.classList.add('editor-img-canvas-active');
@@ -2107,7 +2128,7 @@
         if (handle) {
           self.zoomDragging = true;
           self.dragging = false;
-          var rect = self.target.getBoundingClientRect();
+          var rect = FramingMath.layoutRect(self.target) || self.target.getBoundingClientRect();
           self.dragStart = {
             x: pt.clientX,
             y: pt.clientY,
@@ -2159,7 +2180,8 @@
         }
 
         if (!self.dragging) return;
-        var next = FramingMath.pan(self.dragStart, pt.clientX, pt.clientY, self.target.getBoundingClientRect(), FramingMath.panMode(self.draft));
+        var panRect = FramingMath.layoutRect(self.target) || self.target.getBoundingClientRect();
+        var next = FramingMath.pan(self.dragStart, pt.clientX, pt.clientY, panRect);
         var sx = self._snap(next.x);
         var sy = self._snap(next.y);
         self.draft.x = sx.v;
@@ -2428,8 +2450,9 @@
 
     reposition: function () {
       if (!this.target || !this.chrome) return;
-      var r = this.target.getBoundingClientRect();
-      if (r.width < 4 || r.height < 4) return;
+      // Measure WITHOUT transform so zoom never enlarges the editor chrome / site frame.
+      var r = FramingMath.layoutRect(this.target);
+      if (!r || r.width < 4 || r.height < 4) return;
       var c = this.chrome;
       c.style.top = r.top + 'px';
       c.style.left = r.left + 'px';
@@ -2874,6 +2897,12 @@
       n.removeAttribute('data-img-fy');
       n.removeAttribute('data-img-focal');
       n.removeAttribute('data-img-focal-src');
+      if (n.hasAttribute && n.hasAttribute('data-editor-ov')) {
+        var prevOv = n.getAttribute('data-editor-ov');
+        n.removeAttribute('data-editor-ov');
+        if (prevOv) n.style.overflow = prevOv;
+        else if (n.style) n.style.removeProperty('overflow');
+      }
       if (n.getAttribute && n.getAttribute('class') === '') n.removeAttribute('class');
       if (n.getAttribute && n.getAttribute('style') === '') n.removeAttribute('style');
     });
