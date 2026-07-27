@@ -1,5 +1,5 @@
 /* ============================================================
-   VisualEditor — Global Inline Visual Editor  (v2.7.0)
+   VisualEditor — Global Inline Visual Editor  (v2.8.0)
    Every selector is namespaced with .editor-* and isolated so it
    NEVER interferes with the host site's own design / layout.
    ============================================================ */
@@ -73,7 +73,7 @@ body.editor-active:not(.editor-preview) img { pointer-events: auto !important; }
   outline: 2px solid var(--editor-accent-2) !important; outline-offset: 3px !important;
   border-radius: 2px; cursor: text !important; background: rgba(154,117,72,0.05);
 }
-.editor-img-hl { outline: 2px solid var(--editor-accent) !important; outline-offset: -2px !important; cursor: pointer; }
+.editor-img-hl { outline: 1.5px solid rgba(184,110,62,0.45) !important; outline-offset: 2px !important; cursor: pointer; }
 
 /* ============================================================
    3. FLOATING TOOLBAR
@@ -100,42 +100,31 @@ body.editor-active:not(.editor-preview) img { pointer-events: auto !important; }
 .editor-tb-sep { width: 1px; margin: 4px 2px; background: var(--editor-line); }
 
 /* ============================================================
-   4. IMAGE OVERLAY  (floats over the hovered <img>)
+   4. IMAGE OVERLAY — modo inspecionar (hover suave)
    ============================================================ */
 .editor-img-overlay {
   position: fixed; z-index: calc(var(--editor-z) - 1);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 10px; padding: 12px; text-align: center;
-  background: linear-gradient(180deg, rgba(31,24,19,0.32), rgba(31,24,19,0.62));
-  border: 2px dashed rgba(255,255,255,0.85); border-radius: 6px;
-  color: #fff; font-family: 'Jost', 'DM Sans', system-ui, sans-serif;
-  cursor: pointer; opacity: 0; pointer-events: none; overflow: hidden;
-  transition: opacity 0.15s ease;
+  display: flex; align-items: flex-start; justify-content: flex-end;
+  padding: 8px; pointer-events: none;
+  border: 1.5px solid rgba(184,110,62,0.55); border-radius: 6px;
+  background: transparent;
+  opacity: 0; transition: opacity 0.18s ease, border-color 0.18s ease;
 }
-.editor-img-overlay.editor-show { opacity: 1; pointer-events: auto; }
-.editor-img-overlay-inner { display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: 92%; }
-.editor-img-overlay-ic { font-size: 22px; line-height: 1; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
-.editor-img-overlay-label { font-size: 12px; font-weight: 600; letter-spacing: 0.03em; line-height: 1.35; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
-.editor-img-overlay-cta,
-.editor-img-overlay-swap {
-  appearance: none; border: 1px solid rgba(255,255,255,0.55); color: #fff;
-  font-family: inherit; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 8px 14px; border-radius: 7px; cursor: pointer;
-  transition: background 0.15s ease, transform 0.12s ease;
+.editor-img-overlay.editor-show { opacity: 1; pointer-events: auto; cursor: pointer; }
+.editor-img-inspect-label {
+  font-family: 'Jost', 'DM Sans', system-ui, sans-serif;
+  font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #fff; background: rgba(31,24,19,0.78);
+  padding: 5px 9px; border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  pointer-events: none;
 }
-.editor-img-overlay-cta { background: var(--editor-accent); border-color: var(--editor-accent); font-weight: 600; }
-.editor-img-overlay-cta:hover { background: #a85e30; transform: translateY(-1px); }
-.editor-img-overlay-swap { background: rgba(0,0,0,0.35); }
-.editor-img-overlay-swap:hover { background: rgba(0,0,0,0.5); }
-.editor-img-overlay-gear {
-  position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border-radius: 50%;
-  border: 1.5px solid #fff; background: var(--editor-accent); color: #fff;
-  font-size: 14px; line-height: 1; cursor: pointer;
-  display: inline-flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-  transition: transform 0.12s ease, background 0.15s ease;
+.editor-img-selected,
+.editor-img-canvas-active {
+  outline: 2px solid var(--editor-accent) !important;
+  outline-offset: 2px !important;
+  cursor: grab !important;
 }
-.editor-img-overlay-gear:hover { background: #a85e30; transform: scale(1.08); }
 
 /* Drop-zone affordance for empty image slots ([data-editable-image]). */
 [data-editable-image] { position: relative; }
@@ -150,6 +139,138 @@ body.editor-active:not(.editor-preview) img { pointer-events: auto !important; }
   font-size: 12px; font-weight: 600; letter-spacing: 0.03em; line-height: 1.35;
   text-shadow: 0 1px 4px rgba(0,0,0,0.6); pointer-events: none;
 }
+
+/* ============================================================
+   4b. IMAGE CANVAS — chrome + mini toolbar (WYSIWYG)
+   ============================================================ */
+.editor-img-chrome {
+  position: fixed; z-index: calc(var(--editor-z) - 1);
+  pointer-events: none; opacity: 0;
+  transition: opacity 0.16s ease;
+}
+.editor-img-chrome.editor-show { opacity: 1; pointer-events: auto; }
+.editor-img-chrome-inner {
+  position: relative; width: 100%; height: 100%;
+  cursor: grab; touch-action: none;
+}
+.editor-img-chrome.editor-dragging .editor-img-chrome-inner { cursor: grabbing; }
+.editor-img-chrome-border {
+  position: absolute; inset: 0;
+  border: 2px solid var(--editor-accent); border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.35), 0 8px 28px rgba(0,0,0,0.18);
+  pointer-events: none;
+}
+.editor-img-handle {
+  position: absolute; width: 9px; height: 9px; border-radius: 2px;
+  background: #fff; border: 1.5px solid var(--editor-accent);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25); pointer-events: none;
+  z-index: 2;
+}
+.editor-img-handle--tl { top: -5px; left: -5px; }
+.editor-img-handle--tr { top: -5px; right: -5px; }
+.editor-img-handle--bl { bottom: -5px; left: -5px; }
+.editor-img-handle--br { bottom: -5px; right: -5px; }
+.editor-img-handle--tm { top: -5px; left: 50%; margin-left: -4.5px; }
+.editor-img-handle--bm { bottom: -5px; left: 50%; margin-left: -4.5px; }
+.editor-img-handle--ml { top: 50%; left: -5px; margin-top: -4.5px; }
+.editor-img-handle--mr { top: 50%; right: -5px; margin-top: -4.5px; }
+
+.editor-img-thirds {
+  display: none; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+}
+.editor-img-chrome.editor-dragging .editor-img-thirds { display: block; }
+.editor-img-thirds i {
+  position: absolute; background: rgba(255,255,255,0.45);
+  box-shadow: 0 0 0 0.5px rgba(0,0,0,0.15);
+}
+.editor-img-thirds i:nth-child(1) { left: 33.333%; top: 0; bottom: 0; width: 1px; }
+.editor-img-thirds i:nth-child(2) { left: 66.667%; top: 0; bottom: 0; width: 1px; }
+.editor-img-thirds i:nth-child(3) { top: 33.333%; left: 0; right: 0; height: 1px; }
+.editor-img-thirds i:nth-child(4) { top: 66.667%; left: 0; right: 0; height: 1px; }
+
+.editor-img-guide {
+  position: absolute; background: #5ec8ff; opacity: 0; pointer-events: none; z-index: 3;
+  transition: opacity 0.12s ease;
+  box-shadow: 0 0 6px rgba(94,200,255,0.7);
+}
+.editor-img-guide.editor-show { opacity: 0.95; }
+.editor-img-guide--v { top: 0; bottom: 0; width: 1.5px; left: 50%; }
+.editor-img-guide--h { left: 0; right: 0; height: 1.5px; top: 50%; }
+
+.editor-img-badge-auto {
+  display: none; position: absolute; top: 8px; left: 8px; z-index: 4;
+  font-family: 'Jost', system-ui, sans-serif; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: #fff; background: var(--editor-accent);
+  padding: 4px 8px; border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25); pointer-events: none;
+}
+.editor-img-chrome--auto .editor-img-badge-auto { display: block; }
+
+.editor-img-compare {
+  position: absolute; bottom: 8px; right: 8px; z-index: 4;
+  appearance: none; border: 1px solid rgba(255,255,255,0.55);
+  background: rgba(31,24,19,0.72); color: #fff;
+  font-family: 'Jost', system-ui, sans-serif; font-size: 10px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 6px 10px; border-radius: 6px; cursor: pointer;
+  transition: background 0.15s ease, transform 0.12s ease;
+  pointer-events: auto;
+}
+.editor-img-compare:hover { background: rgba(31,24,19,0.9); }
+.editor-img-chrome.editor-comparing .editor-img-compare {
+  background: var(--editor-accent); border-color: var(--editor-accent);
+}
+
+.editor-img-minibar {
+  position: fixed; z-index: calc(var(--editor-z) - 1);
+  display: flex; gap: 2px; padding: 4px;
+  background: var(--editor-bg);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border: 1px solid var(--editor-line); border-radius: 12px;
+  box-shadow: 0 10px 32px rgba(0,0,0,0.35);
+  font-family: 'Jost', system-ui, sans-serif;
+  opacity: 0; transform: translateY(6px); pointer-events: none;
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+.editor-img-minibar.editor-show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.editor-mb-btn {
+  appearance: none; border: none; background: transparent; color: rgba(255,255,255,0.88);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; min-width: 52px; padding: 6px 8px; border-radius: 8px; cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.editor-mb-btn span { font-size: 15px; line-height: 1; }
+.editor-mb-btn em {
+  font-style: normal; font-size: 9px; letter-spacing: 0.04em; text-transform: uppercase;
+  opacity: 0.75;
+}
+.editor-mb-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+.editor-mb-btn.editor-on { background: var(--editor-accent); color: #fff; }
+.editor-mb-btn.editor-on em { opacity: 1; }
+.editor-mb-btn--more { border-left: 1px solid var(--editor-line); margin-left: 2px; padding-left: 10px; }
+
+.editor-img-zoom-pop {
+  position: fixed; z-index: calc(var(--editor-z) - 1);
+  display: none; flex-wrap: wrap; gap: 6px; align-items: center;
+  width: 240px; padding: 10px;
+  background: #fff; color: var(--editor-ink);
+  border-radius: 10px; border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.22);
+  font-family: 'Jost', system-ui, sans-serif;
+}
+.editor-img-zoom-pop.editor-show { display: flex; }
+.editor-img-zoom-pop button {
+  appearance: none; border: 1px solid rgba(0,0,0,0.12); background: #fff;
+  font-family: inherit; font-size: 11px; padding: 5px 8px; border-radius: 6px; cursor: pointer;
+}
+.editor-img-zoom-pop button.editor-on,
+.editor-img-zoom-pop button:hover { border-color: var(--editor-accent); color: var(--editor-accent); }
+.editor-img-zoom-pop input[type="range"] { width: 100%; accent-color: var(--editor-accent); margin-top: 4px; }
+
+body.editor-preview .editor-img-chrome,
+body.editor-preview .editor-img-minibar,
+body.editor-preview .editor-img-zoom-pop { display: none !important; }
 
 /* ============================================================
    5. INSPECTOR PANEL (right side)
