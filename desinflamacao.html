@@ -48,6 +48,21 @@ tailwind.config = {
   }
   @media (max-width:360px){.media-frame{border-radius:16px}}
   a:focus-visible,button:focus-visible{outline:2px solid #567A57;outline-offset:3px;border-radius:4px}
+  /* CTAs — centralização garantida (WhatsApp e ações principais) */
+  .cta-row{
+    display:flex !important;
+    flex-wrap:wrap;
+    justify-content:center !important;
+    align-items:center;
+    gap:0.75rem 1rem;
+    width:100%;
+    max-width:100%;
+    text-align:center;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .cta-row--stack{flex-direction:column;gap:1rem}
+
   .faq-a{display:none}
   .faq-item.open .faq-a{display:block}
   .faq-item.open .faq-ic{transform:rotate(45deg)}
@@ -67,19 +82,21 @@ tailwind.config = {
 <main>
   <!-- HERO -->
   <section id="inicio" class="px-6 pt-12 md:pt-20 pb-14" aria-label="Apresentação">
-    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 md:gap-14 items-center">
-      <div class="js-reveal">
-        <p class="inline-block text-[10px] tracking-[0.3em] uppercase text-sage border border-sage/40 rounded-full px-4 py-1.5">Desinflamação do Organismo</p>
-        <h1 class="mt-6 font-serif text-4xl md:text-5xl lg:text-[3.4rem] font-medium leading-[1.08]">Seu corpo pede equilíbrio. <em class="font-serif italic text-sage">A pele é só o reflexo.</em></h1>
-        <p class="mt-6 text-[15px] md:text-base leading-relaxed text-muted max-w-xl">Inchaço, cansaço, pele opaca e digestão desregulada têm uma raiz em comum: a inflamação silenciosa. O protocolo de Desinflamação e Reequilíbrio cuida disso na origem — de dentro para fora.</p>
-        <div class="mt-8 flex justify-center">
-          <a href="https://wa.me/5511982899981?text=Ol%C3%A1%20Kelly%2C%20gostaria%20de%20agendar%20minha%20avalia%C3%A7%C3%A3o%20de%20Desinflama%C3%A7%C3%A3o!" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-sage text-paper text-sm tracking-wide px-8 py-4 rounded-full hover:bg-deep transition-colors"><span>Agendar minha avaliação</span><span aria-hidden="true">→</span></a>
+    <div class="max-w-6xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-10 md:gap-14 items-center">
+        <div class="js-reveal">
+          <p class="inline-block text-[10px] tracking-[0.3em] uppercase text-sage border border-sage/40 rounded-full px-4 py-1.5">Desinflamação do Organismo</p>
+          <h1 class="mt-6 font-serif text-4xl md:text-5xl lg:text-[3.4rem] font-medium leading-[1.08]">Seu corpo pede equilíbrio. <em class="font-serif italic text-sage">A pele é só o reflexo.</em></h1>
+          <p class="mt-6 text-[15px] md:text-base leading-relaxed text-muted max-w-xl">Inchaço, cansaço, pele opaca e digestão desregulada têm uma raiz em comum: a inflamação silenciosa. O protocolo de Desinflamação e Reequilíbrio cuida disso na origem — de dentro para fora.</p>
+        </div>
+        <div class="js-reveal">
+          <div class="media-frame media-frame--hero border border-line bg-white p-2 max-w-md mx-auto">
+            <img src="images/5-detalhe-de-pele-do-corpo-1-.png" alt="Protocolo natural de desinflamação e reequilíbrio do organismo" class="w-full object-cover" loading="eager">
+          </div>
         </div>
       </div>
-      <div class="js-reveal">
-        <div class="media-frame media-frame--hero border border-line bg-white p-2 max-w-md mx-auto">
-          <img src="images/5-detalhe-de-pele-do-corpo-1-.png" alt="Protocolo natural de desinflamação e reequilíbrio do organismo" class="w-full object-cover" loading="eager">
-        </div>
+      <div class="cta-row mt-10 js-reveal">
+        <a href="https://wa.me/5511982899981?text=Ol%C3%A1%20Kelly%2C%20gostaria%20de%20agendar%20minha%20avalia%C3%A7%C3%A3o%20de%20Desinflama%C3%A7%C3%A3o!" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-sage text-paper text-sm tracking-wide px-8 py-4 rounded-full hover:bg-deep transition-colors"><span>Agendar minha avaliação</span><span aria-hidden="true">→</span></a>
       </div>
     </div>
   </section>
@@ -205,7 +222,7 @@ tailwind.config = {
       <p class="text-[10px] tracking-[0.3em] uppercase text-paper/60 js-reveal">O primeiro passo</p>
       <h2 class="mt-3 font-serif text-3xl md:text-[2.6rem] font-medium leading-tight js-reveal">Pronta para desinflamar <em class="italic text-paper/80">e reequilibrar?</em></h2>
       <p class="mt-5 text-[15px] md:text-base text-paper/80 max-w-xl mx-auto js-reveal">Uma conversa já é o começo. Agende a sua avaliação e receba a orientação certa para o seu corpo.</p>
-      <div class="mt-9 flex flex-wrap items-center justify-center gap-4 js-reveal">
+      <div class="cta-row mt-9 js-reveal">
         <a href="https://wa.me/5511982899981?text=Ol%C3%A1%20Kelly%2C%20gostaria%20de%20agendar%20minha%20avalia%C3%A7%C3%A3o%20de%20Desinflama%C3%A7%C3%A3o!" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-paper text-deep text-sm tracking-wide px-9 py-4 rounded-full hover:bg-mint transition-colors"><span>Agendar minha avaliação</span><span aria-hidden="true">→</span></a>
         <a href="https://wa.me/5511982899981?text=Ol%C3%A1%20Kelly%2C%20quero%20saber%20sobre%20o%20protocolo%20de%20Desinflama%C3%A7%C3%A3o!" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 border border-paper/40 text-paper text-sm tracking-wide px-7 py-3.5 rounded-full hover:bg-paper/10 transition-colors"><span>Quero saber sobre o protocolo</span></a>
       </div>

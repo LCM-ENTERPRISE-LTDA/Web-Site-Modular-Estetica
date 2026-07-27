@@ -48,6 +48,20 @@ tailwind.config = {
   }
   @media (max-width:360px){.media-frame{border-radius:16px}}
   a:focus-visible,button:focus-visible{outline:2px solid #5A7482;outline-offset:3px;border-radius:4px}
+  /* CTAs — centralização garantida (WhatsApp e ações principais) */
+  .cta-row{
+    display:flex !important;
+    flex-wrap:wrap;
+    justify-content:center !important;
+    align-items:center;
+    gap:0.75rem 1rem;
+    width:100%;
+    max-width:100%;
+    text-align:center;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .cta-row--stack{flex-direction:column;gap:1rem}
 </style>
 </head>
 <body class="bg-paper text-ink font-sans font-light antialiased pt-14">
@@ -66,26 +80,28 @@ tailwind.config = {
 <main>
   <!-- HERO -->
   <section id="inicio" class="px-6 pt-12 md:pt-20 pb-14" aria-label="Apresentação">
-    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 md:gap-14 items-center">
-      <div class="js-reveal">
-        <p class="flex flex-wrap gap-2" aria-label="Temas abordados">
-          <span class="inline-block text-[10px] tracking-[0.2em] uppercase text-mineral border border-mineral/40 rounded-full px-3.5 py-1.5">Nutrição</span>
-          <span class="inline-block text-[10px] tracking-[0.2em] uppercase text-mineral border border-mineral/40 rounded-full px-3.5 py-1.5">Couro cabeludo</span>
-          <span class="inline-block text-[10px] tracking-[0.2em] uppercase text-mineral border border-mineral/40 rounded-full px-3.5 py-1.5">Inflamação</span>
-          <span class="inline-block text-[10px] tracking-[0.2em] uppercase text-mineral border border-mineral/40 rounded-full px-3.5 py-1.5">Oxigenação</span>
-          <span class="inline-block text-[10px] tracking-[0.2em] uppercase text-mineral border border-mineral/40 rounded-full px-3.5 py-1.5">Folículo</span>
-          <span class="inline-block text-[10px] tracking-[0.2em] uppercase text-mineral border border-mineral/40 rounded-full px-3.5 py-1.5">Hábitos</span>
-        </p>
-        <h1 class="mt-6 font-serif text-4xl md:text-5xl lg:text-[3.4rem] font-medium leading-[1.08]">A queda de cabelo não começa no fio. <em class="font-serif italic text-mineral">Começa na raiz inflamada.</em></h1>
-        <p class="mt-6 text-[15px] md:text-base leading-relaxed text-muted max-w-xl">Existe um processo silencioso de inflamação e má oxigenação que sufoca o folículo muito antes de o fio cair — e que nenhum shampoo antiqueda foi formulado para alcançar. Chegou a hora de tratar a queda onde ela realmente começa.</p>
-        <div class="mt-8 flex justify-center">
-          <a href="https://wa.me/5511982899981?text=Ol%C3%A1%20Kelly%2C%20gostaria%20de%20saber%20sobre%20o%20Kit%20Sa%C3%BAde%20Capilar!" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-deep text-paper text-sm tracking-wide px-8 py-4 rounded-full hover:bg-mineral transition-colors"><span>Quero Entender Minha Queda</span><span aria-hidden="true">→</span></a>
+    <div class="max-w-6xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-10 md:gap-14 items-center">
+        <div class="js-reveal">
+          <p class="flex flex-wrap gap-2" aria-label="Temas abordados">
+            <span class="inline-block text-[10px] tracking-[0.2em] uppercase text-mineral border border-mineral/40 rounded-full px-3.5 py-1.5">Nutrição</span>
+            <span class="inline-block text-[10px] tracking-[0.2em] uppercase text-mineral border border-mineral/40 rounded-full px-3.5 py-1.5">Couro cabeludo</span>
+            <span class="inline-block text-[10px] tracking-[0.2em] uppercase text-mineral border border-mineral/40 rounded-full px-3.5 py-1.5">Inflamação</span>
+            <span class="inline-block text-[10px] tracking-[0.2em] uppercase text-mineral border border-mineral/40 rounded-full px-3.5 py-1.5">Oxigenação</span>
+            <span class="inline-block text-[10px] tracking-[0.2em] uppercase text-mineral border border-mineral/40 rounded-full px-3.5 py-1.5">Folículo</span>
+            <span class="inline-block text-[10px] tracking-[0.2em] uppercase text-mineral border border-mineral/40 rounded-full px-3.5 py-1.5">Hábitos</span>
+          </p>
+          <h1 class="mt-6 font-serif text-4xl md:text-5xl lg:text-[3.4rem] font-medium leading-[1.08]">A queda de cabelo não começa no fio. <em class="font-serif italic text-mineral">Começa na raiz inflamada.</em></h1>
+          <p class="mt-6 text-[15px] md:text-base leading-relaxed text-muted max-w-xl">Existe um processo silencioso de inflamação e má oxigenação que sufoca o folículo muito antes de o fio cair — e que nenhum shampoo antiqueda foi formulado para alcançar. Chegou a hora de tratar a queda onde ela realmente começa.</p>
+        </div>
+        <div class="js-reveal">
+          <div class="media-frame media-frame--hero border border-line bg-white p-2 max-w-md mx-auto">
+            <img src="images/4-cabelo-couro-cabeludo-saud-vel.png" alt="Kelly Regina Ferreira Correia — Terapeuta Naturalista Integrativa" class="w-full object-cover" loading="eager">
+          </div>
         </div>
       </div>
-      <div class="js-reveal">
-        <div class="media-frame media-frame--hero border border-line bg-white p-2 max-w-md mx-auto">
-          <img src="images/4-cabelo-couro-cabeludo-saud-vel.png" alt="Kelly Regina Ferreira Correia — Terapeuta Naturalista Integrativa" class="w-full object-cover" loading="eager">
-        </div>
+      <div class="cta-row mt-10 js-reveal">
+        <a href="https://wa.me/5511982899981?text=Ol%C3%A1%20Kelly%2C%20gostaria%20de%20saber%20sobre%20o%20Kit%20Sa%C3%BAde%20Capilar!" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-deep text-paper text-sm tracking-wide px-8 py-4 rounded-full hover:bg-mineral transition-colors"><span>Quero Entender Minha Queda</span><span aria-hidden="true">→</span></a>
       </div>
     </div>
   </section>
@@ -153,7 +169,7 @@ tailwind.config = {
         <p>O fio cair é apenas o momento visível, isso é verdade. Mas o que determina se o folículo vai enfraquecer ou resistir foi decidido muito antes, no estado do seu couro cabeludo e do seu metabolismo. E esse estado é moldado por fatores que a maioria das pessoas nunca ouviu falar. Como inflamação do couro cabeludo, má oxigenação da raiz, eixo intestino-pele, deficiências nutricionais e hábitos diários de higienização que a maioria faz errado sem entender a real importância.</p>
         <p class="font-serif italic text-lg text-paper">Todos esses fatores são tratados no Kit Saúde Capilar. Pela primeira vez, você vai entender o que realmente está acontecendo no seu couro cabeludo.</p>
       </div>
-      <div class="mt-8 js-reveal">
+      <div class="cta-row mt-8 js-reveal">
         <a href="#adquirir" class="inline-flex items-center gap-2 bg-paper text-deep text-sm tracking-wide px-8 py-4 rounded-full hover:bg-mist transition-colors"><span>Quero Tratar a Raiz</span><span aria-hidden="true">→</span></a>
       </div>
     </div>
@@ -264,7 +280,7 @@ tailwind.config = {
         <p class="mt-7 text-center font-serif italic text-xl text-deep">Valor promocional de lançamento</p>
         <p class="mt-2 text-center text-xs text-muted">Avaliação do couro cabeludo inclusa · Atendimento individualizado</p>
         <p class="mt-3 text-center text-xs text-muted"><span>Compra 100% segura</span> · <span>Atendimento humanizado</span> · <span>Pagamento protegido</span></p>
-        <p class="mt-7 text-center flex justify-center">
+        <p class="cta-row mt-7">
           <a href="https://wa.me/5511982899981?text=Ol%C3%A1%20Kelly%2C%20quero%20meu%20Kit%20Sa%C3%BAde%20Capilar%20e%20agendar%20a%20avalia%C3%A7%C3%A3o%20do%20couro%20cabeludo!" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-deep text-paper text-sm tracking-wide px-9 py-4 rounded-full hover:bg-mineral transition-colors"><span>Quero Meu Kit + Avaliação</span><span aria-hidden="true">→</span></a>
         </p>
       </div>
