@@ -1,7 +1,10 @@
 /* ============================================================
-   VisualEditor — Global Inline Visual Editor  (v2.8.1-rc1)
+   VisualEditor — styles (v2.9.0-arch)
    Every selector is namespaced with .editor-* and isolated so it
    NEVER interferes with the host site's own design / layout.
+
+   Shared tokens live in :root. Component blocks below map 1:1 to
+   JS modules (UI bar, toolbar, canvas chrome, studio, toast…).
    ============================================================ */
 
 :root {
@@ -55,6 +58,15 @@
 .editor-btn--primary { background: var(--editor-accent); border-color: var(--editor-accent); color: #fff; }
 .editor-btn--primary:hover { background: #a85e30; border-color: #a85e30; }
 .editor-btn--ghost.editor-on { background: var(--editor-accent-2); border-color: var(--editor-accent-2); color: #fff; }
+
+/* Shared "active / selected" accent for segmented controls */
+.editor-mb-btn.editor-on,
+.editor-seg-btn.editor-on {
+  background: var(--editor-accent);
+  color: #fff;
+}
+.editor-mb-btn.editor-on em { opacity: 1; }
+.editor-seg-btn.editor-on { border-color: var(--editor-accent); }
 
 html.editor-active { scroll-padding-top: var(--editor-bar-h); }
 body.editor-active { border-top: var(--editor-bar-h) solid transparent; background-clip: padding-box; }
@@ -249,8 +261,6 @@ body.editor-active:not(.editor-preview) img { pointer-events: auto !important; }
   opacity: 0.75;
 }
 .editor-mb-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
-.editor-mb-btn.editor-on { background: var(--editor-accent); color: #fff; }
-.editor-mb-btn.editor-on em { opacity: 1; }
 .editor-mb-btn--more { border-left: 1px solid var(--editor-line); margin-left: 2px; padding-left: 10px; }
 
 .editor-img-zoom-pop {
@@ -335,7 +345,6 @@ body.editor-preview .editor-img-zoom-pop { display: none !important; }
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 .editor-seg-btn:hover { border-color: var(--editor-accent); }
-.editor-seg-btn.editor-on { background: var(--editor-accent); color: #fff; border-color: var(--editor-accent); }
 
 .editor-reset-row { padding: 14px 16px; }
 .editor-reset-btn {

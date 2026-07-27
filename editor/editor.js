@@ -1,15 +1,29 @@
 /* ============================================================
-   VisualEditor — Global Inline Visual Editor  (v2.8.1-rc1)
-   Vanilla JS. Single file. Loaded on every page.
+   VisualEditor — Global Inline Visual Editor  (v2.9.0-arch)
+   Vanilla JS. Single file (no bundler). Loaded via auth.js.
 
-   v2.8 highlights
+   ARCHITECTURE MAP (single responsibility per block)
    -------------------------------------------------------------
-   • IMAGE CANVAS    — WYSIWYG on-page editing (Framer/Figma-like):
-     selection chrome, mini toolbar, rule-of-thirds, snap guides,
-     before/after hold, Melhor Enquadramento.
-   • SMART FOCAL     — FaceDetector + saliency + geometry fallback.
-   • IMAGE STUDIO    — full panel as "Mais opções".
-   • AUTO-FIT        — default for new uploads; memory auto↔manual.
+   Core/Utils      — DOM helpers, debounce, rafThrottle, cloneDeep
+   Validators      — image file + href sanitization
+   Events          — register / destroy all listeners
+   History         — undo/redo stack (studio)
+   FramingMath     — pan math shared by Studio + Canvas
+   Layout          — single scroll/resize reflow
+   Assets          — upload path registry for ZIP export
+   Toast           — single notification UI
+   State           — editor session flags
+   UI              — bar, toolbar, overlay, inspector shell
+   Selection       — hover / select / deselect
+   TextEditor      — contenteditable text
+   ImageAutoFit    — smart focal + auto framing (single IA path)
+   ImageStudio     — full framing panel (Mais opções)
+   ImageCanvas     — on-page WYSIWYG chrome + mini toolbar
+   ImageEditor     — pick / replace / background (single ingest)
+   SkillBarEditor  — currículo bars
+   Inspector       — style fields
+   Publish         — clean HTML, ZIP, Drive deploy
+   VisualEditor    — public façade + lifecycle
 
    Public API: window.VisualEditor
    ============================================================ */
@@ -31,7 +45,7 @@
   var DEPLOY_TOKEN    = 'lcmenterprisedysonai';                        // token compartilhado (igual ao SHARED_TOKEN do Code.gs)
 
   // ============================================================
-  // 0. UTILITIES
+  // CORE / UTILS
   // ============================================================
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $$(sel, root) { return [].slice.call((root || document).querySelectorAll(sel)); }
@@ -58,6 +72,11 @@
     return node;
   }
   function tagOf(node) { return node && node.tagName ? node.tagName.toLowerCase() : ''; }
+  function cloneDeep(value) {
+    if (value == null) return null;
+    return JSON.parse(JSON.stringify(value));
+  }
+  function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
 
   function debounce(fn, ms) {
     var t = null;
@@ -78,6 +97,9 @@
     };
   }
 
+  // ============================================================
+  // VALIDATORS
+  // ============================================================
   var ALLOWED_IMAGE_TYPES = /^(image\/(jpeg|jpg|png|webp|gif|avif))$/i;
   var MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 
@@ -125,6 +147,95 @@
     return ({ 'image/jpeg':'jpg','image/jpg':'jpg','image/png':'png','image/webp':'webp',
               'image/gif':'gif','image/svg+xml':'svg','image/avif':'avif','image/bmp':'bmp' })[m] || 'png';
   }
+
+  // ============================================================
+  // EVENTS — single registry; destroy() removes everything
+  // ============================================================
+  var Events = {
+    _list: [],
+    on: function (target, type, handler, opts) {
+      if (!target || !type || !handler) return handler;
+      target.addEventListener(type, handler, opts);
+      this._list.push({ target: target, type: type, handler: handler, opts: opts });
+      return handler;
+    },
+    offAll: function () {
+      var i, item;
+      for (i = this._list.length - 1; i >= 0; i--) {
+        item = this._list[i];
+        try { item.target.removeEventListener(item.type, item.handler, item.opts); } catch (e) {}
+      }
+      this._list = [];
+    }
+  };
+
+  // ============================================================
+  // HISTORY — undo / redo stack (ImageStudio)
+  // ============================================================
+  function HistoryStack(limit) {
+    this.past = [];
+    this.future = [];
+    this.limit = limit || 40;
+  }
+  HistoryStack.prototype.push = function (snapshot) {
+    if (!snapshot) return;
+    this.past.push(cloneDeep(snapshot));
+    if (this.past.length > this.limit) this.past.shift();
+    this.future = [];
+  };
+  HistoryStack.prototype.undo = function (current) {
+    if (!this.past.length) return null;
+    this.future.push(cloneDeep(current));
+    return this.past.pop();
+  };
+  HistoryStack.prototype.redo = function (current) {
+    if (!this.future.length) return null;
+    this.past.push(cloneDeep(current));
+    return this.future.pop();
+  };
+  HistoryStack.prototype.clear = function () { this.past = []; this.future = []; };
+  HistoryStack.prototype.canUndo = function () { return this.past.length > 0; };
+  HistoryStack.prototype.canRedo = function () { return this.future.length > 0; };
+
+  // ============================================================
+  // FRAMING MATH — shared pan for Studio + Canvas
+  // ============================================================
+  var FramingMath = {
+    pan: function (dragStart, clientX, clientY, rect) {
+      var w = Math.max(rect.width, 1);
+      var h = Math.max(rect.height, 1);
+      var dx = ((clientX - dragStart.x) / w) * 100;
+      var dy = ((clientY - dragStart.y) / h) * 100;
+      return {
+        x: clamp(dragStart.ox - dx, 0, 100),
+        y: clamp(dragStart.oy - dy, 0, 100)
+      };
+    },
+    bestZoomForAspect: function (img) {
+      var iar = (img.naturalWidth || 1) / (img.naturalHeight || 1);
+      return iar < 0.85 ? 108 : 100;
+    }
+  };
+
+  // ============================================================
+  // LAYOUT — one scroll/resize reflow (toolbar / overlay / canvas / studio)
+  // ============================================================
+  var Layout = {
+    _bound: false,
+    enable: function () {
+      if (this._bound) return;
+      this._bound = true;
+      var reflow = rafThrottle(function () {
+        if (state.selected) UI.positionToolbar(state.selected);
+        if (state.hoverImage) UI.positionImageOverlay(state.hoverImage);
+        if (ImageCanvas.target) ImageCanvas.reposition();
+        if (ImageStudio.isOpen) ImageStudio._sizeStage();
+      });
+      Events.on(window, 'scroll', reflow, true);
+      Events.on(window, 'resize', reflow);
+    },
+    reset: function () { this._bound = false; }
+  };
 
   // ============================================================
   // 1. SCOPE GUARDS — editor UI / footer blacklist / editable
@@ -233,9 +344,16 @@
   };
 
   // ============================================================
-  // 4. STATE
+  // STATE — single session store
   // ============================================================
-  var state = { dirty: false, selected: null, hoverEl: null, hoverImage: null, activeText: null, isPreview: false };
+  var state = {
+    dirty: false,
+    selected: null,
+    hoverEl: null,
+    hoverImage: null,
+    activeText: null,
+    isPreview: false
+  };
 
   function markDirty() {
     state.dirty = true;
@@ -436,7 +554,7 @@
   }
 
   function bindSelectionEvents() {
-    document.addEventListener('mousemove', rafThrottle(function (e) {
+    Events.on(document, 'mousemove', rafThrottle(function (e) {
       if (state.isPreview) return;
       var t = e.target;
       if (tagOf(t) === 'img') { clearHover(); return; }
@@ -444,9 +562,9 @@
       setHover(t);
     }), true);
 
-    document.addEventListener('mouseleave', function () { clearHover(); }, true);
+    Events.on(document, 'mouseleave', function () { clearHover(); }, true);
 
-    document.addEventListener('click', function (e) {
+    Events.on(document, 'click', function (e) {
       if (state.isPreview) return;
       var t = e.target;
       if (isEditorNode(t)) return;
@@ -465,14 +583,7 @@
       UI.positionToolbar(t);
     }, true);
 
-    var reflow = rafThrottle(function () {
-      if (state.selected) UI.positionToolbar(state.selected);
-      if (state.hoverImage) UI.positionImageOverlay(state.hoverImage);
-    });
-    window.addEventListener('scroll', reflow, true);
-    window.addEventListener('resize', reflow);
-
-    document.addEventListener('keydown', function (e) {
+    Events.on(document, 'keydown', function (e) {
       if (e.key === 'Escape' && !state.isPreview && !(e.target && e.target.isContentEditable)) {
         if (ImageStudio.isOpen) return; // ImageStudio owns Escape while open
         if (ImageCanvas.target) { ImageCanvas.deselect(); return; }
@@ -487,7 +598,7 @@
   var TextEditor = {
     enable: function () {
       var self = this;
-      document.addEventListener('dblclick', function (e) { self._maybeActivate(e); }, true);
+      Events.on(document, 'dblclick', function (e) { self._maybeActivate(e); }, true);
     },
     _maybeActivate: function (e) {
       if (state.isPreview) return;
@@ -818,6 +929,36 @@
       });
     },
 
+    // Single IA path for Canvas + Studio ("Melhor Enquadramento").
+    applyBestFrame: function (img, opts) {
+      opts = opts || {};
+      var self = this;
+      if (!img) return Promise.resolve(null);
+      this.setAuto(img, true);
+      img.removeAttribute('data-img-focal-src');
+      var src = img.currentSrc || img.src;
+      if (src && this._focalCache[src]) delete this._focalCache[src];
+
+      return this.computeAsync(img).then(function (computed) {
+        if (!computed) return null;
+        var draft = Object.assign({}, computed, {
+          auto: true,
+          zoom: FramingMath.bestZoomForAspect(img),
+          fit: 'cover',
+          lock: true
+        });
+        self._applying = true;
+        try {
+          ImageStudio.applyFraming(img, draft, !!opts.live);
+          img.setAttribute('data-img-auto', '1');
+          if (opts.dirty !== false) markDirty();
+        } finally {
+          self._applying = false;
+        }
+        return draft;
+      });
+    },
+
     applyWhenReady: function (img, cb) {
       var self = this;
       function run() {
@@ -906,8 +1047,7 @@
     draft: null,
     _manualMem: null,
     _autoMem: null,
-    history: [],
-    future: [],
+    _stack: null,
     device: 'desktop',
     safeArea: true,
     root: null,
@@ -922,7 +1062,7 @@
     DEFAULTS: { zoom: 100, x: 50, y: 50, fit: 'cover', lock: true, auto: false },
 
     _cloneDraft: function (d) {
-      return d ? JSON.parse(JSON.stringify(d)) : null;
+      return cloneDeep(d);
     },
 
     _enableAnim: function () {
@@ -1180,25 +1320,26 @@
 
     pushHistory: function () {
       if (!this.draft) return;
-      this.history.push(JSON.parse(JSON.stringify(this.draft)));
-      if (this.history.length > 40) this.history.shift();
-      this.future = [];
+      if (!this._stack) this._stack = new HistoryStack(40);
+      this._stack.push(this.draft);
       this._syncHistoryBtns();
     },
 
     undo: function () {
-      if (!this.history.length) return;
-      this.future.push(this._cloneDraft(this.draft));
-      this.draft = this.history.pop();
+      if (!this._stack) return;
+      var prev = this._stack.undo(this.draft);
+      if (!prev) return;
+      this.draft = prev;
       this._enableAnim();
       this._paint(false);
       this._syncHistoryBtns();
     },
 
     redo: function () {
-      if (!this.future.length) return;
-      this.history.push(this._cloneDraft(this.draft));
-      this.draft = this.future.pop();
+      if (!this._stack) return;
+      var next = this._stack.redo(this.draft);
+      if (!next) return;
+      this.draft = next;
       this._enableAnim();
       this._paint(false);
       this._syncHistoryBtns();
@@ -1208,8 +1349,8 @@
       if (!this.root) return;
       var u = this.root.querySelector('[data-studio="undo"]');
       var r = this.root.querySelector('[data-studio="redo"]');
-      if (u) u.disabled = !this.history.length;
-      if (r) r.disabled = !this.future.length;
+      if (u) u.disabled = !(this._stack && this._stack.canUndo());
+      if (r) r.disabled = !(this._stack && this._stack.canRedo());
     },
 
     _paint: function (record) {
@@ -1453,13 +1594,19 @@
             return;
           }
           if (act === 'ai') {
-            if (ImageCanvas.target === self.target) ImageCanvas._bestFrame();
-            else {
-              self.pushHistory();
-              self.target.removeAttribute('data-img-focal-src');
-              self._runAuto(false);
+            self.pushHistory();
+            ImageAutoFit.applyBestFrame(self.target, { live: true }).then(function (draft) {
+              if (!draft || !self.isOpen || !self.target) return;
+              self.draft = draft;
+              self._autoMem = self._cloneDraft(draft);
+              self._enableAnim();
+              self._syncControls();
+              if (ImageCanvas.target === self.target) {
+                ImageCanvas.draft = draft;
+                ImageCanvas._syncUI();
+              }
               Toast.show('✨ Melhor enquadramento aplicado');
-            }
+            });
             return;
           }
           if (act === 'recenter') {
@@ -1484,7 +1631,7 @@
             if (self.draft.auto) {
               self._runAuto(false);
             } else {
-              self.draft = JSON.parse(JSON.stringify(self.DEFAULTS));
+              self.draft = cloneDeep(self.DEFAULTS);
               self.draft.auto = false;
               self._enableAnim();
               self._paint(false);
@@ -1579,11 +1726,9 @@
       function pointerMove(ev) {
         if (!self.dragging || !self.isOpen || !self.draft || !self.target) return;
         var pt = ev.touches ? ev.touches[0] : ev;
-        var rect = crop.getBoundingClientRect();
-        var dx = ((pt.clientX - self.dragStart.x) / rect.width) * 100;
-        var dy = ((pt.clientY - self.dragStart.y) / rect.height) * 100;
-        self.draft.x = Math.max(0, Math.min(100, self.dragStart.ox - dx));
-        self.draft.y = Math.max(0, Math.min(100, self.dragStart.oy - dy));
+        var next = FramingMath.pan(self.dragStart, pt.clientX, pt.clientY, crop.getBoundingClientRect());
+        self.draft.x = next.x;
+        self.draft.y = next.y;
         if (self._raf) cancelAnimationFrame(self._raf);
         self._raf = requestAnimationFrame(function () {
           if (!self.dragging || !self.draft || !self.target) return;
@@ -1598,14 +1743,14 @@
         if (self.draft) self._manualMem = self._cloneDraft(self.draft);
       }
 
-      crop.addEventListener('mousedown', pointerDown);
-      crop.addEventListener('touchstart', pointerDown, { passive: false });
-      window.addEventListener('mousemove', pointerMove);
-      window.addEventListener('touchmove', pointerMove, { passive: false });
-      window.addEventListener('mouseup', pointerUp);
-      window.addEventListener('touchend', pointerUp);
+      Events.on(crop, 'mousedown', pointerDown);
+      Events.on(crop, 'touchstart', pointerDown, { passive: false });
+      Events.on(window, 'mousemove', pointerMove);
+      Events.on(window, 'touchmove', pointerMove, { passive: false });
+      Events.on(window, 'mouseup', pointerUp);
+      Events.on(window, 'touchend', pointerUp);
 
-      document.addEventListener('keydown', function (e) {
+      Events.on(document, 'keydown', function (e) {
         if (!self.isOpen) return;
         if (e.key === 'Escape') { e.preventDefault(); self.close(false); }
         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) { e.preventDefault(); self.undo(); }
@@ -1654,8 +1799,7 @@
       this.draft = this.readFrom(img);
       this._autoMem = this.draft.auto ? this._cloneDraft(this.draft) : null;
       this._manualMem = this.draft.auto ? null : this._cloneDraft(this.draft);
-      this.history = [];
-      this.future = [];
+      this._stack = new HistoryStack(40);
       this.device = 'desktop';
       this.safeArea = true;
       this.isOpen = true;
@@ -1741,10 +1885,7 @@
       if (this._bound) return;
       this._bound = true;
       var self = this;
-      var reflow = rafThrottle(function () { self.reposition(); });
-      window.addEventListener('scroll', reflow, true);
-      window.addEventListener('resize', reflow);
-      document.addEventListener('keydown', function (e) {
+      Events.on(document, 'keydown', function (e) {
         if (!self.target || ImageStudio.isOpen) return;
         if (e.key === 'Escape') { e.preventDefault(); self.deselect(); return; }
         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z' && self._lastAiUndo) {
@@ -1757,7 +1898,7 @@
           Toast.show('Enquadramento desfeito', 1600);
         }
       });
-      document.addEventListener('click', function (e) {
+      Events.on(document, 'click', function (e) {
         if (!self.target || ImageStudio.isOpen) return;
         if (isEditorNode(e.target)) return;
         if (e.target === self.target || (self.chrome && self.chrome.contains(e.target))) return;
@@ -1884,13 +2025,9 @@
       function ptrMove(ev) {
         if (!self.dragging) return;
         var pt = ev.touches ? ev.touches[0] : ev;
-        var rect = self.target.getBoundingClientRect();
-        var dx = ((pt.clientX - self.dragStart.x) / Math.max(rect.width, 1)) * 100;
-        var dy = ((pt.clientY - self.dragStart.y) / Math.max(rect.height, 1)) * 100;
-        var nx = Math.max(0, Math.min(100, self.dragStart.ox - dx));
-        var ny = Math.max(0, Math.min(100, self.dragStart.oy - dy));
-        var sx = self._snap(nx);
-        var sy = self._snap(ny);
+        var next = FramingMath.pan(self.dragStart, pt.clientX, pt.clientY, self.target.getBoundingClientRect());
+        var sx = self._snap(next.x);
+        var sy = self._snap(next.y);
         self.draft.x = sx.v;
         self.draft.y = sy.v;
         self._showGuides(sx.line, sy.line);
@@ -1910,10 +2047,10 @@
       }
       chrome.addEventListener('mousedown', ptrDown);
       chrome.addEventListener('touchstart', ptrDown, { passive: false });
-      window.addEventListener('mousemove', ptrMove);
-      window.addEventListener('touchmove', ptrMove, { passive: false });
-      window.addEventListener('mouseup', ptrUp);
-      window.addEventListener('touchend', ptrUp);
+      Events.on(window, 'mousemove', ptrMove);
+      Events.on(window, 'touchmove', ptrMove, { passive: false });
+      Events.on(window, 'mouseup', ptrUp);
+      Events.on(window, 'touchend', ptrUp);
 
       // Mini toolbar
       mini.addEventListener('click', function (e) {
@@ -2015,22 +2152,10 @@
       var self = this;
       if (!this.target) return;
       var img = this.target;
-      var undo = ImageStudio.captureSnapshot(img);
-      this._lastAiUndo = undo;
-      ImageAutoFit.setAuto(img, true);
-      this.draft.auto = true;
-      img.removeAttribute('data-img-focal-src');
-      var src = img.currentSrc || img.src;
-      if (src && ImageAutoFit._focalCache[src]) delete ImageAutoFit._focalCache[src];
-
-      ImageAutoFit.computeAsync(img).then(function (computed) {
-        if (!computed || self.target !== img || !self.draft) return;
-        var z = 100;
-        var iar = (img.naturalWidth || 1) / (img.naturalHeight || 1);
-        if (iar < 0.85) z = 108;
-        self.draft = Object.assign({}, computed, { auto: true, zoom: z, fit: 'cover', lock: true });
-        ImageStudio.applyFraming(img, self.draft, false);
-        markDirty();
+      this._lastAiUndo = ImageStudio.captureSnapshot(img);
+      ImageAutoFit.applyBestFrame(img).then(function (draft) {
+        if (!draft || self.target !== img) return;
+        self.draft = draft;
         self._syncUI();
         Toast.show('✨ Melhor enquadramento aplicado — use Restaurar para desfazer', 2800);
       });
@@ -2108,7 +2233,7 @@
   // ============================================================
   var ImageEditor = {
     enable: function () {
-      document.addEventListener('mouseover', function (e) {
+      Events.on(document, 'mouseover', function (e) {
         if (state.isPreview || ImageStudio.isOpen) return;
         var t = e.target;
         if (tagOf(t) !== 'img' || isEditorNode(t) || isRestricted(t)) return;
@@ -2120,7 +2245,7 @@
       }, true);
 
       // Click → seleção WYSIWYG na página (não abre o painel completo).
-      document.addEventListener('click', function (e) {
+      Events.on(document, 'click', function (e) {
         if (state.isPreview || ImageStudio.isOpen) return;
         if (isEditorNode(e.target)) return;
         var t = e.target;
@@ -2130,7 +2255,7 @@
       }, true);
 
       // Duplo clique → alterna Ajuste Automático.
-      document.addEventListener('dblclick', function (e) {
+      Events.on(document, 'dblclick', function (e) {
         if (state.isPreview) return;
         var t = e.target;
         if (tagOf(t) !== 'img' || isEditorNode(t) || isRestricted(t)) return;
@@ -2145,18 +2270,18 @@
       }, true);
 
       // [data-editable-image] empty drop-zones
-      document.addEventListener('mouseover', function (e) {
+      Events.on(document, 'mouseover', function (e) {
         if (state.isPreview) return;
         var zone = e.target.closest && e.target.closest('[data-editable-image]');
         if (!zone || isEditorNode(zone) || isRestricted(zone)) return;
         if (zone.querySelector('img')) return;
         zone.classList.add('editor-image-hover');
       }, true);
-      document.addEventListener('mouseout', function (e) {
+      Events.on(document, 'mouseout', function (e) {
         var zone = e.target.closest && e.target.closest('[data-editable-image]');
         if (zone && (!e.relatedTarget || !zone.contains(e.relatedTarget))) zone.classList.remove('editor-image-hover');
       }, true);
-      document.addEventListener('click', function (e) {
+      Events.on(document, 'click', function (e) {
         if (state.isPreview) return;
         var zone = e.target.closest && e.target.closest('[data-editable-image]');
         if (!zone || isEditorNode(zone) || isRestricted(zone)) return;
@@ -2180,23 +2305,37 @@
       });
     },
 
+    // Single ingest path for <img> replacements / zone inserts.
+    _applyFileToImg: function (img, file, opts) {
+      opts = opts || {};
+      var err = validateImageFile(file);
+      if (err) { Toast.show(err, 3200); return Promise.resolve(null); }
+      var path = Assets.set(img, 'src', file);
+      return readAsDataURL(file).then(function (durl) {
+        img.src = durl;
+        img.setAttribute('data-export-src', path);
+        img.style.display = '';
+        img.removeAttribute('aria-hidden');
+        markDirty();
+        return new Promise(function (resolve) {
+          ImageAutoFit.prepareNew(img, function () {
+            if (opts.toast) Toast.show(opts.toast);
+            if (typeof opts.onDone === 'function') opts.onDone(img);
+            resolve(img);
+          });
+        });
+      });
+    },
+
     pick: function (img, onDone) {
       this._filePrompt().then(function (file) {
         if (!file) return;
-        var err = validateImageFile(file);
-        if (err) { Toast.show(err, 3200); return; }
-        var path = Assets.set(img, 'src', file);
-        readAsDataURL(file).then(function (durl) {
-          img.src = durl;
-          img.setAttribute('data-export-src', path);
-          img.style.display = '';
-          img.removeAttribute('aria-hidden');
-          markDirty();
-          ImageAutoFit.prepareNew(img, function () {
-            UI.positionImageOverlay(img);
-            Toast.show('Imagem atualizada — enquadrada automaticamente');
-            if (typeof onDone === 'function') onDone(img);
-          });
+        ImageEditor._applyFileToImg(img, file, {
+          toast: 'Imagem atualizada — enquadrada automaticamente',
+          onDone: function (node) {
+            UI.positionImageOverlay(node);
+            if (typeof onDone === 'function') onDone(node);
+          }
         });
       });
     },
@@ -2206,20 +2345,16 @@
       if (existing) return this.pick(existing, function (img) { ImageCanvas.select(img); });
       this._filePrompt().then(function (file) {
         if (!file) return;
-        var err = validateImageFile(file);
-        if (err) { Toast.show(err, 3200); return; }
         var img = el('img', { alt: '', style: { maxWidth: '100%', display: 'block', width: '100%', height: '100%', objectFit: 'cover' } });
         zone.appendChild(img);
-        var path = Assets.set(img, 'src', file);
-        readAsDataURL(file).then(function (durl) {
-          img.src = durl;
-          img.setAttribute('data-export-src', path);
-          zone.classList.remove('editor-image-hover');
-          markDirty();
-          ImageAutoFit.prepareNew(img, function () {
-            Toast.show('Imagem adicionada — enquadrada automaticamente');
-            ImageCanvas.select(img);
-          });
+        ImageEditor._applyFileToImg(img, file, {
+          toast: 'Imagem adicionada — enquadrada automaticamente',
+          onDone: function (node) {
+            zone.classList.remove('editor-image-hover');
+            ImageCanvas.select(node);
+          }
+        }).then(function (ok) {
+          if (!ok && img.parentNode) img.remove();
         });
       });
     },
@@ -2272,15 +2407,15 @@
         function apply(p) { fill.style.width = p + '%'; fill.setAttribute('data-pct', String(p)); showBadge(p); markDirty(); }
 
         var dragging = false;
-        track.addEventListener('mousedown', function (e) {
+        Events.on(track, 'mousedown', function (e) {
           if (state.isPreview) return;
           dragging = true; track.classList.add('editor-skill-armed'); apply(pctFromEvent(e)); e.preventDefault();
         });
-        document.addEventListener('mousemove', function (e) { if (dragging) apply(pctFromEvent(e)); });
-        document.addEventListener('mouseup', function () {
+        Events.on(document, 'mousemove', function (e) { if (dragging) apply(pctFromEvent(e)); });
+        Events.on(document, 'mouseup', function () {
           if (!dragging) return; dragging = false; track.classList.remove('editor-skill-armed'); setTimeout(hideBadge, 700);
         });
-        track.addEventListener('click', function (e) { if (state.isPreview) return; apply(pctFromEvent(e)); setTimeout(hideBadge, 700); });
+        Events.on(track, 'click', function (e) { if (state.isPreview) return; apply(pctFromEvent(e)); setTimeout(hideBadge, 700); });
       });
     }
   };
@@ -2636,16 +2771,16 @@
   // ETAPA 3 — Guarda de navegação + aviso de não salvo
   // ============================================================
   function guardNavigation() {
-    // Ação 1 — em modo edição, o clique em <a> não navega (evita saída acidental).
-    document.addEventListener('click', function (e) {
+    // Em modo edição, o clique em <a> não navega (evita saída acidental).
+    Events.on(document, 'click', function (e) {
       if (state.isPreview) return;
       if (!document.body.classList.contains('editor-active')) return;
       var a = e.target.closest && e.target.closest('a[href]');
       if (a && !isEditorNode(a)) { e.preventDefault(); }
     }, true);
 
-    // Ação 2 — avisa se houver alterações não salvas ao tentar sair.
-    window.addEventListener('beforeunload', function (e) {
+    // Avisa se houver alterações não salvas ao tentar sair.
+    Events.on(window, 'beforeunload', function (e) {
       if (!state.dirty) return;
       e.preventDefault();
       e.returnValue = 'Você tem alterações não salvas. Deseja realmente sair?';
@@ -2654,7 +2789,7 @@
   }
 
   var VisualEditor = {
-    version: '2.8.1-rc1',
+    version: '2.9.0-arch',
 
     init: function () {
       if (this._inited) return;
@@ -2671,6 +2806,7 @@
       ImageAutoFit.enable();
       ImageCanvas.enable();
       bindSelectionEvents();
+      Layout.enable();
       guardNavigation();
 
       if (document.querySelector(SKILL_SELECTOR)) SkillBarEditor.setup();
@@ -2752,16 +2888,26 @@
     destroy: function () {
       if (ImageStudio.isOpen) ImageStudio.close(false);
       if (ImageCanvas.target) ImageCanvas.deselect(true);
+      Events.offAll();
+      Layout.reset();
       $$('.editor-root').forEach(function (n) { n.remove(); });
       document.documentElement.classList.remove('editor-active');
       document.body.classList.remove('editor-active', 'editor-preview', 'editor-studio-open');
       UI.bar = UI.panel = UI.toolbar = UI.panelBody = UI.panelTag = UI.imgOverlay = null;
       ImageStudio.root = ImageStudio.stageImg = ImageStudio.stageImgs = null;
       ImageStudio.isOpen = false;
+      ImageStudio._stack = null;
       ImageCanvas.chrome = ImageCanvas.mini = ImageCanvas.zoomPop = null;
       ImageCanvas.target = null;
       ImageCanvas._bound = false;
       ImageAutoFit._enabled = false;
+      Toast.node = null;
+      state.dirty = false;
+      state.selected = null;
+      state.hoverEl = null;
+      state.hoverImage = null;
+      state.activeText = null;
+      state.isPreview = false;
       this._inited = false;
     }
   };
