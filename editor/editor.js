@@ -248,6 +248,7 @@
     },
 
     // Zoom/pan the PHOTO only. The <img> layout box (and its border/radius) never scale.
+    // One continuous model for all depths: object-view-box (works above AND below 100%).
     paint: function (draft) {
       var z = clamp((draft && draft.zoom ? draft.zoom : 100) / 100, 0.5, 2);
       var fit = draft.lock && draft.fit === 'fill' ? 'cover' : (draft.fit || 'cover');
@@ -266,37 +267,31 @@
         mode: 'position'
       };
 
-      if (z > 1.001 && FramingMath._ovb) {
-        // Zoom in = show a smaller slice of the source (box/border stay put).
+      if (FramingMath._ovb) {
+        // visible = % of the source shown in the box.
+        // z=2 → 50% (zoom in), z=1 → 100%, z=0.5 → 200% (zoom out, negative inset).
         var visible = 100 / z;
         var gap = 100 - visible;
         var left = gap * (x / 100);
         var top = gap * (y / 100);
         var right = gap - left;
         var bottom = gap - top;
-        out.objectViewBox = 'inset(' + top.toFixed(3) + '% ' + right.toFixed(3) + '% ' +
-          bottom.toFixed(3) + '% ' + left.toFixed(3) + '%)';
+        out.objectViewBox = 'inset(' + top.toFixed(4) + '% ' + right.toFixed(4) + '% ' +
+          bottom.toFixed(4) + '% ' + left.toFixed(4) + '%)';
         out.objectPosition = '50% 50%';
-        out.fit = (fit === 'contain' || fit === 'scale-down') ? 'contain' : 'cover';
+        // Keep author's contain/cover intent; never hard-switch at 100% (that caused jumps).
+        if (fit === 'scale-down') out.fit = 'contain';
+        else if (fit === 'none') out.fit = 'none';
+        else if (fit === 'contain') out.fit = 'contain';
+        else out.fit = 'cover';
         return out;
       }
 
-      if (z > 1.001 && !FramingMath._ovb) {
-        // Rare fallback: keep box fixed via clip; avoid growing avatar borders.
+      // Fallback without object-view-box: continuous scale (clipped), no fit flip at 100%.
+      if (Math.abs(z - 1) > 0.001) {
         out.transform = 'scale(' + z + ')';
         out.objectPosition = x + '% ' + y + '%';
-        return out;
       }
-
-      if (z < 0.999) {
-        // Zoom out: show full bitmap inside the fixed frame (no transform/grow).
-        out.fit = (fit === 'cover' || fit === 'fill') ? 'contain' : fit;
-        out.objectPosition = x + '% ' + y + '%';
-        return out;
-      }
-
-      // 100%: normal fit + position (Contain also pans on letterbox axes).
-      out.objectPosition = x + '% ' + y + '%';
       return out;
     }
   };
