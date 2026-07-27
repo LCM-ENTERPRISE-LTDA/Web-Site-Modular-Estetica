@@ -1,5 +1,5 @@
 /* ============================================================
-   VisualEditor — Global Inline Visual Editor  (v2.8.0)
+   VisualEditor — Global Inline Visual Editor  (v2.8.1-rc1)
    Vanilla JS. Single file. Loaded on every page.
 
    v2.8 highlights
@@ -16,7 +16,7 @@
 (function (global) {
   'use strict';
 
-  var DEBUG = true;
+  var DEBUG = false;
   function log() {
     if (!DEBUG) return;
     try { console.info.apply(console, ['[VisualEditor]'].concat([].slice.call(arguments))); } catch (e) {}
@@ -76,6 +76,42 @@
       ticking = true;
       requestAnimationFrame(function () { ticking = false; fn.apply(null, lastArgs); });
     };
+  }
+
+  var ALLOWED_IMAGE_TYPES = /^(image\/(jpeg|jpg|png|webp|gif|avif))$/i;
+  var MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+
+  function validateImageFile(file) {
+    if (!file) return 'Nenhum arquivo selecionado';
+    if (!ALLOWED_IMAGE_TYPES.test(file.type || '')) return 'Use JPG, PNG, WebP, GIF ou AVIF';
+    if (file.size > MAX_IMAGE_BYTES) return 'Imagem muito grande (máx. 8 MB)';
+    return null;
+  }
+
+  function sanitizeHref(raw) {
+    var v = String(raw || '').trim();
+    if (!v) return '';
+    if (/^(https?:|mailto:|tel:|#|\/|\.\/|\.\.\/)/i.test(v)) return v;
+    if (/^[a-z0-9][\w./?#&=%+-]*$/i.test(v) && !/^[a-z][a-z0-9+.-]*:/i.test(v)) return v;
+    return '';
+  }
+
+  function pastePlainText(e) {
+    e.preventDefault();
+    var text = '';
+    try {
+      text = (e.clipboardData || window.clipboardData).getData('text/plain') || '';
+    } catch (err) { text = ''; }
+    text = String(text).replace(/\u0000/g, '');
+    if (document.queryCommandSupported && document.queryCommandSupported('insertText')) {
+      document.execCommand('insertText', false, text);
+    } else if (window.getSelection) {
+      var sel = window.getSelection();
+      if (!sel.rangeCount) return;
+      sel.deleteFromDocument();
+      sel.getRangeAt(0).insertNode(document.createTextNode(text));
+      sel.collapseToEnd();
+    }
   }
   function readAsDataURL(file) {
     return new Promise(function (res, rej) {
@@ -434,7 +470,11 @@
     window.addEventListener('resize', reflow);
 
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !state.isPreview && !(e.target && e.target.isContentEditable)) deselect();
+      if (e.key === 'Escape' && !state.isPreview && !(e.target && e.target.isContentEditable)) {
+        if (ImageStudio.isOpen) return; // ImageStudio owns Escape while open
+        if (ImageCanvas.target) { ImageCanvas.deselect(); return; }
+        deselect();
+      }
     });
   }
 
@@ -471,6 +511,7 @@
         node.removeEventListener('blur', onBlur);
         node.removeEventListener('input', onInput);
         node.removeEventListener('keydown', onKey);
+        node.removeEventListener('paste', pastePlainText);
         TextEditor.deactivate(node);
       };
       var onInput = function () { markDirty(); };
@@ -481,6 +522,7 @@
       node.addEventListener('blur', onBlur);
       node.addEventListener('input', onInput);
       node.addEventListener('keydown', onKey);
+      node.addEventListener('paste', pastePlainText);
     },
     deactivate: function (node) {
       if (!node) return;
@@ -872,6 +914,7 @@
     dragStart: null,
     _raf: 0,
     _animTimer: 0,
+    _gen: 0,
 
     DEFAULTS: { zoom: 100, x: 50, y: 50, fit: 'cover', lock: true, auto: false },
 
@@ -982,7 +1025,10 @@
         } catch (e) { parent.style.overflow = 'hidden'; }
       }
 
-      if (live) ImageStudio._paintPreviews(fit, ox, oy, transform || 'none');
+      if (live) {
+        ImageStudio._paintPreviews(fit, ox, oy, transform || 'none');
+        if (!ImageStudio._suppressDirty) markDirty();
+      }
     },
 
     _paintPreviews: function (fit, ox, oy, transform) {
@@ -1007,8 +1053,14 @@
     _runAuto: function (silent) {
       if (!this.target || !this.draft) return;
       var self = this;
-      ImageAutoFit.computeAsync(this.target).then(function (computed) {
-        if (!computed || !self.draft || !self.isOpen) return;
+      var img = this.target;
+      var gen = ++this._gen;
+      this._suppressDirty = true;
+      ImageAutoFit.computeAsync(img).then(function (computed) {
+        if (!computed || !self.isOpen || self.target !== img || self._gen !== gen || !self.draft) {
+          self._suppressDirty = false;
+          return;
+        }
         self.draft = Object.assign({}, computed, {
           auto: true,
           zoom: 100,
@@ -1017,10 +1069,11 @@
         });
         self._autoMem = self._cloneDraft(self.draft);
         self._enableAnim();
-        self.applyFraming(self.target, self.draft, true);
+        self.applyFraming(img, self.draft, true);
+        self._suppressDirty = false;
         self._syncControls();
         if (!silent) Toast.show('Enquadramento automático atualizado');
-      });
+      }).catch(function () { self._suppressDirty = false; });
     },
 
     _toggleAuto: function () {
@@ -1058,13 +1111,15 @@
     _recenter: function () {
       if (!this.target || !this.draft) return;
       var self = this;
+      var img = this.target;
+      var gen = ++this._gen;
       this.pushHistory();
-      ImageAutoFit.recenter(this.target, this.draft).then(function (next) {
-        if (!next || !self.draft) return;
+      ImageAutoFit.recenter(img, this.draft).then(function (next) {
+        if (!next || !self.isOpen || self.target !== img || self._gen !== gen || !self.draft) return;
         self.draft.x = next.x;
         self.draft.y = next.y;
         self._enableAnim();
-        self.applyFraming(self.target, self.draft, true);
+        self.applyFraming(img, self.draft, true);
         self._syncControls();
         if (self.draft.auto) self._autoMem = self._cloneDraft(self.draft);
         else self._manualMem = self._cloneDraft(self.draft);
@@ -1480,7 +1535,7 @@
         crop.classList.add('editor-dragging');
       }
       function pointerMove(ev) {
-        if (!self.dragging) return;
+        if (!self.dragging || !self.isOpen || !self.draft || !self.target) return;
         var pt = ev.touches ? ev.touches[0] : ev;
         var rect = crop.getBoundingClientRect();
         var dx = ((pt.clientX - self.dragStart.x) / rect.width) * 100;
@@ -1489,6 +1544,7 @@
         self.draft.y = Math.max(0, Math.min(100, self.dragStart.oy - dy));
         if (self._raf) cancelAnimationFrame(self._raf);
         self._raf = requestAnimationFrame(function () {
+          if (!self.dragging || !self.draft || !self.target) return;
           self.applyFraming(self.target, self.draft, true);
           self._syncControls();
         });
@@ -1497,7 +1553,7 @@
         if (!self.dragging) return;
         self.dragging = false;
         crop.classList.remove('editor-dragging');
-        self._manualMem = self._cloneDraft(self.draft);
+        if (self.draft) self._manualMem = self._cloneDraft(self.draft);
       }
 
       crop.addEventListener('mousedown', pointerDown);
@@ -1569,7 +1625,9 @@
       if (this.draft.auto) {
         this._runAuto(true);
       } else {
+        this._suppressDirty = true;
         this.applyFraming(img, this.draft, true);
+        this._suppressDirty = false;
       }
       this._sizeStage();
       this._syncControls();
@@ -1583,18 +1641,23 @@
 
     close: function (commit) {
       if (!this.isOpen) return;
+      this._gen++;
+      this.dragging = false;
+      if (this._raf) { cancelAnimationFrame(this._raf); this._raf = 0; }
       if (commit) {
         this.applyFraming(this.target, this.draft, false);
+        markDirty();
         if (this.draft.auto) {
           this._autoMem = this._cloneDraft(this.draft);
           ImageAutoFit.watch(this.target);
         } else {
           this._manualMem = this._cloneDraft(this.draft);
         }
-        markDirty();
         Toast.show('Enquadramento salvo — publique quando quiser');
       } else {
+        this._suppressDirty = true;
         this.restoreSnapshot(this.target, this.snapshot);
+        this._suppressDirty = false;
         Toast.show('Alterações do enquadramento descartadas');
       }
       this.isOpen = false;
@@ -1609,6 +1672,7 @@
         if (ImageCanvas.chrome) ImageCanvas.chrome.classList.add('editor-show');
         if (ImageCanvas.mini) ImageCanvas.mini.classList.add('editor-show');
         ImageCanvas.reposition();
+        selectElement(kept);
       }
     }
   };
@@ -1640,7 +1704,16 @@
       window.addEventListener('resize', reflow);
       document.addEventListener('keydown', function (e) {
         if (!self.target || ImageStudio.isOpen) return;
-        if (e.key === 'Escape') { e.preventDefault(); self.deselect(); }
+        if (e.key === 'Escape') { e.preventDefault(); self.deselect(); return; }
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z' && self._lastAiUndo) {
+          e.preventDefault();
+          ImageStudio.restoreSnapshot(self.target, self._lastAiUndo);
+          self.draft = ImageStudio.readFrom(self.target);
+          self._lastAiUndo = null;
+          markDirty();
+          self._syncUI();
+          Toast.show('Enquadramento desfeito', 1600);
+        }
       });
       document.addEventListener('click', function (e) {
         if (!self.target || ImageStudio.isOpen) return;
@@ -1898,27 +1971,25 @@
     _bestFrame: function () {
       var self = this;
       if (!this.target) return;
-      var undo = ImageStudio.captureSnapshot(this.target);
-      ImageAutoFit.setAuto(this.target, true);
+      var img = this.target;
+      var undo = ImageStudio.captureSnapshot(img);
+      this._lastAiUndo = undo;
+      ImageAutoFit.setAuto(img, true);
       this.draft.auto = true;
-      // Invalidate focal cache to force redetect
-      this.target.removeAttribute('data-img-focal-src');
-      var src = this.target.currentSrc || this.target.src;
+      img.removeAttribute('data-img-focal-src');
+      var src = img.currentSrc || img.src;
       if (src && ImageAutoFit._focalCache[src]) delete ImageAutoFit._focalCache[src];
 
-      ImageAutoFit.computeAsync(this.target).then(function (computed) {
-        if (!computed || !self.target) return;
-        // Slight smart zoom for portraits
+      ImageAutoFit.computeAsync(img).then(function (computed) {
+        if (!computed || self.target !== img || !self.draft) return;
         var z = 100;
-        var iar = (self.target.naturalWidth || 1) / (self.target.naturalHeight || 1);
+        var iar = (img.naturalWidth || 1) / (img.naturalHeight || 1);
         if (iar < 0.85) z = 108;
-        else if (iar > 1.6) z = 100;
         self.draft = Object.assign({}, computed, { auto: true, zoom: z, fit: 'cover', lock: true });
-        ImageStudio.applyFraming(self.target, self.draft, false);
+        ImageStudio.applyFraming(img, self.draft, false);
         markDirty();
         self._syncUI();
-        Toast.show('✨ Melhor enquadramento — desfazer: Ctrl+Z ou Restaurar', 2800);
-        self._lastAiUndo = undo;
+        Toast.show('✨ Melhor enquadramento aplicado — use Restaurar para desfazer', 2800);
       });
     },
 
@@ -2054,7 +2125,12 @@
 
     _filePrompt: function () {
       return new Promise(function (res) {
-        var input = el('input', { type: 'file', accept: 'image/*', class: 'editor-root', style: { display: 'none' } });
+        var input = el('input', {
+          type: 'file',
+          accept: 'image/jpeg,image/png,image/webp,image/gif,image/avif',
+          class: 'editor-root',
+          style: { display: 'none' }
+        });
         document.body.appendChild(input);
         input.addEventListener('change', function () { var f = input.files && input.files[0]; input.remove(); res(f || null); });
         input.click();
@@ -2064,6 +2140,8 @@
     pick: function (img, onDone) {
       this._filePrompt().then(function (file) {
         if (!file) return;
+        var err = validateImageFile(file);
+        if (err) { Toast.show(err, 3200); return; }
         var path = Assets.set(img, 'src', file);
         readAsDataURL(file).then(function (durl) {
           img.src = durl;
@@ -2085,6 +2163,8 @@
       if (existing) return this.pick(existing, function (img) { ImageCanvas.select(img); });
       this._filePrompt().then(function (file) {
         if (!file) return;
+        var err = validateImageFile(file);
+        if (err) { Toast.show(err, 3200); return; }
         var img = el('img', { alt: '', style: { maxWidth: '100%', display: 'block', width: '100%', height: '100%', objectFit: 'cover' } });
         zone.appendChild(img);
         var path = Assets.set(img, 'src', file);
@@ -2104,6 +2184,8 @@
     setBackground: function (node) {
       this._filePrompt().then(function (file) {
         if (!file) return;
+        var err = validateImageFile(file);
+        if (err) { Toast.show(err, 3200); return; }
         var path = Assets.set(node, 'bg', file);
         readAsDataURL(file).then(function (durl) {
           node.style.backgroundImage = 'url("' + durl + '")';
@@ -2300,7 +2382,17 @@
 
       if (isButtonLike(target)) {
         var hrefIn = el('input', { type: 'text', class: 'editor-input', value: target.getAttribute('href') || '' });
-        hrefIn.addEventListener('change', function () { target.setAttribute('href', hrefIn.value); markDirty(); });
+        hrefIn.addEventListener('change', function () {
+          var safe = sanitizeHref(hrefIn.value);
+          if (hrefIn.value && !safe) {
+            Toast.show('Link inválido — use http(s), mailto, tel ou caminho relativo');
+            hrefIn.value = target.getAttribute('href') || '';
+            return;
+          }
+          if (safe) target.setAttribute('href', safe);
+          else target.removeAttribute('href');
+          markDirty();
+        });
         var targetSel = el('select', { class: 'editor-select' });
         ['','_self','_blank','_parent','_top'].forEach(function (t) {
           var o = el('option', { value: t, text: t || '(padrão)' });
@@ -2394,6 +2486,10 @@
       n.removeAttribute('contenteditable');
       n.removeAttribute('data-export-src');
       n.removeAttribute('data-export-bg');
+      n.removeAttribute('data-img-fx');
+      n.removeAttribute('data-img-fy');
+      n.removeAttribute('data-img-focal');
+      n.removeAttribute('data-img-focal-src');
       if (n.getAttribute && n.getAttribute('class') === '') n.removeAttribute('class');
       if (n.getAttribute && n.getAttribute('style') === '') n.removeAttribute('style');
     });
@@ -2515,7 +2611,7 @@
   }
 
   var VisualEditor = {
-    version: '2.8.0',
+    version: '2.8.1-rc1',
 
     init: function () {
       if (this._inited) return;
@@ -2542,26 +2638,42 @@
     },
 
     save: function () {
-      // ETAPA 1 — confirmação nativa antes de publicar no site oficial
       if (!confirm('Tem certeza que deseja salvar e publicar as alterações no site oficial?')) return;
+      if (ImageStudio.isOpen) ImageStudio.close(true);
       Toast.show('Preparando pacote para publicação…', 4000);
       buildZipBlob().then(function (blob) {
-        //triggerDownload(blob, 'web_site_official.zip');   // cópia local de segurança
-        return pushToDrive(blob);
-      }).then(function (res) {
+        return pushToDrive(blob).then(function (res) {
+          return { blob: blob, res: res || {} };
+        });
+      }).then(function (pack) {
+        var res = pack.res;
+        if (res && res.ok === false) {
+          try { triggerDownload(pack.blob, 'web_site_official.zip'); } catch (e) {}
+          Toast.show('Backup remoto falhou — baixei o ZIP localmente', 4400);
+          return;
+        }
         clearDirty();
-        if (res && res.skipped) Toast.show('Pacote exportado: web_site_official.zip', 3400);
-        else if (res && res.ok === false) Toast.show('Zip baixado, mas o backup remoto falhou', 4400);
-        else Toast.show('Publicado: backup no Drive + deploy acionado', 4400);
+        if (res && res.skipped) {
+          try { triggerDownload(pack.blob, 'web_site_official.zip'); } catch (e) {}
+          Toast.show('Pacote exportado: web_site_official.zip', 3400);
+        } else {
+          Toast.show('Publicado: backup no Drive + deploy acionado', 4400);
+        }
       }).catch(function (e) {
         log('save failed', e);
-        try { downloadStandaloneHTML(); clearDirty(); Toast.show('Sem conexão p/ JSZip — exportei HTML único', 3600); }
-        catch (err) { Toast.show('Erro ao exportar'); log(err); }
+        try {
+          downloadStandaloneHTML();
+          clearDirty();
+          Toast.show('Sem conexão p/ JSZip — exportei HTML único', 3600);
+        } catch (err) {
+          Toast.show('Erro ao exportar — alterações NÃO foram salvas', 4200);
+          log(err);
+        }
       });
     },
 
     cancel: function () {
-      if (state.dirty && !confirm('Descartar as alterações não salvas?')) return;
+      if ((state.dirty || ImageStudio.isOpen) && !confirm('Descartar as alterações não salvas?')) return;
       location.reload();
     },
 
@@ -2581,12 +2693,13 @@
       Toast.show(state.isPreview ? 'Pré-visualização ativa' : 'Edição ativa');
     },
 
-    // ETAPA 3 — abre o link do elemento selecionado em nova aba (botão 🔗 da toolbar).
     openSelectedLink: function () {
       var sel = state.selected;
       var a = sel && (tagOf(sel) === 'a' ? sel : (sel.closest && sel.closest('a[href]')));
       if (!a || !a.getAttribute('href')) { Toast.show('Selecione um link primeiro'); return; }
-      location.href = a.getAttribute('href');
+      var href = sanitizeHref(a.getAttribute('href'));
+      if (!href) { Toast.show('Link inválido'); return; }
+      location.href = href;
     },
 
     getCleanHTML: getCleanHTML,
@@ -2595,9 +2708,17 @@
 
     destroy: function () {
       if (ImageStudio.isOpen) ImageStudio.close(false);
+      if (ImageCanvas.target) ImageCanvas.deselect(true);
       $$('.editor-root').forEach(function (n) { n.remove(); });
       document.documentElement.classList.remove('editor-active');
       document.body.classList.remove('editor-active', 'editor-preview', 'editor-studio-open');
+      UI.bar = UI.panel = UI.toolbar = UI.panelBody = UI.panelTag = UI.imgOverlay = null;
+      ImageStudio.root = ImageStudio.stageImg = ImageStudio.stageImgs = null;
+      ImageStudio.isOpen = false;
+      ImageCanvas.chrome = ImageCanvas.mini = ImageCanvas.zoomPop = null;
+      ImageCanvas.target = null;
+      ImageCanvas._bound = false;
+      ImageAutoFit._enabled = false;
       this._inited = false;
     }
   };

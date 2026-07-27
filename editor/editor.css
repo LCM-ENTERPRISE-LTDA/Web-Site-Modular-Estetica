@@ -1,5 +1,5 @@
 /* ============================================================
-   VisualEditor — Global Inline Visual Editor  (v2.8.0)
+   VisualEditor — Global Inline Visual Editor  (v2.8.1-rc1)
    Every selector is namespaced with .editor-* and isolated so it
    NEVER interferes with the host site's own design / layout.
    ============================================================ */
@@ -88,6 +88,7 @@ body.editor-active:not(.editor-preview) img { pointer-events: auto !important; }
   font-family: 'Jost', system-ui, sans-serif;
   opacity: 0; transform: translateY(4px); pointer-events: none;
   transition: opacity 0.15s ease, transform 0.15s ease;
+  max-width: calc(100vw - 16px); overflow-x: auto;
 }
 .editor-toolbar.editor-show { opacity: 1; transform: translateY(0); pointer-events: auto; }
 .editor-tb-btn {
@@ -232,6 +233,8 @@ body.editor-active:not(.editor-preview) img { pointer-events: auto !important; }
   font-family: 'Jost', system-ui, sans-serif;
   opacity: 0; transform: translateY(6px); pointer-events: none;
   transition: opacity 0.16s ease, transform 0.16s ease;
+  max-width: calc(100vw - 16px); overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .editor-img-minibar.editor-show { opacity: 1; transform: translateY(0); pointer-events: auto; }
 .editor-mb-btn {
@@ -342,6 +345,10 @@ body.editor-preview .editor-img-zoom-pop { display: none !important; }
 }
 .editor-reset-btn:hover { background: rgba(180,70,50,0.1); }
 .editor-font-preview { font-size: 18px; margin-top: 6px; color: var(--editor-ink); }
+@media (max-width: 600px) {
+  .editor-mb-btn { min-width: 44px; padding: 6px 6px; }
+  .editor-mb-btn em { display: none; }
+}
 
 /* ============================================================
    6. SKILL BAR EDIT (curriculo)
@@ -576,6 +583,8 @@ body.editor-studio-open { overflow: hidden; }
   .editor-studio-head { flex-wrap: wrap; }
   .editor-studio-foot { flex-wrap: wrap; }
   .editor-studio-foot .editor-btn { flex: 1 1 auto; text-align: center; }
+  .editor-mb-btn { min-width: 44px; padding: 6px; }
+  .editor-mb-btn em { display: none; }
 }
 
 /* Telas estreitas: o titulo vira so o marcador, liberando espaco p/ os botoes */

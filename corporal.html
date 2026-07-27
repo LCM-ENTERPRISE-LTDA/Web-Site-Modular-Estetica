@@ -357,9 +357,19 @@ tailwind.config = {
 (function(){
   var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-in');io.unobserve(e.target);}});},{threshold:.1});
   document.querySelectorAll('.js-reveal').forEach(function(el){io.observe(el);});
-  document.querySelectorAll('.faq-q').forEach(function(btn){
+  document.querySelectorAll('.faq-q').forEach(function(btn, i){
+    var item=btn.closest('.faq-item');
+    var panel=item && item.querySelector('.faq-a');
+    if(panel){
+      var pid=panel.id || ('faq-panel-'+i);
+      var bid=btn.id || ('faq-btn-'+i);
+      panel.id=pid; btn.id=bid;
+      btn.setAttribute('aria-controls', pid);
+      panel.setAttribute('role','region');
+      panel.setAttribute('aria-labelledby', bid);
+    }
     btn.addEventListener('click',function(){
-      var item=btn.closest('.faq-item'), open=item.classList.toggle('open');
+      var open=item.classList.toggle('open');
       btn.setAttribute('aria-expanded', open?'true':'false');
     });
   });

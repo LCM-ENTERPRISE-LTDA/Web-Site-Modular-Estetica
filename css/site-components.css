@@ -2,6 +2,14 @@
    Site components — shared UI patterns
    ══════════════════════════════════════════ */
 
+html {
+  overflow-x: clip;
+}
+body {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
 /* —— Back to vitrine (icon button) —— */
 .back-vitrine {
   --back-accent: #6b5b4f;
