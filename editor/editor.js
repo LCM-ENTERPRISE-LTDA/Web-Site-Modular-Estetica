@@ -201,21 +201,81 @@
   // FRAMING MATH — shared pan for Studio + Canvas
   // ============================================================
   var FramingMath = {
-    pan: function (dragStart, clientX, clientY, rect) {
+    panMode: function (draft) {
+      var fit = (draft && draft.fit) || 'cover';
+      if (draft && draft.lock && fit === 'fill') fit = 'cover';
+      // Contain / scale-down / none: object-position only moves the letterbox axis.
+      // Use translate so both X and Y always work inside the fixed box.
+      if (fit === 'contain' || fit === 'scale-down' || fit === 'none') return 'translate';
+      return 'position';
+    },
+
+    pan: function (dragStart, clientX, clientY, rect, mode) {
       var w = Math.max(rect.width, 1);
       var h = Math.max(rect.height, 1);
-      // object-position % moves opposite to raw translate: add delta so the
-      // visible crop follows the pointer (drag left → content moves left).
       var dx = ((clientX - dragStart.x) / w) * 100;
       var dy = ((clientY - dragStart.y) / h) * 100;
+      // translate: +delta follows the finger.
+      // object-position: −delta follows the finger (CSS alignment is inverted).
+      if (mode === 'translate') {
+        return {
+          x: clamp(dragStart.ox + dx, 0, 100),
+          y: clamp(dragStart.oy + dy, 0, 100)
+        };
+      }
       return {
-        x: clamp(dragStart.ox + dx, 0, 100),
-        y: clamp(dragStart.oy + dy, 0, 100)
+        x: clamp(dragStart.ox - dx, 0, 100),
+        y: clamp(dragStart.oy - dy, 0, 100)
       };
     },
+
     bestZoomForAspect: function (img) {
       var iar = (img.naturalWidth || 1) / (img.naturalHeight || 1);
       return iar < 0.85 ? 108 : 100;
+    },
+
+    // Cover: pan via object-position (crop inside fixed box).
+    // Contain: pan via translate (free X+Y inside fixed box).
+    // Zoom: scale only — never changes layout size of the container.
+    paint: function (draft) {
+      var z = clamp((draft && draft.zoom ? draft.zoom : 100) / 100, 0.5, 2);
+      var fit = draft.lock && draft.fit === 'fill' ? 'cover' : (draft.fit || 'cover');
+      var x = clamp(draft.x, 0, 100);
+      var y = clamp(draft.y, 0, 100);
+      var mode = FramingMath.panMode({ fit: fit, lock: draft.lock });
+
+      if (mode === 'translate') {
+        // Room to slide in both axes (letterbox + zoom-out slack).
+        var maxPan = 42 + 58 * Math.max(Math.abs(z - 1), 0.25);
+        var tx = ((x - 50) / 50) * maxPan;
+        var ty = ((y - 50) / 50) * maxPan;
+        var parts = [];
+        if (Math.abs(tx) > 0.001 || Math.abs(ty) > 0.001) {
+          parts.push('translate(' + tx.toFixed(3) + '%, ' + ty.toFixed(3) + '%)');
+        }
+        if (Math.abs(z - 1) > 0.001) parts.push('scale(' + z + ')');
+        return {
+          fit: fit,
+          objectPosition: '50% 50%',
+          transformOrigin: '50% 50%',
+          transform: parts.join(' '),
+          z: z,
+          x: x,
+          y: y,
+          mode: mode
+        };
+      }
+
+      return {
+        fit: fit,
+        objectPosition: x + '% ' + y + '%',
+        transformOrigin: '50% 50%',
+        transform: Math.abs(z - 1) > 0.001 ? ('scale(' + z + ')') : '',
+        z: z,
+        x: x,
+        y: y,
+        mode: mode
+      };
     }
   };
 
@@ -1171,37 +1231,35 @@
 
     applyFraming: function (img, draft, live) {
       if (!img || !draft) return;
-      var z = (draft.zoom / 100);
-      var ox = draft.x + '%';
-      var oy = draft.y + '%';
-      var fit = draft.lock && draft.fit === 'fill' ? 'cover' : draft.fit;
-      var transform = z === 1 ? '' : ('scale(' + z + ')');
+      var paint = FramingMath.paint(draft);
       var selfClip = ImageStudio._isSelfClipped(img);
 
       img.setAttribute('data-img-zoom', String(draft.zoom));
       img.setAttribute('data-img-x', String(Math.round(draft.x * 10) / 10));
       img.setAttribute('data-img-y', String(Math.round(draft.y * 10) / 10));
-      img.setAttribute('data-img-fit', fit);
+      img.setAttribute('data-img-fit', paint.fit);
       img.setAttribute('data-img-lock', draft.lock ? '1' : '0');
       img.setAttribute('data-img-auto', draft.auto ? '1' : '0');
 
-      // Framing lives ONLY on the <img> — never mutate parent layout/overflow.
-      img.style.objectFit = fit;
-      img.style.objectPosition = ox + ' ' + oy;
-      img.style.transformOrigin = ox + ' ' + oy;
-      img.style.transform = transform;
+      // Paint ONLY on the <img>. Never touch parent size/overflow/position —
+      // containers stay fixed; zoom = scale, position = translate.
+      img.style.objectFit = paint.fit;
+      img.style.objectPosition = paint.objectPosition;
+      img.style.transformOrigin = paint.transformOrigin;
+      img.style.transform = paint.transform;
 
-      // Keep circular avatars round when zoomed (clip the img itself, not the wrap).
-      if (selfClip && z !== 1) {
+      // Keep circular/rounded images clipped to their own box (not the parent).
+      var needsClip = selfClip && (paint.z !== 1 || paint.x !== 50 || paint.y !== 50 || !!paint.transform);
+      if (needsClip) {
         try {
           var br = getComputedStyle(img).borderRadius || '50%';
           if (br === '50%' || (img.classList && img.classList.contains('avatar-img'))) {
-            img.style.clipPath = 'circle(50%)';
+            img.style.clipPath = 'circle(50% at 50% 50%)';
           } else {
             img.style.clipPath = 'inset(0 round ' + br + ')';
           }
         } catch (e) {
-          img.style.clipPath = 'circle(50%)';
+          img.style.clipPath = 'circle(50% at 50% 50%)';
         }
       } else {
         img.style.removeProperty('clip-path');
@@ -1210,28 +1268,26 @@
       ImageStudio._clearParentOverflowHack(img);
 
       if (live) {
-        ImageStudio._paintPreviews(fit, ox, oy, transform || 'none');
+        ImageStudio._paintPreviews(paint);
         if (!ImageStudio._suppressDirty) markDirty();
       }
     },
 
-    _paintPreviews: function (fit, ox, oy, transform) {
+    _paintPreviews: function (paint) {
+      if (!paint) return;
       var list = ImageStudio.stageImgs;
+      var apply = function (node) {
+        if (!node) return;
+        node.style.objectFit = paint.fit;
+        node.style.objectPosition = paint.objectPosition;
+        node.style.transformOrigin = paint.transformOrigin;
+        node.style.transform = paint.transform || 'none';
+      };
       if (!list || !list.length) {
-        if (ImageStudio.stageImg) {
-          ImageStudio.stageImg.style.objectFit = fit;
-          ImageStudio.stageImg.style.objectPosition = ox + ' ' + oy;
-          ImageStudio.stageImg.style.transformOrigin = ox + ' ' + oy;
-          ImageStudio.stageImg.style.transform = transform;
-        }
+        apply(ImageStudio.stageImg);
         return;
       }
-      for (var i = 0; i < list.length; i++) {
-        list[i].style.objectFit = fit;
-        list[i].style.objectPosition = ox + ' ' + oy;
-        list[i].style.transformOrigin = ox + ' ' + oy;
-        list[i].style.transform = transform;
-      }
+      for (var i = 0; i < list.length; i++) apply(list[i]);
     },
 
     _runAuto: function (silent) {
@@ -1728,7 +1784,7 @@
       function pointerMove(ev) {
         if (!self.dragging || !self.isOpen || !self.draft || !self.target) return;
         var pt = ev.touches ? ev.touches[0] : ev;
-        var next = FramingMath.pan(self.dragStart, pt.clientX, pt.clientY, crop.getBoundingClientRect());
+        var next = FramingMath.pan(self.dragStart, pt.clientX, pt.clientY, crop.getBoundingClientRect(), FramingMath.panMode(self.draft));
         self.draft.x = next.x;
         self.draft.y = next.y;
         if (self._raf) cancelAnimationFrame(self._raf);
@@ -1875,7 +1931,10 @@
     chrome: null,
     mini: null,
     zoomPop: null,
+    posPop: null,
     dragging: false,
+    zoomDragging: false,
+    posDragging: false,
     dragStart: null,
     comparing: false,
     _raf: 0,
@@ -1930,20 +1989,23 @@
       this._syncUI();
       this.chrome.classList.add('editor-show');
       this.mini.classList.add('editor-show');
-      Toast.show(this.draft.auto ? '✓ Auto — arraste ou use a barra' : 'Imagem selecionada — arraste para enquadrar', 2200);
+      Toast.show(this.draft.auto ? '✓ Auto — use Mover ou as alças de zoom' : 'Arraste a foto · Mover · alças = zoom', 2400);
     },
 
     deselect: function (silent) {
       if (!this.target) return;
       this.target.classList.remove('editor-img-selected', 'editor-img-canvas-active');
-      if (this.chrome) this.chrome.classList.remove('editor-show', 'editor-dragging', 'editor-comparing');
+      if (this.chrome) this.chrome.classList.remove('editor-show', 'editor-dragging', 'editor-comparing', 'editor-zooming');
       if (this.mini) this.mini.classList.remove('editor-show');
       if (this.zoomPop) this.zoomPop.classList.remove('editor-show');
+      if (this.posPop) this.posPop.classList.remove('editor-show');
       this._hideGuides();
       this.target = null;
       this.draft = null;
       this.beforeSnap = null;
       this.dragging = false;
+      this.zoomDragging = false;
+      this.posDragging = false;
       this.comparing = false;
       if (!silent) deselect();
     },
@@ -1961,16 +2023,17 @@
 
       var chrome = el('div', { class: 'editor-img-chrome editor-root', 'aria-hidden': 'true' });
       chrome.innerHTML =
-        '<div class="editor-img-chrome-inner">' +
+        '<div class="editor-img-chrome-inner" data-pan-surface="1">' +
           '<div class="editor-img-chrome-border"></div>' +
-          '<span class="editor-img-handle editor-img-handle--tl"></span>' +
-          '<span class="editor-img-handle editor-img-handle--tr"></span>' +
-          '<span class="editor-img-handle editor-img-handle--bl"></span>' +
-          '<span class="editor-img-handle editor-img-handle--br"></span>' +
-          '<span class="editor-img-handle editor-img-handle--tm"></span>' +
-          '<span class="editor-img-handle editor-img-handle--bm"></span>' +
-          '<span class="editor-img-handle editor-img-handle--ml"></span>' +
-          '<span class="editor-img-handle editor-img-handle--mr"></span>' +
+          '<div class="editor-img-pan-hint" aria-hidden="true"><span>✥</span> Arraste para mover</div>' +
+          '<span class="editor-img-handle editor-img-handle--tl" data-handle="tl" title="Zoom"></span>' +
+          '<span class="editor-img-handle editor-img-handle--tr" data-handle="tr" title="Zoom"></span>' +
+          '<span class="editor-img-handle editor-img-handle--bl" data-handle="bl" title="Zoom"></span>' +
+          '<span class="editor-img-handle editor-img-handle--br" data-handle="br" title="Zoom"></span>' +
+          '<span class="editor-img-handle editor-img-handle--tm" data-handle="tm" title="Zoom"></span>' +
+          '<span class="editor-img-handle editor-img-handle--bm" data-handle="bm" title="Zoom"></span>' +
+          '<span class="editor-img-handle editor-img-handle--ml" data-handle="ml" title="Zoom"></span>' +
+          '<span class="editor-img-handle editor-img-handle--mr" data-handle="mr" title="Zoom"></span>' +
           '<div class="editor-img-thirds" aria-hidden="true">' +
             '<i></i><i></i><i></i><i></i>' +
           '</div>' +
@@ -1987,6 +2050,7 @@
       var mini = el('div', { class: 'editor-img-minibar editor-root', role: 'toolbar', 'aria-label': 'Ferramentas da imagem' });
       mini.innerHTML =
         '<button type="button" class="editor-mb-btn" data-cv="replace" title="Alterar imagem"><span>📷</span><em>Alterar</em></button>' +
+        '<button type="button" class="editor-mb-btn" data-cv="move" title="Mover posição"><span>✥</span><em>Mover</em></button>' +
         '<button type="button" class="editor-mb-btn" data-cv="recenter" title="Recentralizar"><span>🎯</span><em>Centralizar</em></button>' +
         '<button type="button" class="editor-mb-btn" data-cv="auto" title="Ajuste Automático"><span>✓</span><em>Auto</em></button>' +
         '<button type="button" class="editor-mb-btn" data-cv="ai" title="Melhor enquadramento"><span>✨</span><em>IA</em></button>' +
@@ -2007,27 +2071,95 @@
       document.body.appendChild(zoomPop);
       this.zoomPop = zoomPop;
 
-      // Drag on chrome surface
+      var posPop = el('div', { class: 'editor-img-pos-pop editor-root' });
+      posPop.innerHTML =
+        '<div class="editor-img-pos-title">Posição da imagem</div>' +
+        '<div class="editor-img-pos-pad" data-pos-pad title="Arraste o ponto para mover">' +
+          '<span class="editor-img-pos-cross editor-img-pos-cross--v"></span>' +
+          '<span class="editor-img-pos-cross editor-img-pos-cross--h"></span>' +
+          '<button type="button" class="editor-img-pos-knob" data-pos-knob aria-label="Arrastar posição"></button>' +
+        '</div>' +
+        '<div class="editor-img-pos-nudge" role="group" aria-label="Ajustes finos">' +
+          '<button type="button" data-nudge="0,-8" title="Cima">↑</button>' +
+          '<button type="button" data-nudge="-8,0" title="Esquerda">←</button>' +
+          '<button type="button" data-nudge="0,0" title="Centro" class="editor-img-pos-center">◎</button>' +
+          '<button type="button" data-nudge="8,0" title="Direita">→</button>' +
+          '<button type="button" data-nudge="0,8" title="Baixo">↓</button>' +
+        '</div>' +
+        '<p class="editor-img-pos-hint">Arraste o ponto ou use as setas</p>';
+      document.body.appendChild(posPop);
+      this.posPop = posPop;
+
+      // Surface drag = pan. Handle drag = zoom (container stays fixed).
       function ptrDown(ev) {
         if (!self.target || !self.draft) return;
         if (ev.target.closest && ev.target.closest('[data-cv]')) return;
         if (self.draft.auto) {
-          // Exit auto on intentional drag for manual framing
           self.draft.auto = false;
           ImageAutoFit.setAuto(self.target, false);
           self._syncUI();
         }
         ev.preventDefault();
-        self.dragging = true;
-        self.beforeSnap = self.beforeSnap || ImageStudio.captureSnapshot(self.target);
         var pt = ev.touches ? ev.touches[0] : ev;
+        var handle = ev.target.closest && ev.target.closest('[data-handle]');
+        self.beforeSnap = self.beforeSnap || ImageStudio.captureSnapshot(self.target);
+
+        if (handle) {
+          self.zoomDragging = true;
+          self.dragging = false;
+          var rect = self.target.getBoundingClientRect();
+          self.dragStart = {
+            x: pt.clientX,
+            y: pt.clientY,
+            oz: self.draft.zoom,
+            kind: handle.getAttribute('data-handle'),
+            cx: rect.left + rect.width / 2,
+            cy: rect.top + rect.height / 2,
+            rw: Math.max(rect.width, 1),
+            rh: Math.max(rect.height, 1)
+          };
+          chrome.classList.add('editor-dragging', 'editor-zooming');
+          return;
+        }
+
+        self.zoomDragging = false;
+        self.dragging = true;
         self.dragStart = { x: pt.clientX, y: pt.clientY, ox: self.draft.x, oy: self.draft.y };
         chrome.classList.add('editor-dragging');
       }
+
       function ptrMove(ev) {
-        if (!self.dragging) return;
+        if (!self.target || !self.draft) return;
         var pt = ev.touches ? ev.touches[0] : ev;
-        var next = FramingMath.pan(self.dragStart, pt.clientX, pt.clientY, self.target.getBoundingClientRect());
+
+        if (self.zoomDragging && self.dragStart) {
+          var ds = self.dragStart;
+          var delta = 0;
+          var kind = ds.kind;
+          if (kind === 'ml') delta = ds.x - pt.clientX;
+          else if (kind === 'mr') delta = pt.clientX - ds.x;
+          else if (kind === 'tm') delta = ds.y - pt.clientY;
+          else if (kind === 'bm') delta = pt.clientY - ds.y;
+          else {
+            var d0 = Math.hypot(ds.x - ds.cx, ds.y - ds.cy);
+            var d1 = Math.hypot(pt.clientX - ds.cx, pt.clientY - ds.cy);
+            delta = d1 - d0;
+          }
+          var basis = Math.max(ds.rw, ds.rh, 1);
+          var nextZoom = clamp(Math.round(ds.oz + (delta / basis) * 140), 50, 200);
+          if (nextZoom === self.draft.zoom) return;
+          self.draft.zoom = nextZoom;
+          if (self._raf) cancelAnimationFrame(self._raf);
+          self._raf = requestAnimationFrame(function () {
+            ImageStudio.applyFraming(self.target, self.draft, false);
+            self._syncUI();
+            self.reposition();
+          });
+          return;
+        }
+
+        if (!self.dragging) return;
+        var next = FramingMath.pan(self.dragStart, pt.clientX, pt.clientY, self.target.getBoundingClientRect(), FramingMath.panMode(self.draft));
         var sx = self._snap(next.x);
         var sy = self._snap(next.y);
         self.draft.x = sx.v;
@@ -2039,7 +2171,15 @@
           self.reposition();
         });
       }
+
       function ptrUp() {
+        if (self.zoomDragging) {
+          self.zoomDragging = false;
+          chrome.classList.remove('editor-dragging', 'editor-zooming');
+          markDirty();
+          Toast.show('Zoom ' + self.draft.zoom + '%', 1200);
+          return;
+        }
         if (!self.dragging) return;
         self.dragging = false;
         chrome.classList.remove('editor-dragging');
@@ -2094,7 +2234,13 @@
           }
         } else if (act === 'ai') {
           self._bestFrame();
+        } else if (act === 'move') {
+          if (self.zoomPop) self.zoomPop.classList.remove('editor-show');
+          self.posPop.classList.toggle('editor-show');
+          self._syncUI();
+          self.reposition();
         } else if (act === 'zoom') {
+          if (self.posPop) self.posPop.classList.remove('editor-show');
           self.zoomPop.classList.toggle('editor-show');
           self.reposition();
         } else if (act === 'reset') {
@@ -2127,6 +2273,75 @@
         self._syncUI();
       });
       zoomPop.querySelector('[data-cv="zoom-range"]').addEventListener('change', function () { markDirty(); });
+
+      // Interactive position pad (knob + nudge arrows)
+      function applyPosFromPad(clientX, clientY) {
+        if (!self.draft || !self.target || !self.posPop) return;
+        var pad = self.posPop.querySelector('[data-pos-pad]');
+        if (!pad) return;
+        var r = pad.getBoundingClientRect();
+        var x = clamp(((clientX - r.left) / Math.max(r.width, 1)) * 100, 0, 100);
+        var y = clamp(((clientY - r.top) / Math.max(r.height, 1)) * 100, 0, 100);
+        if (self.draft.auto) {
+          self.draft.auto = false;
+          ImageAutoFit.setAuto(self.target, false);
+        }
+        self.draft.x = Math.round(x * 10) / 10;
+        self.draft.y = Math.round(y * 10) / 10;
+        ImageStudio.applyFraming(self.target, self.draft, false);
+        self._syncUI();
+      }
+
+      var posPad = posPop.querySelector('[data-pos-pad]');
+      function posDown(ev) {
+        if (!self.target || !self.draft) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        self.posDragging = true;
+        self.beforeSnap = self.beforeSnap || ImageStudio.captureSnapshot(self.target);
+        var pt = ev.touches ? ev.touches[0] : ev;
+        applyPosFromPad(pt.clientX, pt.clientY);
+      }
+      function posMove(ev) {
+        if (!self.posDragging) return;
+        var pt = ev.touches ? ev.touches[0] : ev;
+        applyPosFromPad(pt.clientX, pt.clientY);
+      }
+      function posUp() {
+        if (!self.posDragging) return;
+        self.posDragging = false;
+        markDirty();
+      }
+      posPad.addEventListener('mousedown', posDown);
+      posPad.addEventListener('touchstart', posDown, { passive: false });
+      Events.on(window, 'mousemove', posMove);
+      Events.on(window, 'touchmove', posMove, { passive: false });
+      Events.on(window, 'mouseup', posUp);
+      Events.on(window, 'touchend', posUp);
+
+      posPop.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-nudge]');
+        if (!b || !self.draft || !self.target) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var parts = (b.getAttribute('data-nudge') || '0,0').split(',');
+        var nx = parseFloat(parts[0]);
+        var ny = parseFloat(parts[1]);
+        if (self.draft.auto) {
+          self.draft.auto = false;
+          ImageAutoFit.setAuto(self.target, false);
+        }
+        if (nx === 0 && ny === 0) {
+          self.draft.x = 50;
+          self.draft.y = 50;
+        } else {
+          self.draft.x = clamp(self.draft.x + nx, 0, 100);
+          self.draft.y = clamp(self.draft.y + ny, 0, 100);
+        }
+        ImageStudio.applyFraming(self.target, self.draft, false);
+        markDirty();
+        self._syncUI();
+      });
 
       // Before / After hold
       var cmp = chrome.querySelector('[data-cv="compare"]');
@@ -2197,11 +2412,18 @@
       this.chrome.classList.toggle('editor-img-chrome--auto', !!this.draft.auto);
       var autoBtn = this.mini && this.mini.querySelector('[data-cv="auto"]');
       if (autoBtn) autoBtn.classList.toggle('editor-on', !!this.draft.auto);
+      var moveBtn = this.mini && this.mini.querySelector('[data-cv="move"]');
+      if (moveBtn) moveBtn.classList.toggle('editor-on', !!(this.posPop && this.posPop.classList.contains('editor-show')));
       var range = this.zoomPop && this.zoomPop.querySelector('[data-cv="zoom-range"]');
       if (range) range.value = String(this.draft.zoom);
       $$('[data-z]', this.zoomPop).forEach(function (b) {
         b.classList.toggle('editor-on', parseInt(b.getAttribute('data-z'), 10) === ImageCanvas.draft.zoom);
       });
+      var knob = this.posPop && this.posPop.querySelector('[data-pos-knob]');
+      if (knob) {
+        knob.style.left = this.draft.x + '%';
+        knob.style.top = this.draft.y + '%';
+      }
     },
 
     reposition: function () {
@@ -2226,6 +2448,11 @@
         var mr = this.mini.getBoundingClientRect();
         this.zoomPop.style.top = (mr.bottom + 8) + 'px';
         this.zoomPop.style.left = Math.max(8, mr.left + mr.width / 2 - 120) + 'px';
+      }
+      if (this.posPop && this.posPop.classList.contains('editor-show') && this.mini) {
+        var pr = this.mini.getBoundingClientRect();
+        this.posPop.style.top = (pr.bottom + 8) + 'px';
+        this.posPop.style.left = Math.max(8, Math.min(window.innerWidth - 188, pr.left + pr.width / 2 - 90)) + 'px';
       }
     }
   };
@@ -2875,7 +3102,7 @@
       ImageStudio.root = ImageStudio.stageImg = ImageStudio.stageImgs = null;
       ImageStudio.isOpen = false;
       ImageStudio._stack = null;
-      ImageCanvas.chrome = ImageCanvas.mini = ImageCanvas.zoomPop = null;
+      ImageCanvas.chrome = ImageCanvas.mini = ImageCanvas.zoomPop = ImageCanvas.posPop = null;
       ImageCanvas.target = null;
       ImageCanvas._bound = false;
       ImageAutoFit._enabled = false;

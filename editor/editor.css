@@ -178,6 +178,7 @@ body.editor-active:not(.editor-preview) img { pointer-events: auto !important; }
   cursor: grab; touch-action: none;
 }
 .editor-img-chrome.editor-dragging .editor-img-chrome-inner { cursor: grabbing; }
+.editor-img-chrome.editor-zooming .editor-img-chrome-inner { cursor: ew-resize; }
 .editor-img-chrome-border {
   position: absolute; inset: 0;
   border: 2px solid var(--editor-accent); border-radius: 4px;
@@ -185,19 +186,19 @@ body.editor-active:not(.editor-preview) img { pointer-events: auto !important; }
   pointer-events: none;
 }
 .editor-img-handle {
-  position: absolute; width: 9px; height: 9px; border-radius: 2px;
+  position: absolute; width: 12px; height: 12px; border-radius: 2px;
   background: #fff; border: 1.5px solid var(--editor-accent);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.25); pointer-events: none;
-  z-index: 2;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25); pointer-events: auto;
+  z-index: 2; touch-action: none;
 }
-.editor-img-handle--tl { top: -5px; left: -5px; }
-.editor-img-handle--tr { top: -5px; right: -5px; }
-.editor-img-handle--bl { bottom: -5px; left: -5px; }
-.editor-img-handle--br { bottom: -5px; right: -5px; }
-.editor-img-handle--tm { top: -5px; left: 50%; margin-left: -4.5px; }
-.editor-img-handle--bm { bottom: -5px; left: 50%; margin-left: -4.5px; }
-.editor-img-handle--ml { top: 50%; left: -5px; margin-top: -4.5px; }
-.editor-img-handle--mr { top: 50%; right: -5px; margin-top: -4.5px; }
+.editor-img-handle--tl { top: -6px; left: -6px; cursor: nwse-resize; }
+.editor-img-handle--tr { top: -6px; right: -6px; cursor: nesw-resize; }
+.editor-img-handle--bl { bottom: -6px; left: -6px; cursor: nesw-resize; }
+.editor-img-handle--br { bottom: -6px; right: -6px; cursor: nwse-resize; }
+.editor-img-handle--tm { top: -6px; left: 50%; margin-left: -6px; cursor: ns-resize; }
+.editor-img-handle--bm { bottom: -6px; left: 50%; margin-left: -6px; cursor: ns-resize; }
+.editor-img-handle--ml { top: 50%; left: -6px; margin-top: -6px; cursor: ew-resize; }
+.editor-img-handle--mr { top: 50%; right: -6px; margin-top: -6px; cursor: ew-resize; }
 
 .editor-img-thirds {
   display: none; position: absolute; inset: 0; pointer-events: none; z-index: 1;
@@ -292,9 +293,87 @@ body.editor-active:not(.editor-preview) img { pointer-events: auto !important; }
 .editor-img-zoom-pop button:hover { border-color: var(--editor-accent); color: var(--editor-accent); }
 .editor-img-zoom-pop input[type="range"] { width: 100%; accent-color: var(--editor-accent); margin-top: 4px; }
 
+/* Position pad — interactive 2D mover */
+.editor-img-pos-pop {
+  position: fixed; z-index: calc(var(--editor-z) - 1);
+  display: none; flex-direction: column; align-items: center; gap: 10px;
+  width: 180px; padding: 12px;
+  background: #fff; color: var(--editor-ink);
+  border-radius: 12px; border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.22);
+  font-family: 'Jost', system-ui, sans-serif;
+}
+.editor-img-pos-pop.editor-show { display: flex; }
+.editor-img-pos-title {
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #8a7268; font-weight: 600;
+}
+.editor-img-pos-pad {
+  position: relative; width: 148px; height: 148px;
+  border-radius: 12px; cursor: crosshair; touch-action: none;
+  background:
+    linear-gradient(rgba(184,110,62,0.12) 1px, transparent 1px) 0 0 / 33.333% 33.333%,
+    linear-gradient(90deg, rgba(184,110,62,0.12) 1px, transparent 1px) 0 0 / 33.333% 33.333%,
+    linear-gradient(145deg, #f7f2eb, #fff 55%, #f3ebe3);
+  border: 1px solid rgba(184,110,62,0.28);
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.06);
+}
+.editor-img-pos-cross {
+  position: absolute; background: rgba(184,110,62,0.28); pointer-events: none;
+}
+.editor-img-pos-cross--v { left: 50%; top: 8%; bottom: 8%; width: 1px; margin-left: -0.5px; }
+.editor-img-pos-cross--h { top: 50%; left: 8%; right: 8%; height: 1px; margin-top: -0.5px; }
+.editor-img-pos-knob {
+  position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px;
+  border-radius: 50%; border: 2px solid #fff; cursor: grab; touch-action: none;
+  background: var(--editor-accent);
+  box-shadow: 0 2px 10px rgba(184,110,62,0.45), 0 0 0 1px rgba(184,110,62,0.35);
+  left: 50%; top: 50%; padding: 0;
+}
+.editor-img-pos-knob:active { cursor: grabbing; transform: scale(1.08); }
+.editor-img-pos-nudge {
+  display: grid;
+  grid-template-columns: repeat(3, 36px);
+  grid-template-rows: repeat(3, 32px);
+  gap: 4px; justify-content: center;
+}
+.editor-img-pos-nudge button {
+  appearance: none; border: 1px solid rgba(0,0,0,0.12); background: #fff;
+  border-radius: 8px; cursor: pointer; font-size: 14px; color: var(--editor-ink);
+  font-family: inherit;
+}
+.editor-img-pos-nudge button:hover { border-color: var(--editor-accent); color: var(--editor-accent); }
+.editor-img-pos-nudge button[data-nudge="0,-8"] { grid-column: 2; grid-row: 1; }
+.editor-img-pos-nudge button[data-nudge="-8,0"] { grid-column: 1; grid-row: 2; }
+.editor-img-pos-nudge button[data-nudge="0,0"] { grid-column: 2; grid-row: 2; }
+.editor-img-pos-nudge button[data-nudge="8,0"] { grid-column: 3; grid-row: 2; }
+.editor-img-pos-nudge button[data-nudge="0,8"] { grid-column: 2; grid-row: 3; }
+.editor-img-pos-hint {
+  margin: 0; font-size: 10px; color: #8a7268; letter-spacing: 0.02em; text-align: center;
+}
+
+.editor-img-pan-hint {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  z-index: 1; pointer-events: none;
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 10px; border-radius: 999px;
+  background: rgba(31,24,19,0.55); color: #fff;
+  font-family: 'Jost', system-ui, sans-serif;
+  font-size: 11px; letter-spacing: 0.04em;
+  opacity: 0; transition: opacity 0.2s ease;
+}
+.editor-img-chrome.editor-show:not(.editor-dragging):not(.editor-zooming) .editor-img-pan-hint {
+  opacity: 1; animation: editor-pan-hint-fade 2.8s ease forwards;
+}
+@keyframes editor-pan-hint-fade {
+  0%, 55% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 body.editor-preview .editor-img-chrome,
 body.editor-preview .editor-img-minibar,
-body.editor-preview .editor-img-zoom-pop { display: none !important; }
+body.editor-preview .editor-img-zoom-pop,
+body.editor-preview .editor-img-pos-pop { display: none !important; }
 
 /* ============================================================
    5. INSPECTOR PANEL (right side)
