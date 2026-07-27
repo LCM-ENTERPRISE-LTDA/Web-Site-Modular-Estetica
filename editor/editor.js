@@ -210,11 +210,11 @@
     })(),
 
     pan: function (dragStart, clientX, clientY, rect) {
-      var w = Math.max(rect.width, 1);
-      var h = Math.max(rect.height, 1);
-      var dx = ((clientX - dragStart.x) / w) * 100;
-      var dy = ((clientY - dragStart.y) / h) * 100;
-      // Follow the pointer with object-position / object-view-box.
+      var w = Math.max((rect && rect.width) || dragStart.rw || 1, 1);
+      var h = Math.max((rect && rect.height) || dragStart.rh || 1, 1);
+      var sens = dragStart.sens != null ? dragStart.sens : 1.35;
+      var dx = ((clientX - dragStart.x) / w) * 100 * sens;
+      var dy = ((clientY - dragStart.y) / h) * 100 * sens;
       return {
         x: clamp(dragStart.ox - dx, 0, 100),
         y: clamp(dragStart.oy - dy, 0, 100)
@@ -226,17 +226,18 @@
       return iar < 0.85 ? 108 : 100;
     },
 
+    // Layout box of the <img>. object-view-box does not change layout size, so we only
+    // strip transform (legacy scale fallback) when measuring.
     layoutRect: function (el) {
       if (!el) return null;
       var prev = el.style.transform;
-      var prevOvb = el.style.objectViewBox;
-      el.style.transform = 'none';
-      el.style.removeProperty('object-view-box');
-      void el.offsetWidth;
+      var hadScale = prev && prev !== 'none' && prev.indexOf('scale') !== -1;
+      if (hadScale) {
+        el.style.transform = 'none';
+        void el.offsetWidth;
+      }
       var r = el.getBoundingClientRect();
-      el.style.transform = prev;
-      if (prevOvb) el.style.objectViewBox = prevOvb;
-      else el.style.removeProperty('object-view-box');
+      if (hadScale) el.style.transform = prev;
       return {
         top: r.top,
         left: r.left,
@@ -248,8 +249,8 @@
     },
 
     // Zoom/pan the PHOTO only. The <img> layout box (and its border/radius) never scale.
-    // One continuous model for all depths: object-view-box (works above AND below 100%).
-    paint: function (draft) {
+    // Prefer a real crop window via object-view-box (cover room + zoom + pan in one inset).
+    paint: function (draft, img) {
       var z = clamp((draft && draft.zoom ? draft.zoom : 100) / 100, 0.5, 2);
       var fit = draft.lock && draft.fit === 'fill' ? 'cover' : (draft.fit || 'cover');
       var x = clamp(draft.x, 0, 100);
@@ -268,18 +269,65 @@
       };
 
       if (FramingMath._ovb) {
-        // visible = % of the source shown in the box.
-        // z=2 → 50% (zoom in), z=1 → 100%, z=0.5 → 200% (zoom out, negative inset).
+        var nw = img && (img.naturalWidth || 0);
+        var nh = img && (img.naturalHeight || 0);
+        var ew = img && (img.clientWidth || img.offsetWidth || 0);
+        var eh = img && (img.clientHeight || img.offsetHeight || 0);
+        // Cached box during drag avoids layout thrash.
+        if (draft && draft._lw > 0 && draft._lh > 0) {
+          ew = draft._lw;
+          eh = draft._lh;
+        }
+
+        if (nw > 0 && nh > 0 && ew > 0 && eh > 0 && fit !== 'none') {
+          var contain = fit === 'contain' || fit === 'scale-down';
+          // Cover/contain scale of the source into the box, then apply depth z.
+          var base = contain
+            ? Math.min(ew / nw, eh / nh)
+            : Math.max(ew / nw, eh / nh);
+          var scale = base * z;
+          if (scale > 1e-6) {
+            var visW = Math.min(nw, ew / scale);
+            var visH = Math.min(nh, eh / scale);
+            // Zoom-out can request a window larger than the bitmap — allow negative inset.
+            if (!contain) {
+              visW = ew / scale;
+              visH = eh / scale;
+            } else if (z < 1) {
+              visW = ew / scale;
+              visH = eh / scale;
+            }
+            var maxX = nw - visW;
+            var maxY = nh - visH;
+            var ox = maxX * (x / 100);
+            var oy = maxY * (y / 100);
+            var top = (oy / nh) * 100;
+            var left = (ox / nw) * 100;
+            var right = 100 - left - (visW / nw) * 100;
+            var bottom = 100 - top - (visH / nh) * 100;
+            out.objectViewBox = 'inset(' + top.toFixed(4) + '% ' + right.toFixed(4) + '% ' +
+              bottom.toFixed(4) + '% ' + left.toFixed(4) + '%)';
+            // Crop window already matches the element aspect — fill exactly.
+            out.objectPosition = '50% 50%';
+            out.fit = 'fill';
+            out.mode = 'viewbox';
+            return out;
+          }
+        }
+
+        // Fallback without natural size yet: uniform inset + object-position pan.
         var visible = 100 / z;
         var gap = 100 - visible;
-        var left = gap * (x / 100);
-        var top = gap * (y / 100);
-        var right = gap - left;
-        var bottom = gap - top;
-        out.objectViewBox = 'inset(' + top.toFixed(4) + '% ' + right.toFixed(4) + '% ' +
-          bottom.toFixed(4) + '% ' + left.toFixed(4) + '%)';
-        out.objectPosition = '50% 50%';
-        // Keep author's contain/cover intent; never hard-switch at 100% (that caused jumps).
+        if (Math.abs(gap) < 1.25) {
+          out.objectViewBox = '';
+          out.objectPosition = x + '% ' + y + '%';
+        } else {
+          var left2 = gap * (x / 100);
+          var top2 = gap * (y / 100);
+          out.objectViewBox = 'inset(' + top2.toFixed(4) + '% ' + (gap - left2).toFixed(4) + '% ' +
+            (gap - top2).toFixed(4) + '% ' + left2.toFixed(4) + '%)';
+          out.objectPosition = '50% 50%';
+        }
         if (fit === 'scale-down') out.fit = 'contain';
         else if (fit === 'none') out.fit = 'none';
         else if (fit === 'contain') out.fit = 'contain';
@@ -1141,7 +1189,9 @@
     DEFAULTS: { zoom: 100, x: 50, y: 50, fit: 'cover', lock: true, auto: false },
 
     _cloneDraft: function (d) {
-      return cloneDeep(d);
+      var c = cloneDeep(d);
+      if (c) { delete c._lw; delete c._lh; }
+      return c;
     },
 
     _enableAnim: function () {
@@ -1165,6 +1215,8 @@
         try { fit = getComputedStyle(img).objectFit; } catch (e) { fit = 'cover'; }
       }
       if (!fit || fit === 'none' || fit === 'initial') fit = 'cover';
+      // 'fill' is only a paint-time CSS mode for object-view-box crops — treat as cover.
+      if (fit === 'fill') fit = 'cover';
       var lock = img.getAttribute('data-img-lock');
       if (lock == null) lock = '1';
       if (isNaN(x) || isNaN(y)) {
@@ -1249,12 +1301,12 @@
 
     applyFraming: function (img, draft, live) {
       if (!img || !draft) return;
-      var paint = FramingMath.paint(draft);
+      var paint = FramingMath.paint(draft, img);
 
       img.setAttribute('data-img-zoom', String(draft.zoom));
       img.setAttribute('data-img-x', String(Math.round(draft.x * 10) / 10));
       img.setAttribute('data-img-y', String(Math.round(draft.y * 10) / 10));
-      img.setAttribute('data-img-fit', paint.fit);
+      img.setAttribute('data-img-fit', draft.fit || 'cover');
       img.setAttribute('data-img-lock', draft.lock ? '1' : '0');
       img.setAttribute('data-img-auto', draft.auto ? '1' : '0');
 
@@ -1278,16 +1330,18 @@
       ImageStudio._clearParentOverflowHack(img);
 
       if (live) {
-        ImageStudio._paintPreviews(paint);
+        ImageStudio._paintPreviews();
         if (!ImageStudio._suppressDirty) markDirty();
       }
     },
 
-    _paintPreviews: function (paint) {
-      if (!paint) return;
+    _paintPreviews: function () {
+      var draft = ImageStudio.draft;
+      if (!draft) return;
       var list = ImageStudio.stageImgs;
       var apply = function (node) {
         if (!node) return;
+        var paint = FramingMath.paint(draft, node);
         node.style.objectFit = paint.fit;
         node.style.objectPosition = paint.objectPosition;
         node.style.transformOrigin = paint.transformOrigin;
@@ -1790,7 +1844,11 @@
         self.dragging = true;
         if (self.root) self.root.classList.remove('editor-studio--anim');
         var pt = ev.touches ? ev.touches[0] : ev;
-        self.dragStart = { x: pt.clientX, y: pt.clientY, ox: self.draft.x, oy: self.draft.y };
+        self.dragStart = { x: pt.clientX, y: pt.clientY, ox: self.draft.x, oy: self.draft.y, sens: 1.35 };
+        if (self.target) {
+          self.draft._lw = self.target.clientWidth || self.target.offsetWidth || 0;
+          self.draft._lh = self.target.clientHeight || self.target.offsetHeight || 0;
+        }
         crop.classList.add('editor-dragging');
       }
       function pointerMove(ev) {
@@ -1810,7 +1868,11 @@
         if (!self.dragging) return;
         self.dragging = false;
         crop.classList.remove('editor-dragging');
-        if (self.draft) self._manualMem = self._cloneDraft(self.draft);
+        if (self.draft) {
+          delete self.draft._lw;
+          delete self.draft._lh;
+          self._manualMem = self._cloneDraft(self.draft);
+        }
       }
 
       Events.on(crop, 'mousedown', pointerDown);
@@ -2134,13 +2196,26 @@
             rw: Math.max(rect.width, 1),
             rh: Math.max(rect.height, 1)
           };
+          self.draft._lw = self.dragStart.rw;
+          self.draft._lh = self.dragStart.rh;
           chrome.classList.add('editor-dragging', 'editor-zooming');
           return;
         }
 
         self.zoomDragging = false;
         self.dragging = true;
-        self.dragStart = { x: pt.clientX, y: pt.clientY, ox: self.draft.x, oy: self.draft.y };
+        var panBox = FramingMath.layoutRect(self.target) || self.target.getBoundingClientRect();
+        self.dragStart = {
+          x: pt.clientX,
+          y: pt.clientY,
+          ox: self.draft.x,
+          oy: self.draft.y,
+          rw: Math.max(panBox.width, 1),
+          rh: Math.max(panBox.height, 1),
+          sens: 1.35
+        };
+        self.draft._lw = self.dragStart.rw;
+        self.draft._lh = self.dragStart.rh;
         chrome.classList.add('editor-dragging');
       }
 
@@ -2169,23 +2244,26 @@
           self._raf = requestAnimationFrame(function () {
             ImageStudio.applyFraming(self.target, self.draft, false);
             self._syncUI();
-            self.reposition();
+            // Layout box is fixed with OVB — no chrome resize needed while zooming.
           });
           return;
         }
 
-        if (!self.dragging) return;
-        var panRect = FramingMath.layoutRect(self.target) || self.target.getBoundingClientRect();
-        var next = FramingMath.pan(self.dragStart, pt.clientX, pt.clientY, panRect);
-        var sx = self._snap(next.x);
-        var sy = self._snap(next.y);
-        self.draft.x = sx.v;
-        self.draft.y = sy.v;
-        self._showGuides(sx.line, sy.line);
+        if (!self.dragging || !self.dragStart) return;
+        var next = FramingMath.pan(self.dragStart, pt.clientX, pt.clientY, {
+          width: self.dragStart.rw,
+          height: self.dragStart.rh
+        });
+        // Keep raw values while dragging — snap only on pointerup (avoids sticky pan).
+        self.draft.x = next.x;
+        self.draft.y = next.y;
+        var gx = self._snap(next.x);
+        var gy = self._snap(next.y);
+        self._showGuides(gx.line, gy.line);
         if (self._raf) cancelAnimationFrame(self._raf);
         self._raf = requestAnimationFrame(function () {
           ImageStudio.applyFraming(self.target, self.draft, false);
-          self.reposition();
+          if (self.posPop && self.posPop.classList.contains('editor-show')) self._syncUI();
         });
       }
 
@@ -2193,6 +2271,10 @@
         if (self.zoomDragging) {
           self.zoomDragging = false;
           chrome.classList.remove('editor-dragging', 'editor-zooming');
+          if (self.draft) {
+            delete self.draft._lw;
+            delete self.draft._lh;
+          }
           markDirty();
           Toast.show('Zoom ' + self.draft.zoom + '%', 1200);
           return;
@@ -2200,6 +2282,18 @@
         if (!self.dragging) return;
         self.dragging = false;
         chrome.classList.remove('editor-dragging');
+        if (self.draft) {
+          var sx = self._snap(self.draft.x);
+          var sy = self._snap(self.draft.y);
+          if (sx.v !== self.draft.x || sy.v !== self.draft.y) {
+            self.draft.x = sx.v;
+            self.draft.y = sy.v;
+            ImageStudio.applyFraming(self.target, self.draft, false);
+          }
+          delete self.draft._lw;
+          delete self.draft._lh;
+          if (self.posPop && self.posPop.classList.contains('editor-show')) self._syncUI();
+        }
         self._hideGuides();
         markDirty();
         Toast.show('Enquadramento atualizado', 1400);
