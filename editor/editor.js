@@ -1,22 +1,17 @@
 /* ============================================================
-   VisualEditor — Global Inline Visual Editor  (v2.6.0)
+   VisualEditor — Global Inline Visual Editor  (v2.7.0)
    Vanilla JS. Single file. Loaded on every page.
 
-   v2.5 highlights
+   v2.7 highlights
    -------------------------------------------------------------
-   • IMAGE STUDIO   — Canva-like framing panel (zoom, pan, drag,
-     object-fit, quick positions, safe area, device preview,
-     undo/redo). Draft edits apply live; commit on "Salvar Alterações".
-   • DEEP TARGETING  — hover / select / edit the EXACT element.
+   • SMART FOCAL POINT — FaceDetector (when available) + canvas
+     saliency; geometry heuristics as fallback.
+   • IMAGE STUDIO     — Canva-like framing, auto/manual memory,
+     multi-device live preview, recentralizar, smooth transitions.
+   • AUTO-FIT DEFAULT — new uploads start with Ajuste Automático.
+   • DEEP TARGETING   — hover / select / edit the EXACT element.
    • FOOTER BLACKLIST — <footer>, .footer + descendants are inert.
-   • IMAGE EDITING   — every <img> opens the studio; overlay has
-     "Editar imagem" + "Trocar".
-   • BACKGROUND IMG  — Inspector lets you upload a background-image
-     for the selected container.
-   • ZIP EXPORT      — "Salvar" builds a deploy-ready package with
-     JSZip: web_site_official/<page>.html + web_site_official/images/.
-   • USABILITY       — Esc to deselect / close studio, graceful
-     fallback if JSZip is offline.
+   • ZIP EXPORT       — deploy-ready package via JSZip.
 
    Public API: window.VisualEditor
    ============================================================ */
@@ -65,6 +60,15 @@
     return node;
   }
   function tagOf(node) { return node && node.tagName ? node.tagName.toLowerCase() : ''; }
+
+  function debounce(fn, ms) {
+    var t = null;
+    return function () {
+      var ctx = this, args = arguments;
+      if (t) clearTimeout(t);
+      t = setTimeout(function () { t = null; fn.apply(ctx, args); }, ms);
+    };
+  }
 
   function rafThrottle(fn) {
     var ticking = false, lastArgs = null;
@@ -370,6 +374,10 @@
       node.removeAttribute('data-img-fit');
       node.removeAttribute('data-img-lock');
       node.removeAttribute('data-img-auto');
+      node.removeAttribute('data-img-fx');
+      node.removeAttribute('data-img-fy');
+      node.removeAttribute('data-img-focal');
+      node.removeAttribute('data-img-focal-src');
       if (tagOf(node) !== 'img') node.removeAttribute('data-export-src');
     }
   };
@@ -499,11 +507,15 @@
   };
 
   // ============================================================
-  // 8a. IMAGE AUTO-FIT — intelligent default framing
+  // 8a. IMAGE AUTO-FIT — smart focal point + responsive reflow
   // ============================================================
   var ImageAutoFit = {
     _observers: typeof WeakMap !== 'undefined' ? new WeakMap() : null,
+    _sizes: typeof WeakMap !== 'undefined' ? new WeakMap() : null,
+    _focalCache: Object.create(null),
     _enabled: false,
+    _faceDetector: null,
+    _applying: false,
 
     isAuto: function (img) {
       return img && img.getAttribute('data-img-auto') === '1';
@@ -528,77 +540,264 @@
       return { w: Math.max(r.width, 120), h: Math.max(r.height, 80) };
     },
 
-    // Heuristic smart crop — no ML, tuned for portraits / landscapes / squares.
-    compute: function (img) {
+    // Geometry-only fallback (sync) — used until / if focal point is ready.
+    computeGeometry: function (img) {
       if (!img) return null;
       var box = this.containerSize(img);
-      var cw = box.w;
-      var ch = box.h;
+      var cw = box.w, ch = box.h;
       var iw = img.naturalWidth || img.width || 0;
       var ih = img.naturalHeight || img.height || 0;
       if (!iw || !ih) return null;
 
       var car = cw / ch;
       var iar = iw / ih;
-      var fit = 'cover';
-      var x = 50;
-      var y = 50;
-      var zoom = 100;
-      var lock = true;
+      var x = 50, y = 50;
 
-      // Portrait / retrato — bias upward to keep faces in frame
-      if (iar < 0.72) {
-        y = car > 1.2 ? 36 : 38;
-        x = 50;
-      } else if (iar < 0.92) {
-        y = 42;
-        x = 50;
-      } else if (iar > 2.4) {
-        // Panorâmica
-        x = 50;
-        y = 50;
-      } else if (iar > 1.15) {
-        // Paisagem
-        x = 50;
-        y = car < 0.7 ? 48 : 50;
-      } else {
-        // Quadrada ou quase
-        x = 50;
-        y = 50;
-      }
+      if (iar < 0.72) { y = car > 1.2 ? 36 : 38; }
+      else if (iar < 0.92) { y = 42; }
+      else if (iar > 2.4) { x = 50; y = 50; }
+      else if (iar > 1.15) { y = car < 0.7 ? 48 : 50; }
 
-      // Container muito largo (banner) + imagem vertical
       if (car > 1.75 && iar < 1) y = Math.min(y, 40);
-      // Container muito alto (coluna mobile) + imagem horizontal
       if (car < 0.55 && iar > 1.1) { x = 50; y = 50; }
-      // Container quadrado + imagem extrema
       if (car > 0.85 && car < 1.15) {
         if (iar < 0.6) y = 38;
         if (iar > 1.8) y = 50;
       }
 
-      return { zoom: zoom, x: x, y: y, fit: fit, lock: lock, auto: true };
+      return { zoom: 100, x: x, y: y, fit: 'cover', lock: true, auto: true, source: 'geometry' };
+    },
+
+    // Sync compute: geometry + cached focal point if available.
+    compute: function (img) {
+      var base = this.computeGeometry(img);
+      if (!base) return null;
+      var focal = this._cachedFocal(img);
+      if (focal) {
+        base.x = focal.x;
+        base.y = focal.y;
+        base.source = focal.source || 'focal';
+      }
+      return base;
+    },
+
+    _cachedFocal: function (img) {
+      if (!img) return null;
+      var src = img.currentSrc || img.src || '';
+      if (!src) return null;
+      if (img.getAttribute('data-img-focal-src') === src) {
+        var fx = parseFloat(img.getAttribute('data-img-fx'));
+        var fy = parseFloat(img.getAttribute('data-img-fy'));
+        if (!isNaN(fx) && !isNaN(fy)) return { x: fx, y: fy, source: img.getAttribute('data-img-focal') || 'cached' };
+      }
+      return this._focalCache[src] || null;
+    },
+
+    _storeFocal: function (img, focal) {
+      if (!img || !focal) return;
+      var src = img.currentSrc || img.src || '';
+      if (src) this._focalCache[src] = { x: focal.x, y: focal.y, source: focal.source };
+      img.setAttribute('data-img-fx', String(Math.round(focal.x * 10) / 10));
+      img.setAttribute('data-img-fy', String(Math.round(focal.y * 10) / 10));
+      img.setAttribute('data-img-focal-src', src);
+      img.setAttribute('data-img-focal', focal.source || 'smart');
+    },
+
+    _getFaceDetector: function () {
+      if (this._faceDetector === false) return null;
+      if (this._faceDetector) return this._faceDetector;
+      try {
+        if (typeof FaceDetector === 'undefined') { this._faceDetector = false; return null; }
+        this._faceDetector = new FaceDetector({ fastMode: true, maxDetectedFaces: 5 });
+        return this._faceDetector;
+      } catch (e) {
+        this._faceDetector = false;
+        return null;
+      }
+    },
+
+    // Canvas saliency: contrast + skin-tone bias + center weight (no ML).
+    _saliencyFocal: function (img) {
+      try {
+        var iw = img.naturalWidth, ih = img.naturalHeight;
+        if (!iw || !ih) return null;
+        var size = 48;
+        var canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        var ctx = canvas.getContext('2d', { willReadFrequently: true });
+        if (!ctx) return null;
+        ctx.drawImage(img, 0, 0, size, size);
+        var data = ctx.getImageData(0, 0, size, size).data;
+        var best = 0, bx = size / 2, by = size / 2;
+        var i, x, y, idx, r, g, b, lum, score, skin, cx, cy, dist;
+
+        function lumAt(px, py) {
+          if (px < 0 || py < 0 || px >= size || py >= size) return 0;
+          var j = (py * size + px) * 4;
+          return 0.299 * data[j] + 0.587 * data[j + 1] + 0.114 * data[j + 2];
+        }
+
+        for (y = 1; y < size - 1; y++) {
+          for (x = 1; x < size - 1; x++) {
+            idx = (y * size + x) * 4;
+            r = data[idx]; g = data[idx + 1]; b = data[idx + 2];
+            lum = 0.299 * r + 0.587 * g + 0.114 * b;
+            // Local contrast (Sobel-ish)
+            score = Math.abs(lumAt(x + 1, y) - lumAt(x - 1, y)) +
+                    Math.abs(lumAt(x, y + 1) - lumAt(x, y - 1));
+            // Skin-tone bias (faces / people)
+            skin = (r > 95 && g > 40 && b > 20 && r > g && r > b &&
+                    Math.abs(r - g) > 15 && (r - b) > 15) ? 28 : 0;
+            // Slight preference for warmer / saturated subjects (products)
+            score += skin + Math.min(40, Math.abs(r - b) * 0.15);
+            // Center weight — soft gaussian-ish
+            cx = (x + 0.5) / size - 0.5;
+            cy = (y + 0.5) / size - 0.5;
+            dist = cx * cx + cy * cy;
+            score *= (1.35 - dist * 1.6);
+            // Prefer upper-mid for portraits (faces tend to sit higher)
+            if (y < size * 0.55) score *= 1.12;
+            if (score > best) { best = score; bx = x + 0.5; by = y + 0.5; }
+          }
+        }
+        if (best < 4) return null;
+        return {
+          x: Math.max(8, Math.min(92, (bx / size) * 100)),
+          y: Math.max(8, Math.min(92, (by / size) * 100)),
+          source: 'saliency'
+        };
+      } catch (e) {
+        return null; // tainted canvas / CORS
+      }
+    },
+
+    _facesFocal: function (img) {
+      var self = this;
+      var det = this._getFaceDetector();
+      if (!det) return Promise.resolve(null);
+      return det.detect(img).then(function (faces) {
+        if (!faces || !faces.length) return null;
+        var iw = img.naturalWidth || 1;
+        var ih = img.naturalHeight || 1;
+        var best = faces[0], area = 0, i, f, a;
+        for (i = 0; i < faces.length; i++) {
+          f = faces[i].boundingBox;
+          a = f.width * f.height;
+          if (a > area) { area = a; best = faces[i]; }
+        }
+        var box = best.boundingBox;
+        // Bias toward eyes (upper third of face box)
+        var fx = ((box.x + box.width / 2) / iw) * 100;
+        var fy = ((box.y + box.height * 0.38) / ih) * 100;
+        return {
+          x: Math.max(5, Math.min(95, fx)),
+          y: Math.max(5, Math.min(95, fy)),
+          source: 'face'
+        };
+      }).catch(function () { return null; });
+    },
+
+    // Async smart focal: FaceDetector → saliency → geometry.
+    detectFocal: function (img) {
+      var self = this;
+      var cached = this._cachedFocal(img);
+      if (cached) return Promise.resolve(cached);
+
+      return this._facesFocal(img).then(function (face) {
+        if (face) { self._storeFocal(img, face); return face; }
+        var sal = self._saliencyFocal(img);
+        if (sal) { self._storeFocal(img, sal); return sal; }
+        var geo = self.computeGeometry(img);
+        if (geo) {
+          var f = { x: geo.x, y: geo.y, source: 'geometry' };
+          self._storeFocal(img, f);
+          return f;
+        }
+        return null;
+      });
+    },
+
+    computeAsync: function (img) {
+      var self = this;
+      var base = this.computeGeometry(img);
+      if (!base) return Promise.resolve(null);
+      return this.detectFocal(img).then(function (focal) {
+        if (focal) {
+          base.x = focal.x;
+          base.y = focal.y;
+          base.source = focal.source;
+        }
+        return base;
+      });
+    },
+
+    // Recalculate only position (x/y) — keep zoom / fit / lock.
+    recenter: function (img, draft) {
+      var base = draft ? Object.assign({}, draft) : this.compute(img);
+      if (!base) return Promise.resolve(null);
+      return this.detectFocal(img).then(function (focal) {
+        if (focal) { base.x = focal.x; base.y = focal.y; base.source = focal.source; }
+        else {
+          var geo = ImageAutoFit.computeGeometry(img);
+          if (geo) { base.x = geo.x; base.y = geo.y; }
+        }
+        return base;
+      });
+    },
+
+    _sameDraft: function (img, draft) {
+      if (!img || !draft) return false;
+      return img.getAttribute('data-img-zoom') === String(draft.zoom) &&
+        img.getAttribute('data-img-x') === String(Math.round(draft.x * 10) / 10) &&
+        img.getAttribute('data-img-y') === String(Math.round(draft.y * 10) / 10) &&
+        img.getAttribute('data-img-fit') === draft.fit &&
+        img.getAttribute('data-img-auto') === (draft.auto ? '1' : '0');
     },
 
     apply: function (img, dirty) {
       if (!img || !this.isAuto(img)) return null;
+      if (this._applying) return null;
       var draft = this.compute(img);
       if (!draft) return null;
-      ImageStudio.applyFraming(img, draft, false);
-      img.setAttribute('data-img-auto', '1');
-      if (dirty) markDirty();
+      if (this._sameDraft(img, draft)) return draft;
+      this._applying = true;
+      try {
+        ImageStudio.applyFraming(img, draft, false);
+        img.setAttribute('data-img-auto', '1');
+        if (dirty) markDirty();
+      } finally {
+        this._applying = false;
+      }
       return draft;
+    },
+
+    applySmart: function (img, dirty) {
+      var self = this;
+      if (!img || !this.isAuto(img)) return Promise.resolve(null);
+      return this.computeAsync(img).then(function (draft) {
+        if (!draft || !self.isAuto(img)) return null;
+        if (self._sameDraft(img, draft)) return draft;
+        self._applying = true;
+        try {
+          ImageStudio.applyFraming(img, draft, false);
+          img.setAttribute('data-img-auto', '1');
+          if (dirty) markDirty();
+        } finally {
+          self._applying = false;
+        }
+        return draft;
+      });
     },
 
     applyWhenReady: function (img, cb) {
       var self = this;
       function run() {
-        var draft = self.apply(img, false);
-        if (typeof cb === 'function') cb(draft);
+        self.applySmart(img, false).then(function (draft) {
+          if (typeof cb === 'function') cb(draft);
+        });
       }
-      if (img.complete && img.naturalWidth > 0) {
-        run();
-      } else {
+      if (img.complete && img.naturalWidth > 0) run();
+      else {
         img.addEventListener('load', run, { once: true });
         img.addEventListener('error', function () { if (typeof cb === 'function') cb(null); }, { once: true });
       }
@@ -608,7 +807,6 @@
       if (!img) return;
       this.setAuto(img, true);
       this.watch(img);
-      var self = this;
       this.applyWhenReady(img, function (draft) {
         if (typeof cb === 'function') cb(draft);
       });
@@ -619,16 +817,26 @@
       if (!this._observers) return;
       if (this._observers.has(img)) return;
 
-      var tick = rafThrottle(function () {
-        if (state.isPreview) return;
+      var tick = debounce(function () {
+        if (state.isPreview || ImageAutoFit._applying) return;
         if (!ImageAutoFit.isAuto(img)) return;
+        var box = ImageAutoFit.containerSize(img);
+        var key = Math.round(box.w) + 'x' + Math.round(box.h);
+        if (ImageAutoFit._sizes) {
+          if (ImageAutoFit._sizes.get(img) === key) return;
+          ImageAutoFit._sizes.set(img, key);
+        }
         if (ImageStudio.isOpen && ImageStudio.target === img) {
           ImageStudio._runAuto(true);
           return;
         }
         ImageAutoFit.apply(img, false);
-      });
+      }, 140);
 
+      if (typeof ResizeObserver === 'undefined') {
+        this._observers.set(img, { disconnect: function () {} });
+        return;
+      }
       var ro = new ResizeObserver(tick);
       ro.observe(img);
       if (img.parentElement) ro.observe(img.parentElement);
@@ -646,7 +854,7 @@
       if (this._enabled) return;
       this._enabled = true;
       if (typeof ResizeObserver === 'undefined') {
-        window.addEventListener('resize', rafThrottle(function () { ImageAutoFit._reflowAll(); }));
+        window.addEventListener('resize', debounce(function () { ImageAutoFit._reflowAll(); }, 160));
       }
       $$('img').forEach(function (img) {
         if (isEditorNode(img) || isRestricted(img)) return;
@@ -667,18 +875,35 @@
     target: null,
     snapshot: null,
     draft: null,
-    _manualBackup: null,
+    _manualMem: null,
+    _autoMem: null,
     history: [],
     future: [],
     device: 'desktop',
     safeArea: true,
     root: null,
     stageImg: null,
+    stageImgs: null,
     dragging: false,
     dragStart: null,
     _raf: 0,
+    _animTimer: 0,
 
     DEFAULTS: { zoom: 100, x: 50, y: 50, fit: 'cover', lock: true, auto: false },
+
+    _cloneDraft: function (d) {
+      return d ? JSON.parse(JSON.stringify(d)) : null;
+    },
+
+    _enableAnim: function () {
+      if (!this.root) return;
+      this.root.classList.add('editor-studio--anim');
+      if (this._animTimer) clearTimeout(this._animTimer);
+      var self = this;
+      this._animTimer = setTimeout(function () {
+        if (self.root) self.root.classList.remove('editor-studio--anim');
+      }, 260);
+    },
 
     readFrom: function (img) {
       var d = ImageStudio.DEFAULTS;
@@ -751,6 +976,7 @@
       var ox = draft.x + '%';
       var oy = draft.y + '%';
       var fit = draft.lock && draft.fit === 'fill' ? 'cover' : draft.fit;
+      var transform = z === 1 ? '' : ('scale(' + z + ')');
 
       img.setAttribute('data-img-zoom', String(draft.zoom));
       img.setAttribute('data-img-x', String(Math.round(draft.x * 10) / 10));
@@ -762,7 +988,7 @@
       img.style.objectFit = fit;
       img.style.objectPosition = ox + ' ' + oy;
       img.style.transformOrigin = ox + ' ' + oy;
-      img.style.transform = z === 1 ? '' : ('scale(' + z + ')');
+      img.style.transform = transform;
 
       var parent = img.parentElement;
       if (parent) {
@@ -772,30 +998,94 @@
         } catch (e) { parent.style.overflow = 'hidden'; }
       }
 
-      if (live && ImageStudio.stageImg && ImageStudio.stageImg !== img) {
-        ImageStudio.stageImg.style.objectFit = fit;
-        ImageStudio.stageImg.style.objectPosition = ox + ' ' + oy;
-        ImageStudio.stageImg.style.transformOrigin = ox + ' ' + oy;
-        ImageStudio.stageImg.style.transform = z === 1 ? 'none' : ('scale(' + z + ')');
+      if (live) ImageStudio._paintPreviews(fit, ox, oy, transform || 'none');
+    },
+
+    _paintPreviews: function (fit, ox, oy, transform) {
+      var list = ImageStudio.stageImgs;
+      if (!list || !list.length) {
+        if (ImageStudio.stageImg) {
+          ImageStudio.stageImg.style.objectFit = fit;
+          ImageStudio.stageImg.style.objectPosition = ox + ' ' + oy;
+          ImageStudio.stageImg.style.transformOrigin = ox + ' ' + oy;
+          ImageStudio.stageImg.style.transform = transform;
+        }
+        return;
+      }
+      for (var i = 0; i < list.length; i++) {
+        list[i].style.objectFit = fit;
+        list[i].style.objectPosition = ox + ' ' + oy;
+        list[i].style.transformOrigin = ox + ' ' + oy;
+        list[i].style.transform = transform;
       }
     },
 
     _runAuto: function (silent) {
       if (!this.target || !this.draft) return;
-      var computed = ImageAutoFit.compute(this.target);
-      if (!computed) {
-        var self = this;
-        ImageAutoFit.applyWhenReady(this.target, function (d) {
-          if (!d || !self.draft) return;
-          self.draft = Object.assign({}, self.draft, d, { auto: true });
-          self.applyFraming(self.target, self.draft, true);
-          self._syncControls();
+      var self = this;
+      ImageAutoFit.computeAsync(this.target).then(function (computed) {
+        if (!computed || !self.draft || !self.isOpen) return;
+        self.draft = Object.assign({}, computed, {
+          auto: true,
+          zoom: 100,
+          fit: 'cover',
+          lock: true
         });
-        return;
+        self._autoMem = self._cloneDraft(self.draft);
+        self._enableAnim();
+        self.applyFraming(self.target, self.draft, true);
+        self._syncControls();
+        if (!silent) Toast.show('Enquadramento automático atualizado');
+      });
+    },
+
+    _toggleAuto: function () {
+      if (!this.draft) return;
+      this.pushHistory();
+      this._enableAnim();
+      if (this.draft.auto) {
+        this._autoMem = this._cloneDraft(this.draft);
+        this._autoMem.auto = true;
+        if (this._manualMem) {
+          this.draft = this._cloneDraft(this._manualMem);
+          this.draft.auto = false;
+        } else {
+          this.draft.auto = false;
+        }
+        Toast.show('Ajuste manual ativado');
+        this.applyFraming(this.target, this.draft, true);
+        this._syncControls();
+      } else {
+        this._manualMem = this._cloneDraft(this.draft);
+        this._manualMem.auto = false;
+        if (this._autoMem) {
+          this.draft = this._cloneDraft(this._autoMem);
+          this.draft.auto = true;
+          this.applyFraming(this.target, this.draft, true);
+          this._syncControls();
+        } else {
+          this.draft.auto = true;
+          this._runAuto(true);
+        }
+        Toast.show('Ajuste Automático ativado');
       }
-      this.draft = Object.assign({}, this.draft, computed, { auto: true });
-      this.applyFraming(this.target, this.draft, true);
-      if (!silent) Toast.show('Enquadramento automático atualizado');
+    },
+
+    _recenter: function () {
+      if (!this.target || !this.draft) return;
+      var self = this;
+      this.pushHistory();
+      ImageAutoFit.recenter(this.target, this.draft).then(function (next) {
+        if (!next || !self.draft) return;
+        self.draft.x = next.x;
+        self.draft.y = next.y;
+        self._enableAnim();
+        self.applyFraming(self.target, self.draft, true);
+        self._syncControls();
+        if (self.draft.auto) self._autoMem = self._cloneDraft(self.draft);
+        else self._manualMem = self._cloneDraft(self.draft);
+        Toast.show('Enquadramento recentralizado');
+      });
     },
 
     _isManualControl: function (node) {
@@ -804,7 +1094,7 @@
           node.hasAttribute('data-pos') || node.hasAttribute('data-fit')) return true;
       var act = node.getAttribute('data-studio');
       return act === 'zoom' || act === 'zoom-in' || act === 'zoom-out' || act === 'zoom-center' ||
-        act === 'reset' || act === 'lock' || act === 'safe';
+        act === 'reset' || act === 'lock';
     },
 
     pushHistory: function () {
@@ -817,16 +1107,18 @@
 
     undo: function () {
       if (!this.history.length) return;
-      this.future.push(JSON.parse(JSON.stringify(this.draft)));
+      this.future.push(this._cloneDraft(this.draft));
       this.draft = this.history.pop();
+      this._enableAnim();
       this._paint(false);
       this._syncHistoryBtns();
     },
 
     redo: function () {
       if (!this.future.length) return;
-      this.history.push(JSON.parse(JSON.stringify(this.draft)));
+      this.history.push(this._cloneDraft(this.draft));
       this.draft = this.future.pop();
+      this._enableAnim();
       this._paint(false);
       this._syncHistoryBtns();
     },
@@ -862,7 +1154,7 @@
       $$('[data-zoom]', this.root).forEach(function (b) { b.disabled = !!d.auto; });
       $$('[data-nudge]', this.root).forEach(function (b) { b.disabled = !!d.auto; });
       $$('[data-pos]', this.root).forEach(function (b) { b.disabled = !!d.auto; });
-      ['zoom-in','zoom-out','zoom-center','reset','lock','safe'].forEach(function (k) {
+      ['zoom-in','zoom-out','zoom-center','reset','lock'].forEach(function (k) {
         var b = ImageStudio.root.querySelector('[data-studio="' + k + '"]');
         if (b) b.disabled = !!d.auto;
       });
@@ -875,17 +1167,23 @@
       var hint = this.root.querySelector('[data-studio="auto-hint"]');
       if (hint) {
         hint.textContent = d.auto
-          ? 'O sistema enquadra a foto por você. Desative para ajustes manuais.'
-          : 'Modo manual — use os controles abaixo para enquadrar.';
+          ? 'O sistema enquadra a foto por você. Duplo clique na imagem também alterna o modo.'
+          : 'Modo manual — use os controles abaixo. Duplo clique na imagem reativa o automático.';
       }
-      var crop = this.root.querySelector('.editor-studio-crop');
+      var crop = this.root.querySelector('.editor-studio-crop--main');
       if (crop) crop.classList.toggle('editor-studio-crop--locked', !!d.auto);
       this.root.classList.toggle('editor-studio--auto', !!d.auto);
+      $$('.editor-studio-device-card', this.root).forEach(function (card) {
+        card.classList.toggle('editor-on', card.getAttribute('data-preview') === ImageStudio.device);
+      });
       var frame = this.root.querySelector('.editor-studio-frame');
       if (frame) {
         frame.classList.toggle('editor-studio-safe', !!ImageStudio.safeArea);
         frame.setAttribute('data-device', ImageStudio.device);
       }
+      $$('.editor-studio-safe-overlay', this.root).forEach(function (ov) {
+        ov.parentElement && ov.parentElement.classList.toggle('editor-studio-safe-on', !!ImageStudio.safeArea);
+      });
     },
 
     _ensureShell: function () {
@@ -906,16 +1204,39 @@
           '<div class="editor-studio-body">' +
             '<div class="editor-studio-stage-wrap">' +
               '<div class="editor-studio-devices" role="group" aria-label="Responsividade">' +
-                '<span class="editor-studio-devices-label">Responsividade</span>' +
+                '<span class="editor-studio-devices-label">Prévia em tempo real</span>' +
                 '<button type="button" class="editor-seg-btn" data-device="desktop">Desktop</button>' +
                 '<button type="button" class="editor-seg-btn" data-device="tablet">Tablet</button>' +
                 '<button type="button" class="editor-seg-btn" data-device="mobile">Mobile</button>' +
               '</div>' +
-              '<div class="editor-studio-frame" data-device="desktop">' +
-                '<div class="editor-studio-crop">' +
-                  '<img class="editor-studio-preview" alt="Prévia do enquadramento" draggable="false" />' +
-                  '<div class="editor-studio-safe-overlay" aria-hidden="true"></div>' +
-                  '<div class="editor-studio-drag-hint">Arraste a imagem</div>' +
+              '<div class="editor-studio-multi">' +
+                '<div class="editor-studio-device-card editor-on" data-preview="desktop">' +
+                  '<span class="editor-studio-device-label">Desktop</span>' +
+                  '<div class="editor-studio-frame" data-device="desktop">' +
+                    '<div class="editor-studio-crop editor-studio-crop--main">' +
+                      '<img class="editor-studio-preview" alt="Prévia Desktop" draggable="false" />' +
+                      '<div class="editor-studio-safe-overlay" aria-hidden="true"><span>Área Segura</span></div>' +
+                      '<div class="editor-studio-drag-hint">Arraste a imagem</div>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="editor-studio-device-card" data-preview="tablet">' +
+                  '<span class="editor-studio-device-label">Tablet</span>' +
+                  '<div class="editor-studio-frame" data-device="tablet">' +
+                    '<div class="editor-studio-crop editor-studio-crop--sat" data-sat="tablet">' +
+                      '<img class="editor-studio-preview" alt="Prévia Tablet" draggable="false" />' +
+                      '<div class="editor-studio-safe-overlay" aria-hidden="true"><span>Área Segura</span></div>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="editor-studio-device-card" data-preview="mobile">' +
+                  '<span class="editor-studio-device-label">Mobile</span>' +
+                  '<div class="editor-studio-frame" data-device="mobile">' +
+                    '<div class="editor-studio-crop editor-studio-crop--sat" data-sat="mobile">' +
+                      '<img class="editor-studio-preview" alt="Prévia Mobile" draggable="false" />' +
+                      '<div class="editor-studio-safe-overlay" aria-hidden="true"><span>Área Segura</span></div>' +
+                    '</div>' +
+                  '</div>' +
                 '</div>' +
               '</div>' +
             '</div>' +
@@ -926,7 +1247,9 @@
                   '<span class="editor-studio-auto-check">✓</span> Ajuste Automático' +
                 '</button>' +
                 '<p class="editor-studio-auto-hint" data-studio="auto-hint">O sistema enquadra a foto por você.</p>' +
-                '<button type="button" class="editor-btn" data-studio="replace" style="width:100%;margin-top:10px">Trocar imagem</button>' +
+                '<button type="button" class="editor-btn" data-studio="recenter" style="width:100%;margin-top:10px">🎯 Recentralizar</button>' +
+                '<button type="button" class="editor-btn" data-studio="safe" style="width:100%;margin-top:8px">Área segura</button>' +
+                '<button type="button" class="editor-btn" data-studio="replace" style="width:100%;margin-top:8px">Trocar imagem</button>' +
               '</section>' +
               '<div class="editor-studio-manual">' +
               '<section class="editor-studio-group">' +
@@ -982,7 +1305,6 @@
                   '<button type="button" class="editor-seg-btn" data-fit="scale-down">Scale Down</button>' +
                   '<button type="button" class="editor-seg-btn" data-fit="none">Original</button>' +
                 '</div>' +
-                '<button type="button" class="editor-btn" data-studio="safe" style="width:100%;margin-top:10px">Área segura</button>' +
               '</section>' +
               '</div>' +
             '</aside>' +
@@ -995,7 +1317,8 @@
 
       document.body.appendChild(root);
       this.root = root;
-      this.stageImg = root.querySelector('.editor-studio-preview');
+      this.stageImgs = root.querySelectorAll('.editor-studio-preview');
+      this.stageImg = this.stageImgs[0] || null;
       this._bindShell();
       return root;
     },
@@ -1003,9 +1326,20 @@
     _bindShell: function () {
       var self = this;
       var root = this.root;
-      var crop = root.querySelector('.editor-studio-crop');
+      var crop = root.querySelector('.editor-studio-crop--main');
 
       root.addEventListener('click', function (e) {
+        var card = e.target.closest('[data-preview]');
+        if (card && !e.target.closest('[data-studio],[data-zoom],[data-nudge],[data-pos],[data-fit],[data-device]')) {
+          // clicking a device card focuses that device for interaction sizing
+          var prev = card.getAttribute('data-preview');
+          if (prev) {
+            self.device = prev;
+            self._syncControls();
+            self._sizeStage();
+          }
+        }
+
         var t = e.target.closest('[data-studio],[data-zoom],[data-nudge],[data-pos],[data-fit],[data-device]');
         if (!t) return;
         e.preventDefault();
@@ -1020,7 +1354,11 @@
           if (act === 'redo') return self.redo();
           if (act === 'replace') {
             return ImageEditor.pick(self.target, function () {
-              self.stageImg.src = self.target.src;
+              var src = self.target.src;
+              for (var i = 0; i < self.stageImgs.length; i++) self.stageImgs[i].src = src;
+              self.target.removeAttribute('data-img-focal-src');
+              self.target.removeAttribute('data-img-fx');
+              self.target.removeAttribute('data-img-fy');
               if (self.draft.auto) {
                 ImageAutoFit.setAuto(self.target, true);
                 self._runAuto(true);
@@ -1029,21 +1367,11 @@
             });
           }
           if (act === 'toggle-auto') {
-            self.pushHistory();
-            if (self.draft.auto) {
-              self._manualBackup = JSON.parse(JSON.stringify(self.draft));
-              self._manualBackup.auto = false;
-              self.draft.auto = false;
-              Toast.show('Ajuste manual ativado');
-            } else {
-              self._manualBackup = JSON.parse(JSON.stringify(self.draft));
-              self._manualBackup.auto = false;
-              self.draft.auto = true;
-              self._runAuto(true);
-              Toast.show('Ajuste Automático ativado');
-            }
-            self.applyFraming(self.target, self.draft, true);
-            self._syncControls();
+            self._toggleAuto();
+            return;
+          }
+          if (act === 'recenter') {
+            self._recenter();
             return;
           }
           if (act === 'lock') {
@@ -1066,6 +1394,7 @@
             } else {
               self.draft = JSON.parse(JSON.stringify(self.DEFAULTS));
               self.draft.auto = false;
+              self._enableAnim();
               self._paint(false);
               Toast.show('Posição original restaurada');
             }
@@ -1142,6 +1471,7 @@
         self.draft.zoom = parseInt(zoom.value, 10);
         self.applyFraming(self.target, self.draft, true);
         self._syncControls();
+        self._manualMem = self._cloneDraft(self.draft);
       });
 
       function pointerDown(ev) {
@@ -1149,6 +1479,7 @@
         ev.preventDefault();
         self.pushHistory();
         self.dragging = true;
+        if (self.root) self.root.classList.remove('editor-studio--anim');
         var pt = ev.touches ? ev.touches[0] : ev;
         self.dragStart = { x: pt.clientX, y: pt.clientY, ox: self.draft.x, oy: self.draft.y };
         crop.classList.add('editor-dragging');
@@ -1159,7 +1490,6 @@
         var rect = crop.getBoundingClientRect();
         var dx = ((pt.clientX - self.dragStart.x) / rect.width) * 100;
         var dy = ((pt.clientY - self.dragStart.y) / rect.height) * 100;
-        // Dragging the image: move opposite to finger (natural pan)
         self.draft.x = Math.max(0, Math.min(100, self.dragStart.ox - dx));
         self.draft.y = Math.max(0, Math.min(100, self.dragStart.oy - dy));
         if (self._raf) cancelAnimationFrame(self._raf);
@@ -1172,6 +1502,7 @@
         if (!self.dragging) return;
         self.dragging = false;
         crop.classList.remove('editor-dragging');
+        self._manualMem = self._cloneDraft(self.draft);
       }
 
       crop.addEventListener('mousedown', pointerDown);
@@ -1191,18 +1522,28 @@
 
     _sizeStage: function () {
       if (!this.root || !this.target) return;
-      var frame = this.root.querySelector('.editor-studio-frame');
-      var crop = this.root.querySelector('.editor-studio-crop');
       var r = this.target.getBoundingClientRect();
       var aspect = (r.width > 0 && r.height > 0) ? (r.width / r.height) : (4 / 3);
-      var maxW = this.device === 'mobile' ? 280 : (this.device === 'tablet' ? 420 : 560);
-      var w = Math.min(maxW, window.innerWidth * 0.55);
-      var h = w / aspect;
-      var maxH = Math.min(window.innerHeight * 0.55, 480);
-      if (h > maxH) { h = maxH; w = h * aspect; }
-      crop.style.width = Math.round(w) + 'px';
-      crop.style.height = Math.round(h) + 'px';
-      frame.style.width = Math.round(w + 24) + 'px';
+
+      function sizeCrop(crop, maxW, maxH) {
+        if (!crop) return;
+        var w = Math.min(maxW, window.innerWidth * 0.42);
+        var h = w / aspect;
+        if (h > maxH) { h = maxH; w = h * aspect; }
+        crop.style.width = Math.round(w) + 'px';
+        crop.style.height = Math.round(h) + 'px';
+      }
+
+      var main = this.root.querySelector('.editor-studio-crop--main');
+      var mainMax = this.device === 'mobile' ? 220 : (this.device === 'tablet' ? 340 : 480);
+      sizeCrop(main, mainMax, Math.min(window.innerHeight * 0.42, 380));
+
+      sizeCrop(this.root.querySelector('[data-sat="tablet"]'), 160, 140);
+      sizeCrop(this.root.querySelector('[data-sat="mobile"]'), 100, 140);
+
+      // Promote selected device card visually; if tablet/mobile selected, swap main sizing already applied
+      if (this.device === 'tablet') sizeCrop(main, 340, 300);
+      if (this.device === 'mobile') sizeCrop(main, 220, 320);
     },
 
     open: function (img) {
@@ -1215,7 +1556,8 @@
       this.target = img;
       this.snapshot = this.captureSnapshot(img);
       this.draft = this.readFrom(img);
-      this._manualBackup = this.draft.auto ? null : JSON.parse(JSON.stringify(this.draft));
+      this._autoMem = this.draft.auto ? this._cloneDraft(this.draft) : null;
+      this._manualMem = this.draft.auto ? null : this._cloneDraft(this.draft);
       this.history = [];
       this.future = [];
       this.device = 'desktop';
@@ -1223,7 +1565,8 @@
       this.isOpen = true;
 
       ImageAutoFit.watch(img);
-      this.stageImg.src = img.currentSrc || img.src;
+      var src = img.currentSrc || img.src;
+      for (var i = 0; i < this.stageImgs.length; i++) this.stageImgs[i].src = src;
 
       if (this.draft.auto) {
         this._runAuto(true);
@@ -1244,7 +1587,12 @@
       if (!this.isOpen) return;
       if (commit) {
         this.applyFraming(this.target, this.draft, false);
-        if (this.draft.auto) ImageAutoFit.watch(this.target);
+        if (this.draft.auto) {
+          this._autoMem = this._cloneDraft(this.draft);
+          ImageAutoFit.watch(this.target);
+        } else {
+          this._manualMem = this._cloneDraft(this.draft);
+        }
         markDirty();
         Toast.show('Enquadramento salvo — publique quando quiser');
       } else {
@@ -1257,7 +1605,6 @@
       this.target = null;
       this.snapshot = null;
       this.draft = null;
-      this._manualBackup = null;
     }
   };
 
@@ -1283,6 +1630,29 @@
         if (tagOf(t) !== 'img' || isEditorNode(t) || isRestricted(t)) return;
         e.preventDefault(); e.stopPropagation();
         ImageStudio.open(t);
+      }, true);
+
+      // Duplo clique → alterna Ajuste Automático (atalho profissional).
+      document.addEventListener('dblclick', function (e) {
+        if (state.isPreview) return;
+        var t = e.target;
+        if (tagOf(t) !== 'img' || isEditorNode(t) || isRestricted(t)) return;
+        e.preventDefault(); e.stopPropagation();
+        if (ImageStudio.isOpen && ImageStudio.target === t) {
+          ImageStudio._toggleAuto();
+          return;
+        }
+        var nowAuto = !ImageAutoFit.isAuto(t);
+        ImageAutoFit.setAuto(t, nowAuto);
+        if (nowAuto) {
+          ImageAutoFit.watch(t);
+          ImageAutoFit.applySmart(t, true).then(function () {
+            Toast.show('Ajuste Automático ativado');
+          });
+        } else {
+          markDirty();
+          Toast.show('Ajuste manual — abra o editor para refinar');
+        }
       }, true);
 
       // [data-editable-image] empty drop-zones
@@ -1767,7 +2137,7 @@
   }
 
   var VisualEditor = {
-    version: '2.6.0',
+    version: '2.7.0',
 
     init: function () {
       if (this._inited) return;
