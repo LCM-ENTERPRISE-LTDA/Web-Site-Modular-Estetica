@@ -2768,6 +2768,7 @@
   var FONTS = ['Inter','Poppins','Montserrat','Roboto','Playfair Display','Lora','Oswald',
                'Cormorant Garamond','Jost','DM Sans','Open Sans','Arial','Georgia'];
   var COLORS = ['#1a1a18','#2c2420','#4a4a45','#ffffff','#faf8f5','#f7f2eb',
+                '#aaba7b','#95a866','#67783f','#efd9d2','#cca79d','#9e766c','#f4efec',
                 '#9a7548','#b89066','#994f20','#a05a30','#c8835a','#5d7a58','#d6ca96'];
 
   function field(labelText, ctrlNode) { return el('div', { class: 'editor-field' }, [ el('label', { class: 'editor-label', text: labelText }), ctrlNode ]); }

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Regenera assets de favicon a partir de favicon-master.png
  * Requer: npm install sharp to-ico
  * Uso: node scripts/generate-favicons-from-master.js
@@ -60,8 +60,8 @@ async function circleFromMaster(size, outName) {
     description: 'Estética Natural Integrativa — melasma, estrias e saúde capilar.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#faf7f4',
-    theme_color: '#a05a30',
+    background_color: '#f4efec',
+    theme_color: '#aaba7b',
     icons: [
       { src: 'android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
       { src: 'android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },

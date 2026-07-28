@@ -1,0 +1,837 @@
+/* ═══════════════════════════════════════════════════════════
+   Design System v4.1 — Kelly Regina Ferreira
+   Luxury Minimalism · Seed-derived token architecture
+
+   Seeds (do not use raw across UI — derive from scales):
+     Sage  #AABA7B
+     Blush #EFD9D2
+     Mist  #F4EFEC
+     Rose  #CCA79D
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Seeds (reference only) ── */
+  --seed-sage: #aaba7b;
+  --seed-blush: #efd9d2;
+  --seed-mist: #f4efec;
+  --seed-rose: #cca79d;
+
+  /* ── Sage scale (primary · from #AABA7B ≈ 400) ── */
+  --sage-50: #f7f8f2;
+  --sage-100: #eef1e3;
+  --sage-200: #dce4c4;
+  --sage-300: #c5d19f;
+  --sage-400: #aaba7b;
+  --sage-500: #8fa05e;
+  --sage-600: #73824b;
+  --sage-700: #5a663b;
+  --sage-800: #434c2e;
+  --sage-900: #2f3521;
+
+  /* ── Rose scale (secondary · from #CCA79D ≈ 400) ── */
+  --rose-50: #fbf7f5;
+  --rose-100: #f5ebe7;
+  --rose-200: #efd9d2;
+  --rose-300: #e0c2b8;
+  --rose-400: #cca79d;
+  --rose-500: #b89086;
+  --rose-600: #9e766c;
+  --rose-700: #825e56;
+  --rose-800: #664a44;
+  --rose-900: #4a3632;
+
+  /* ── Blush scale (soft warm · from #EFD9D2 ≈ 200) ── */
+  --blush-50: #fcf9f7;
+  --blush-100: #f7f0ec;
+  --blush-200: #efd9d2;
+  --blush-300: #e4c5bb;
+  --blush-400: #d4aaa0;
+  --blush-500: #bf9086;
+  --blush-600: #a3756c;
+  --blush-700: #855d56;
+  --blush-800: #684843;
+  --blush-900: #4c3532;
+
+  /* ── Mist / Neutral scale (from #F4EFEC ≈ 100) ── */
+  --mist-50: #fffcfa;
+  --mist-100: #f4efec;
+  --mist-200: #e8e0db;
+  --mist-300: #d4c9c2;
+  --mist-400: #b8aba3;
+  --mist-500: #968980;
+  --mist-600: #766a63;
+  --mist-700: #5a504b;
+  --mist-800: #3f3835;
+  --mist-900: #2a2623;
+
+  /* ── Terracotta scale (warm earth · corporal personality) ── */
+  --terra-50: #fbf6f1;
+  --terra-100: #f5ebe0;
+  --terra-200: #ead9c8;
+  --terra-300: #d4b89a;
+  --terra-400: #b89a7a;
+  --terra-500: #9e7e5e;
+  --terra-600: #826448;
+  --terra-700: #664e38;
+  --terra-800: #4a392a;
+  --terra-900: #33281e;
+
+  /* ── Olive scale (fresh natural · desinflamação) ── */
+  --olive-50: #f5f7f0;
+  --olive-100: #eaf0de;
+  --olive-200: #d5e0b8;
+  --olive-300: #b8c98a;
+  --olive-400: #95a866;
+  --olive-500: #7a8f4f;
+  --olive-600: #61723f;
+  --olive-700: #4a5731;
+  --olive-800: #363f25;
+  --olive-900: #252b1a;
+
+  /* ── Mauve / Sand scale (capilar · tech-soft, non-green) ── */
+  --mauve-50: #f8f5f3;
+  --mauve-100: #f0e9e5;
+  --mauve-200: #e2d4cd;
+  --mauve-300: #cbb5ac;
+  --mauve-400: #b09a90;
+  --mauve-500: #968078;
+  --mauve-600: #7a6760;
+  --mauve-700: #5f504a;
+  --mauve-800: #453a36;
+  --mauve-900: #2e2724;
+
+  --sand-50: #faf7f4;
+  --sand-100: #f3ebe4;
+  --sand-200: #e6d5c8;
+  --sand-300: #d2b9a6;
+  --sand-400: #b89a7a;
+  --sand-500: #9e7e5e;
+  --copper-50: #fbfaf8;
+  --copper-100: #f6f2ea;
+  --copper-200: #ebe3d4;
+  --copper-300: #d4c2a3;
+  --copper-400: #b89968;
+  --copper-500: #a17945;
+  --copper-600: #8a6638;
+  --copper-700: #6e5330;
+  --copper-800: #524024;
+  --copper-900: #3a2e1b;
+
+  /* ── Aliases Primary / Secondary (scales) ── */
+  --primary-50: var(--sage-50);
+  --primary-100: var(--sage-100);
+  --primary-200: var(--sage-200);
+  --primary-300: var(--sage-300);
+  --primary-400: var(--sage-400);
+  --primary-500: var(--sage-500);
+  --primary-600: var(--sage-600);
+  --primary-700: var(--sage-700);
+  --primary-800: var(--sage-800);
+  --primary-900: var(--sage-900);
+
+  --secondary-50: var(--rose-50);
+  --secondary-100: var(--rose-100);
+  --secondary-200: var(--rose-200);
+  --secondary-300: var(--rose-300);
+  --secondary-400: var(--rose-400);
+  --secondary-500: var(--rose-500);
+  --secondary-600: var(--rose-600);
+  --secondary-700: var(--rose-700);
+  --secondary-800: var(--rose-800);
+  --secondary-900: var(--rose-900);
+
+  /* ── Semantic surfaces ── */
+  --color-bg: var(--mist-100);
+  --color-bg-secondary: var(--mist-50);
+  --color-surface: var(--mist-50);
+  --color-surface-2: var(--mist-200);
+  --color-card: #ffffff;
+  --color-card-hover: color-mix(in srgb, var(--mist-50) 70%, #fff);
+  --color-hover: color-mix(in srgb, var(--sage-100) 55%, #fff);
+  --color-active: color-mix(in srgb, var(--sage-200) 45%, #fff);
+  --color-overlay: color-mix(in srgb, var(--mist-900) 48%, transparent);
+
+  /* ── Borders / dividers ── */
+  --color-border: color-mix(in srgb, var(--mist-700) 14%, transparent);
+  --color-border-strong: color-mix(in srgb, var(--sage-500) 32%, transparent);
+  --color-divider: color-mix(in srgb, var(--rose-400) 32%, transparent);
+
+  /* ── Text (WCAG-minded on mist surfaces) ── */
+  --color-text: var(--mist-900);
+  --color-text-secondary: var(--mist-700);
+  --color-text-muted: var(--mist-600);
+  --color-text-disabled: var(--mist-400);
+  --color-text-inverse: var(--mist-50);
+  --color-heading: var(--mist-900);
+  --color-icon: var(--sage-700);
+
+  /* ── Interactive ── */
+  --color-primary: var(--sage-600);
+  --color-primary-hover: var(--sage-700);
+  --color-primary-active: var(--sage-800);
+  --color-secondary: var(--rose-500);
+  --color-secondary-hover: var(--rose-600);
+  --color-accent: var(--rose-500);
+  --color-focus: var(--sage-500);
+  --color-focus-ring: color-mix(in srgb, var(--sage-500) 45%, transparent);
+
+  /* ── Buttons ── */
+  --color-btn-primary-bg: var(--sage-700);
+  --color-btn-primary-bg-hover: var(--sage-600);
+  --color-btn-primary-bg-active: var(--sage-800);
+  --color-btn-primary-text: #ffffff;
+  --color-btn-secondary-bg: transparent;
+  --color-btn-secondary-border: var(--color-border-strong);
+  --color-btn-secondary-text: var(--color-text);
+  --color-btn-secondary-hover: var(--color-hover);
+  --color-btn-ghost-text: var(--sage-700);
+  --color-btn-ghost-hover: var(--sage-100);
+  --color-cta-bg: var(--sage-700);
+  --color-cta-bg-hover: var(--sage-600);
+  --color-cta-text: #ffffff;
+  --color-link: var(--sage-700);
+  --color-link-hover: var(--rose-700);
+
+  /* ── Status ── */
+  --color-success: var(--olive-600);
+  --color-success-bg: var(--olive-50);
+  --color-warning: var(--terra-600);
+  --color-warning-bg: var(--terra-50);
+  --color-error: #8f4e4a;
+  --color-error-bg: color-mix(in srgb, var(--rose-200) 55%, #fff);
+
+  /* ── Shadows (ink-tinted) ── */
+  --shadow-color: color-mix(in srgb, var(--mist-900) 100%, transparent);
+  --shadow-sm: 0 1px 2px color-mix(in srgb, var(--mist-900) 5%, transparent);
+  --shadow-md: 0 8px 24px color-mix(in srgb, var(--mist-900) 7%, transparent);
+  --shadow-lg: 0 18px 48px color-mix(in srgb, var(--mist-900) 9%, transparent);
+  --shadow-glow: 0 0 0 1px color-mix(in srgb, var(--sage-400) 22%, transparent);
+
+  /* ── Brand shortcuts (prefer semantic tokens in UI) ── */
+  --brand-sage: var(--sage-400);
+  --brand-blush: var(--blush-200);
+  --brand-mist: var(--mist-100);
+  --brand-rose: var(--rose-400);
+
+  /* ── Typography ── */
+  --font-display: "Cormorant Garamond", "Times New Roman", Georgia, serif;
+  --font-body: "Outfit", system-ui, sans-serif;
+
+  /* ── Motion ── */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration: 0.35s;
+
+  /* ── Radius ── */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+  --radius-full: var(--radius-pill);
+
+  /* ── Page theme hooks (overridden per data-theme) ── */
+  --page-accent: var(--sage-500);
+  --page-accent-soft: var(--sage-100);
+  --page-accent-deep: var(--sage-700);
+  --page-wash: var(--mist-100);
+  --page-deep: var(--mist-800);
+  --page-section-odd: linear-gradient(135deg, var(--color-bg) 0%, var(--color-card) 100%);
+  --page-selection-bg: var(--sage-100);
+  --page-selection-text: var(--mist-900);
+  --page-radius: var(--radius-lg);
+
+  /* ── Tailwind bridge tokens (overridden per theme) ── */
+  --tw-paper: var(--color-bg);
+  --tw-wash: var(--blush-100);
+  --tw-linen: var(--terra-100);
+  --tw-mist: var(--sage-100);
+  --tw-mint: var(--olive-50);
+  --tw-foam: var(--sage-50);
+  --tw-ink: var(--color-text);
+  --tw-muted: var(--color-text-secondary);
+  --tw-line: var(--color-border);
+  --tw-accent: var(--page-accent);
+  --tw-accent-dark: var(--page-accent-deep);
+  --tw-deep: var(--page-deep);
+  --tw-sage: var(--sage-400);
+  --tw-terra: var(--rose-400);
+  --tw-taupe: var(--terra-400);
+  --tw-mineral: var(--sage-500);
+  --tw-copper: var(--rose-500);
+  --tw-sand: var(--blush-200);
+
+  /* ── Index / component aliases ── */
+  --primary: var(--sage-400);
+  --primary-deep: var(--sage-700);
+  --rose: var(--rose-500);
+  --rose-deep: var(--rose-700);
+  --blush: var(--blush-200);
+  --blush-soft: var(--blush-100);
+  --bg-elevated: var(--mist-50);
+  --card: var(--color-card);
+  --card-hover: var(--color-card-hover);
+  --text: var(--color-text);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-muted);
+  --divider: var(--color-divider);
+
+  /* ── Atmosphere (index) ── */
+  --atmosphere-1: color-mix(in srgb, var(--sage-400) 22%, transparent);
+  --atmosphere-2: color-mix(in srgb, var(--blush-200) 55%, transparent);
+  --atmosphere-3: color-mix(in srgb, var(--rose-400) 18%, transparent);
+  --ring-sage: color-mix(in srgb, var(--sage-400) 40%, transparent);
+  --ring-mist: color-mix(in srgb, var(--mist-100) 92%, transparent);
+  --ring-rose: color-mix(in srgb, var(--rose-400) 40%, transparent);
+
+  /* ── Card accent lines (vitrine personalities) ── */
+  --accent-facial: var(--rose-400);
+  --accent-corporal: var(--terra-400);
+  --accent-capilar: var(--mauve-600);
+  --accent-desinflamacao: var(--olive-400);
+  --accent-curriculo: var(--copper-500);
+
+  /* ── Legacy aliases ── */
+  --copper: var(--sage-500);
+  --copper-light: var(--sage-400);
+  --copper-xlight: var(--sage-200);
+  --bg: var(--color-bg);
+  --surface: var(--color-surface);
+  --surface-b: var(--color-surface-2);
+  --card-bg: var(--color-card);
+  --ink: var(--color-text);
+  --ink-mid: var(--color-text-secondary);
+  --ink-soft: var(--color-text-muted);
+  --ink-muted: var(--color-text-muted);
+  --border: var(--color-border);
+  --border-strong: var(--color-border-strong);
+  --serif: var(--font-display);
+  --sans: var(--font-body);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE PERSONALITIES — remap semantic + bridge tokens
+   ═══════════════════════════════════════════════════════════ */
+
+/* Facial — luminous · delicate · blush / rose */
+[data-theme="facial"] {
+  --color-bg: var(--rose-50);
+  --color-bg-secondary: var(--blush-50);
+  --color-surface: #fffaf8;
+  --color-surface-2: var(--blush-100);
+  --color-card: #ffffff;
+  --color-card-hover: var(--blush-50);
+  --color-hover: var(--blush-100);
+  --color-active: var(--rose-100);
+  --color-border: color-mix(in srgb, var(--rose-600) 16%, transparent);
+  --color-border-strong: color-mix(in srgb, var(--rose-400) 38%, transparent);
+  --color-divider: color-mix(in srgb, var(--rose-400) 30%, transparent);
+  --color-text: var(--mist-900);
+  --color-text-secondary: var(--mist-700);
+  --color-text-muted: var(--blush-600);
+  --color-heading: var(--rose-900);
+  --color-icon: var(--rose-600);
+  --color-primary: var(--rose-500);
+  --color-primary-hover: var(--rose-600);
+  --color-accent: var(--rose-400);
+  --color-focus: var(--rose-400);
+  --color-btn-primary-bg: var(--rose-700);
+  --color-btn-primary-bg-hover: var(--rose-800);
+  --color-btn-primary-bg-active: var(--rose-900);
+  --color-btn-primary-text: #ffffff;
+  --color-cta-bg: var(--rose-700);
+  --color-cta-bg-hover: var(--rose-800);
+  --color-cta-text: #ffffff;
+  --color-link: var(--rose-700);
+  --color-link-hover: var(--rose-800);
+  --color-btn-ghost-text: var(--rose-700);
+  --page-accent: var(--rose-400);
+  --page-accent-soft: var(--blush-100);
+  --page-accent-deep: var(--rose-700);
+  --page-wash: var(--rose-50);
+  --page-deep: var(--rose-800);
+  --page-selection-bg: var(--blush-200);
+  --page-radius: 28px;
+  --page-section-odd: linear-gradient(135deg, var(--rose-50) 0%, #fff 55%, var(--blush-50) 100%);
+  --tw-paper: var(--rose-50);
+  --tw-wash: var(--blush-100);
+  --tw-ink: var(--mist-900);
+  --tw-muted: var(--mist-700);
+  --tw-line: color-mix(in srgb, var(--rose-400) 28%, transparent);
+  --tw-accent: var(--rose-400);
+  --tw-accent-dark: var(--rose-600);
+  --tw-deep: var(--rose-800);
+  --tw-terra: var(--rose-400);
+  --tw-sand: var(--blush-200);
+  --tw-sage: var(--sage-400);
+}
+
+/* Corporal — warm · organic · terracotta */
+[data-theme="corporal"] {
+  --color-bg: var(--terra-50);
+  --color-bg-secondary: #f8f3ed;
+  --color-surface: #faf6f1;
+  --color-surface-2: var(--terra-100);
+  --color-card: #ffffff;
+  --color-card-hover: var(--terra-50);
+  --color-hover: var(--terra-100);
+  --color-active: var(--terra-200);
+  --color-border: color-mix(in srgb, var(--terra-700) 16%, transparent);
+  --color-border-strong: color-mix(in srgb, var(--terra-400) 36%, transparent);
+  --color-divider: color-mix(in srgb, var(--terra-400) 28%, transparent);
+  --color-text: #332d29;
+  --color-text-secondary: var(--terra-700);
+  --color-text-muted: var(--terra-600);
+  --color-heading: var(--terra-900);
+  --color-icon: var(--terra-600);
+  --color-primary: var(--terra-500);
+  --color-primary-hover: var(--terra-600);
+  --color-accent: var(--terra-400);
+  --color-focus: var(--terra-400);
+  --color-btn-primary-bg: var(--terra-700);
+  --color-btn-primary-bg-hover: var(--terra-800);
+  --color-btn-primary-bg-active: var(--terra-900);
+  --color-btn-primary-text: #ffffff;
+  --color-cta-bg: var(--terra-700);
+  --color-cta-bg-hover: var(--terra-800);
+  --color-cta-text: #ffffff;
+  --color-link: var(--terra-700);
+  --color-link-hover: var(--terra-800);
+  --color-btn-ghost-text: var(--terra-700);
+  --page-accent: var(--terra-400);
+  --page-accent-soft: var(--terra-100);
+  --page-accent-deep: var(--terra-700);
+  --page-wash: var(--terra-50);
+  --page-deep: var(--terra-800);
+  --page-selection-bg: var(--terra-100);
+  --page-radius: 18px;
+  --page-section-odd: radial-gradient(circle at top right, #fff 0, var(--terra-50) 48%, var(--terra-100) 130%);
+  --tw-paper: #f8f3ed;
+  --tw-linen: var(--terra-100);
+  --tw-ink: #332d29;
+  --tw-muted: var(--terra-700);
+  --tw-line: color-mix(in srgb, var(--terra-400) 28%, transparent);
+  --tw-accent: var(--terra-400);
+  --tw-accent-dark: var(--terra-600);
+  --tw-deep: var(--terra-800);
+  --tw-taupe: var(--terra-400);
+  --tw-sage: var(--sage-400);
+}
+
+/* Capilar — tech · precise · mauve/sand (not green) */
+[data-theme="capilar"] {
+  --color-bg: var(--mauve-50);
+  --color-bg-secondary: var(--sand-50);
+  --color-surface: #fcfaf9;
+  --color-surface-2: var(--mauve-100);
+  --color-card: #ffffff;
+  --color-card-hover: var(--sand-50);
+  --color-hover: var(--mauve-100);
+  --color-active: var(--mauve-200);
+  --color-border: color-mix(in srgb, var(--mauve-700) 14%, transparent);
+  --color-border-strong: color-mix(in srgb, var(--mauve-500) 36%, transparent);
+  --color-divider: color-mix(in srgb, var(--sand-400) 30%, transparent);
+  --color-text: var(--mauve-900);
+  --color-text-secondary: var(--mauve-700);
+  --color-text-muted: var(--mauve-600);
+  --color-heading: var(--mauve-900);
+  --color-icon: var(--mauve-600);
+  --color-primary: var(--mauve-600);
+  --color-primary-hover: var(--mauve-700);
+  --color-accent: var(--mauve-500);
+  --color-focus: var(--mauve-500);
+  --color-btn-primary-bg: var(--mauve-800);
+  --color-btn-primary-bg-hover: var(--mauve-900);
+  --color-btn-primary-bg-active: var(--mauve-900);
+  --color-btn-primary-text: #ffffff;
+  --color-cta-bg: var(--mauve-800);
+  --color-cta-bg-hover: var(--mauve-900);
+  --color-cta-text: #ffffff;
+  --color-link: var(--mauve-700);
+  --color-link-hover: var(--mauve-900);
+  --color-btn-ghost-text: var(--mauve-700);
+  --shadow-md: 0 12px 32px color-mix(in srgb, var(--mauve-900) 10%, transparent);
+  --page-accent: var(--mauve-500);
+  --page-accent-soft: var(--mauve-100);
+  --page-accent-deep: var(--mauve-800);
+  --page-wash: var(--mauve-50);
+  --page-deep: var(--mauve-900);
+  --page-selection-bg: var(--sand-100);
+  --page-selection-text: var(--mauve-900);
+  --page-radius: 10px;
+  --page-section-odd: linear-gradient(160deg, var(--mauve-50) 0%, #fff 48%, var(--sand-50) 100%);
+  --tw-paper: var(--mauve-50);
+  --tw-mist: var(--mauve-100);
+  --tw-ink: var(--mauve-900);
+  --tw-muted: var(--mauve-700);
+  --tw-line: color-mix(in srgb, var(--mauve-500) 26%, transparent);
+  --tw-accent: var(--mauve-500);
+  --tw-accent-dark: var(--mauve-700);
+  --tw-deep: var(--mauve-900);
+  --tw-mineral: var(--mauve-500);
+  --tw-sage: var(--sand-400);
+  --tw-taupe: var(--sand-400);
+}
+
+/* Desinflamação — natural · light · olive */
+[data-theme="desinflamacao"] {
+  --color-bg: var(--olive-50);
+  --color-bg-secondary: #f7f9f3;
+  --color-surface: #fafbf7;
+  --color-surface-2: var(--olive-100);
+  --color-card: #ffffff;
+  --color-card-hover: var(--olive-50);
+  --color-hover: var(--olive-100);
+  --color-active: var(--olive-200);
+  --color-border: color-mix(in srgb, var(--olive-700) 16%, transparent);
+  --color-border-strong: color-mix(in srgb, var(--olive-400) 36%, transparent);
+  --color-divider: color-mix(in srgb, var(--olive-400) 28%, transparent);
+  --color-text: #35402d;
+  --color-text-secondary: var(--olive-800);
+  --color-text-muted: var(--olive-700);
+  --color-heading: var(--olive-900);
+  --color-icon: var(--olive-600);
+  --color-primary: var(--olive-500);
+  --color-primary-hover: var(--olive-600);
+  --color-accent: var(--olive-400);
+  --color-focus: var(--olive-400);
+  --color-btn-primary-bg: var(--olive-700);
+  --color-btn-primary-bg-hover: var(--olive-800);
+  --color-btn-primary-bg-active: var(--olive-900);
+  --color-btn-primary-text: #ffffff;
+  --color-cta-bg: var(--olive-700);
+  --color-cta-bg-hover: var(--olive-800);
+  --color-cta-text: #ffffff;
+  --color-link: var(--olive-700);
+  --color-link-hover: var(--olive-800);
+  --color-btn-ghost-text: var(--olive-700);
+  --page-accent: var(--olive-400);
+  --page-accent-soft: var(--olive-100);
+  --page-accent-deep: var(--olive-700);
+  --page-wash: var(--olive-50);
+  --page-deep: var(--olive-800);
+  --page-selection-bg: var(--olive-100);
+  --page-radius: 24px;
+  --page-section-odd: linear-gradient(155deg, var(--olive-50), #fff 52%, var(--olive-100));
+  --tw-paper: var(--olive-50);
+  --tw-mint: var(--olive-100);
+  --tw-foam: var(--sage-50);
+  --tw-ink: #35402d;
+  --tw-muted: var(--olive-800);
+  --tw-line: color-mix(in srgb, var(--olive-400) 25%, transparent);
+  --tw-accent: var(--olive-400);
+  --tw-accent-dark: var(--olive-600);
+  --tw-deep: var(--olive-800);
+  --tw-sage: var(--olive-400);
+}
+
+/* Currículo — paleta original em cobre (#A17945) */
+[data-theme="curriculo"] {
+  --color-bg: #fbfaf8;
+  --color-bg-secondary: var(--copper-50);
+  --color-surface: #fbfaf8;
+  --color-surface-2: #f6f2ea;
+  --color-card: #ffffff;
+  --color-hover: #f6f2ea;
+  --color-active: var(--copper-200);
+  --color-border: color-mix(in srgb, var(--copper-700) 14%, transparent);
+  --color-border-strong: color-mix(in srgb, var(--copper-500) 40%, transparent);
+  --color-divider: color-mix(in srgb, var(--copper-500) 28%, transparent);
+  --color-text: #211e1a;
+  --color-text-secondary: #7c7466;
+  --color-text-muted: #7c7466;
+  --color-heading: #211e1a;
+  --color-icon: var(--copper-500);
+  --color-primary: var(--copper-500);
+  --color-primary-hover: var(--copper-600);
+  --color-accent: var(--copper-500);
+  --color-focus: var(--copper-500);
+  --color-btn-primary-bg: var(--copper-700);
+  --color-btn-primary-bg-hover: var(--copper-800);
+  --color-btn-primary-bg-active: var(--copper-900);
+  --color-btn-primary-text: #ffffff;
+  --color-cta-bg: var(--copper-700);
+  --color-cta-bg-hover: var(--copper-800);
+  --color-cta-text: #ffffff;
+  --color-link: var(--copper-500);
+  --color-link-hover: var(--copper-700);
+  --color-btn-ghost-text: var(--copper-500);
+  --page-accent: var(--copper-500);
+  --page-accent-soft: var(--copper-100);
+  --page-accent-deep: var(--copper-700);
+  --page-wash: #f6f2ea;
+  --page-deep: #6e5330;
+  --page-selection-bg: #ebe3d4;
+  --page-selection-text: #211e1a;
+  --page-radius: 24px;
+  --page-section-odd: linear-gradient(135deg, #fbfaf8 0%, #fff 55%, #f6f2ea 100%);
+  --tw-paper: #fbfaf8;
+  --tw-wash: #f6f2ea;
+  --tw-ink: #211e1a;
+  --tw-muted: #7c7466;
+  --tw-line: #e9e3d9;
+  --tw-accent: #a17945;
+  --tw-accent-dark: #a17945;
+  --tw-deep: #211e1a;
+  --tw-copper: #a17945;
+}
+
+/* Vitrine — full brand blend (not a single protocol hue) */
+[data-theme="vitrine"] {
+  --color-bg: var(--mist-100);
+  --color-bg-secondary: var(--mist-50);
+  --color-surface: var(--mist-50);
+  --color-surface-2: color-mix(in srgb, var(--blush-100) 55%, var(--sage-50));
+  --color-card: #ffffff;
+  --color-card-hover: color-mix(in srgb, var(--blush-50) 60%, #fff);
+  --color-hover: color-mix(in srgb, var(--sage-100) 50%, var(--blush-100));
+  --color-border: color-mix(in srgb, var(--mist-700) 12%, transparent);
+  --color-border-strong: color-mix(in srgb, var(--sage-500) 28%, transparent);
+  --color-divider: color-mix(in srgb, var(--rose-400) 28%, transparent);
+  --color-text: var(--mist-900);
+  --color-text-secondary: var(--mist-700);
+  --color-text-muted: var(--mist-600);
+  --color-heading: var(--mist-900);
+  --color-icon: var(--sage-700);
+  --color-primary: var(--sage-600);
+  --color-accent: var(--rose-500);
+  --color-focus: var(--sage-500);
+  --color-btn-primary-bg: var(--sage-700);
+  --color-btn-primary-bg-hover: var(--sage-600);
+  --color-cta-bg: var(--sage-700);
+  --color-cta-bg-hover: var(--sage-600);
+  --color-link: var(--sage-700);
+  --color-link-hover: var(--rose-700);
+  --page-accent: var(--sage-500);
+  --page-accent-soft: var(--sage-100);
+  --page-accent-deep: var(--sage-700);
+  --page-wash: var(--mist-100);
+  --page-deep: var(--mist-800);
+  --atmosphere-1: color-mix(in srgb, var(--sage-400) 20%, transparent);
+  --atmosphere-2: color-mix(in srgb, var(--blush-200) 48%, transparent);
+  --atmosphere-3: color-mix(in srgb, var(--rose-400) 16%, transparent);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Tailwind utility bridge — consume tokens, not raw HEX
+   ═══════════════════════════════════════════════════════════ */
+
+[data-theme] {
+  color-scheme: light;
+}
+
+[data-theme] body,
+body[data-theme] {
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+[data-theme] .font-serif {
+  font-family: var(--font-display) !important;
+}
+
+[data-theme] ::selection {
+  background: var(--page-selection-bg);
+  color: var(--page-selection-text);
+}
+
+[data-theme] a:focus-visible,
+[data-theme] button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+[data-theme] .bg-paper { background: var(--tw-paper) !important; }
+[data-theme] .bg-wash { background: var(--tw-wash) !important; }
+[data-theme] .bg-linen { background: var(--tw-linen) !important; }
+[data-theme] .bg-mist { background: var(--tw-mist) !important; }
+[data-theme] .bg-mint { background: var(--tw-mint) !important; }
+[data-theme] .bg-foam { background: var(--tw-foam) !important; }
+[data-theme] .bg-ink,
+[data-theme] .bg-deep { background: var(--tw-deep) !important; }
+[data-theme] .bg-terra,
+[data-theme] .bg-taupe,
+[data-theme] .bg-mineral,
+[data-theme] .bg-copper,
+[data-theme] .bg-sage { background: var(--tw-accent) !important; }
+
+[data-theme] .text-ink { color: var(--tw-ink) !important; }
+[data-theme] .text-muted { color: var(--tw-muted) !important; }
+[data-theme] .text-terra,
+[data-theme] .text-taupe,
+[data-theme] .text-mineral,
+[data-theme] .text-copper,
+[data-theme] .text-sage { color: var(--tw-accent-dark) !important; }
+
+[data-theme] .border-line { border-color: var(--tw-line) !important; }
+[data-theme] .border-terra,
+[data-theme] .border-terra\/40,
+[data-theme] .border-terra\/60,
+[data-theme] .border-taupe,
+[data-theme] .border-taupe\/40,
+[data-theme] .border-mineral,
+[data-theme] .border-mineral\/40,
+[data-theme] .border-mineral\/50,
+[data-theme] .border-sage,
+[data-theme] .border-sage\/40,
+[data-theme] .border-copper,
+[data-theme] .border-copper\/40 { border-color: var(--tw-accent) !important; }
+
+[data-theme] .hover\:bg-terradark:hover,
+[data-theme] .hover\:bg-taupe:hover,
+[data-theme] .hover\:bg-mineral:hover,
+[data-theme] .hover\:bg-sage:hover,
+[data-theme] .hover\:bg-copper:hover {
+  background: var(--tw-accent-dark) !important;
+}
+
+[data-theme="facial"] .rounded-3xl,
+[data-theme="desinflamacao"] .rounded-3xl,
+[data-theme="curriculo"] .rounded-3xl { border-radius: var(--page-radius) !important; }
+[data-theme="corporal"] .rounded-xl { border-radius: var(--page-radius) !important; }
+[data-theme="capilar"] .rounded-2xl { border-radius: var(--page-radius) !important; }
+[data-theme="capilar"] .rounded-3xl { border-radius: calc(var(--page-radius) + 6px) !important; }
+[data-theme="capilar"] .media-frame { border-radius: var(--page-radius) !important; }
+
+[data-theme] main > section:nth-child(odd) {
+  background: var(--page-section-odd);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Shared UI primitives
+   ═══════════════════════════════════════════════════════════ */
+
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  padding: 0.875rem 1.5rem;
+  cursor: pointer;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 0.3s var(--ease),
+    color 0.3s var(--ease),
+    border-color 0.3s var(--ease),
+    box-shadow 0.3s var(--ease),
+    transform 0.3s var(--ease-out);
+}
+.ds-btn:hover { transform: translateY(-1px); }
+.ds-btn:active { transform: translateY(0); }
+.ds-btn:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+.ds-btn:disabled,
+.ds-btn[aria-disabled="true"] {
+  opacity: 0.48;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.ds-btn--primary {
+  background: var(--color-btn-primary-bg);
+  color: var(--color-btn-primary-text);
+  box-shadow: var(--shadow-md);
+}
+.ds-btn--primary:hover {
+  background: var(--color-btn-primary-bg-hover);
+  box-shadow: var(--shadow-lg);
+}
+.ds-btn--primary:active { background: var(--color-btn-primary-bg-active); }
+
+.ds-btn--secondary {
+  background: var(--color-btn-secondary-bg);
+  color: var(--color-btn-secondary-text);
+  border-color: var(--color-btn-secondary-border);
+  box-shadow: none;
+}
+.ds-btn--secondary:hover {
+  background: var(--color-btn-secondary-hover);
+  border-color: var(--page-accent-deep);
+  color: var(--page-accent-deep);
+}
+
+.ds-btn--ghost {
+  background: transparent;
+  color: var(--color-btn-ghost-text);
+  padding-inline: 0.75rem;
+  box-shadow: none;
+}
+.ds-btn--ghost:hover { background: var(--color-btn-ghost-hover); }
+
+.ds-btn--cta {
+  background: var(--color-cta-bg);
+  color: var(--color-cta-text);
+  font-weight: 500;
+  box-shadow:
+    0 8px 22px color-mix(in srgb, var(--color-cta-bg) 28%, transparent);
+}
+.ds-btn--cta:hover {
+  background: var(--color-cta-bg-hover);
+  box-shadow:
+    0 12px 28px color-mix(in srgb, var(--color-cta-bg) 34%, transparent);
+}
+.ds-btn--cta:active {
+  background: var(--color-btn-primary-bg-active, var(--color-cta-bg));
+}
+
+.ds-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--page-accent-deep);
+  background: var(--page-accent-soft);
+  border: 1px solid color-mix(in srgb, var(--page-accent) 40%, transparent);
+  border-radius: var(--radius-pill);
+  padding: 0.28rem 0.7rem;
+}
+
+.ds-divider {
+  height: 1px;
+  width: 100%;
+  border: 0;
+  background: linear-gradient(90deg, transparent, var(--color-divider), transparent);
+  margin-block: 1.5rem;
+}
+
+.ds-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem;
+}
+.ds-card:hover { background: var(--color-card-hover); }
+
+.ds-link {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.ds-link:hover { color: var(--color-link-hover); }
+
+.ds-overlay {
+  background: var(--color-overlay);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-btn { transition: none; }
+  .ds-btn:hover { transform: none; }
+}
