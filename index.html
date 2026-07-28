@@ -49,7 +49,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Outfit:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/design-system-v4.css">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -1248,7 +1248,7 @@ footer {
     </header>
 
     <main>
-      <section class="protocols-band reveal" aria-labelledby="products-heading">
+      <section class="protocols-band reveal visible" aria-labelledby="products-heading" style="transition-delay: 0s;">
         <div class="band-inner">
           <div class="section-intro">
             <h2 class="section-label" id="products-heading">Protocolos</h2>
@@ -1258,41 +1258,41 @@ footer {
           <div class="timeline-wrap">
             <div class="timeline-rail" aria-hidden="true">
               <span class="timeline-rail__track"></span>
-              <span class="timeline-rail__progress"></span>
+              <span class="timeline-rail__progress" style="height: 0%;"></span>
             </div>
           <ul class="protocol-grid" id="vitrine">
           <li>
-            <a class="pcard pcard--facial reveal" href="facial.html" aria-label="Protocolo Facial — cuidado integrativo para melasma e saúde da pele">
+            <a class="pcard pcard--facial reveal visible" href="facial.html" aria-label="Protocolo Facial — cuidado integrativo para melasma e saúde da pele" style="transition-delay: 0s;">
               <span class="pcard__badge">Em destaque</span>
-              <div class="pcard__media" aria-hidden="true"><img class="card-img" src="images/2-82.png" alt="" aria-hidden="true" loading="lazy" decoding="async" width="400" height="300"></div>
+              <div class="pcard__media" aria-hidden="true"><img class="card-img" src="images/1-melama.jpg" alt="" loading="lazy" decoding="async" width="400" height="300" data-img-zoom="100" data-img-x="74" data-img-y="49" data-img-fit="cover" data-img-lock="1" data-img-auto="1" style="object-fit: cover; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(13.4196% 0% 13.9906%);"></div>
               <div class="pcard__body">
                 <span class="pcard__eyebrow">Protocolo Facial</span>
                 <h3 class="pcard__title"><em>Facial</em></h3>
                 <p class="pcard__desc">Cuidado integrativo para o rosto — equilíbrio da pele e acolhimento clínico, com escuta individual.</p>
                 <span class="pcard__cta" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
                 </span>
               </div>
             </a>
           </li>
 
           <li>
-            <a class="pcard pcard--corporal reveal" href="corporal.html" aria-label="Protocolo Corporal — acolhimento e cuidado com a pele do corpo">
+            <a class="pcard pcard--corporal reveal visible" href="corporal.html" aria-label="Protocolo Corporal — acolhimento e cuidado com a pele do corpo" style="transition-delay: 0s;">
               
-              <div class="pcard__media" aria-hidden="true"><img class="card-img" src="images/1-22asdazsd2.png" alt="" loading="lazy" decoding="async" width="400" height="300" data-img-zoom="116" data-img-x="55.9" data-img-y="0" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: cover; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(0% 6.0828% 49.0628% 7.7103%);"></div>
+              <div class="pcard__media" aria-hidden="true"><img class="card-img" src="images/2-estrias.jpg" alt="" loading="lazy" decoding="async" width="400" height="300" data-img-zoom="100" data-img-x="19.8" data-img-y="40.6" data-img-fit="cover" data-img-lock="1" data-img-auto="1" style="object-fit: cover; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(10.1563% 0% 14.8438%);"></div>
               <div class="pcard__body">
                 <span class="pcard__eyebrow">Protocolo Corporal</span>
                 <h3 class="pcard__title"><em>Corporal</em></h3>
                 <p class="pcard__desc">Acolhimento ao tecido e conforto com o próprio corpo — uma abordagem orgânica e paciente.</p>
                 <span class="pcard__cta" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
                 </span>
               </div>
             </a>
           </li>
 
           <li>
-            <a class="pcard pcard--capilar reveal" href="capilar.html" aria-label="Protocolo Capilar — saúde do couro cabeludo e do fio">
+            <a class="pcard pcard--capilar reveal visible" href="capilar.html" aria-label="Protocolo Capilar — saúde do couro cabeludo e do fio" style="transition-delay: 0s;">
               
               <div class="pcard__media" aria-hidden="true"><img class="card-img" src="images/4-cabelo-couro-cabeludo-saud-vel.png" alt="" aria-hidden="true" loading="lazy" decoding="async" width="400" height="300"></div>
               <div class="pcard__body">
@@ -1300,37 +1300,37 @@ footer {
                 <h3 class="pcard__title"><em>Capilar</em></h3>
                 <p class="pcard__desc">Saúde do couro cabeludo com rigor e delicadeza — da leitura clínica ao cuidado do fio.</p>
                 <span class="pcard__cta" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
                 </span>
               </div>
             </a>
           </li>
 
           <li>
-            <a class="pcard pcard--desinflamacao reveal" href="desinflamacao.html" aria-label="Desinflamação e Reequilíbrio — guia integrativo">
+            <a class="pcard pcard--desinflamacao reveal visible" href="desinflamacao.html" aria-label="Desinflamação e Reequilíbrio — guia integrativo" style="transition-delay: 0s;">
               
-              <div class="pcard__media" aria-hidden="true"><img class="card-img" src="images/5-detalhe-de-pele-do-corpo-1-.png" alt="" aria-hidden="true" loading="lazy" decoding="async" width="400" height="300" data-img-zoom="100" data-img-x="100" data-img-y="61.1" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: cover; object-position: 100% 61.081%; transform-origin: 100% 61.081%;"></div>
+              <div class="pcard__media" aria-hidden="true"><img class="card-img" src="images/3-desinflama-o.jpg" alt="" loading="lazy" decoding="async" width="400" height="300" data-img-zoom="100" data-img-x="17.7" data-img-y="26" data-img-fit="cover" data-img-lock="1" data-img-auto="1" style="object-fit: cover; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(11.0255% 0% 31.3124%);"></div>
               <div class="pcard__body">
                 <span class="pcard__eyebrow">Reequilíbrio</span>
                 <h3 class="pcard__title"><em>Desinflamação</em></h3>
                 <p class="pcard__desc">Um guia para compreender o organismo e cultivar leveza — de dentro para fora, com responsabilidade.</p>
                 <span class="pcard__cta" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
                 </span>
               </div>
             </a>
           </li>
 
           <li>
-            <a class="pcard pcard--curriculo reveal" href="curriculo.html" aria-label="Currículo — conheça a trajetória de Kelly Regina Ferreira">
+            <a class="pcard pcard--curriculo reveal visible" href="curriculo.html" aria-label="Currículo — conheça a trajetória de Kelly Regina Ferreira" style="transition-delay: 0s;">
               
-              <div class="pcard__media" aria-hidden="true"><img class="card-img" src="images/6-21.png" alt="" aria-hidden="true" loading="lazy" decoding="async" width="400" height="300" data-img-zoom="100" data-img-x="38.3" data-img-y="16.7" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: cover; object-position: 38.3123% 16.677%; transform-origin: 38.3123% 16.677%;"></div>
+              <div class="pcard__media" aria-hidden="true"><img class="card-img" src="images/4-70.png" alt="" loading="lazy" decoding="async" width="400" height="300" data-img-zoom="100" data-img-x="27.5" data-img-y="13.1" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: cover; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(7.6004% 0% 50.2121%);"></div>
               <div class="pcard__body">
                 <span class="pcard__eyebrow">Trajetória</span>
                 <h3 class="pcard__title"><em>Quem</em> sou eu</h3>
                 <p class="pcard__desc">Formação, propósito e o cuidado humanizado que orienta cada protocolo.</p>
                 <span class="pcard__cta" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
                 </span>
               </div>
             </a>
@@ -1340,7 +1340,7 @@ footer {
         </div>
       </section>
 
-      <nav class="contact-band reveal" aria-label="Redes sociais">
+      <nav class="contact-band reveal visible" aria-label="Redes sociais" style="transition-delay: 0.3s;">
         <div class="band-inner contact-row">
           <a class="contact-link contact-link--whatsapp" href="https://wa.me/5511982899981?text=Ol%C3%A1%20Kelly%2C%20gostaria%20de%20agendar%20minha%20avalia%C3%A7%C3%A3o!" target="_blank" rel="noopener noreferrer" aria-label="Agendar avaliação com Kelly Regina pelo WhatsApp">
             <span class="contact-icon" aria-hidden="true">
@@ -1361,7 +1361,7 @@ footer {
         </div>
       </nav>
 
-      <section class="clinic-band reveal" aria-labelledby="clinic-heading">
+      <section class="clinic-band reveal visible" aria-labelledby="clinic-heading" style="transition-delay: 0.35s;">
         <div class="band-inner">
           <div class="clinic-card">
             <h2 class="clinic-eyebrow" id="clinic-heading">
@@ -1384,7 +1384,7 @@ footer {
       </section>
     </main>
 
-    <footer class="reveal" aria-label="Informações legais e institucionais">
+    <footer class="reveal" aria-label="Informações legais e institucionais" style="transition-delay: 0.35s;">
       <div class="band-inner">
         <span class="footer-wordmark">Kelly Regina Ferreira</span>
         <p class="footer-line">CNPJ: 62.485.112/0001-37</p>
@@ -1498,5 +1498,6 @@ footer {
       updateTimeline();
     })();
   </script>
-  <script src="auth.js" defer></script>
+  <script src="auth.js" defer=""></script>
+
 </body></html>
