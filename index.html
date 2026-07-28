@@ -1262,7 +1262,7 @@ footer {
             </div>
           <ul class="protocol-grid" id="vitrine">
           <li>
-            <a class="pcard pcard--facial reveal visible" href="facial.html" aria-label="Protocolo Facial — cuidado integrativo para melasma e saúde da pele" style="transition-delay: 0s;">
+            <a class="pcard pcard--facial reveal" href="facial.html" aria-label="Protocolo Facial — cuidado integrativo para melasma e saúde da pele">
               <span class="pcard__badge">Em destaque</span>
               <div class="pcard__media" aria-hidden="true"><img class="card-img" src="images/1-melama.jpg" alt="" loading="lazy" decoding="async" width="400" height="300" data-img-zoom="101" data-img-x="50" data-img-y="50" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: cover; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(14.0645% 0.495%);"></div>
               <div class="pcard__body">
@@ -1277,7 +1277,7 @@ footer {
           </li>
 
           <li>
-            <a class="pcard pcard--corporal reveal visible" href="corporal.html" aria-label="Protocolo Corporal — acolhimento e cuidado com a pele do corpo" style="transition-delay: 0s;">
+            <a class="pcard pcard--corporal reveal" href="corporal.html" aria-label="Protocolo Corporal — acolhimento e cuidado com a pele do corpo">
               
               <div class="pcard__media" aria-hidden="true"><img class="card-img" src="images/2-estrias.jpg" alt="" loading="lazy" decoding="async" width="400" height="300" data-img-zoom="100" data-img-x="50" data-img-y="50" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: cover; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(12.5% 0%);"></div>
               <div class="pcard__body">
@@ -1292,7 +1292,7 @@ footer {
           </li>
 
           <li>
-            <a class="pcard pcard--capilar reveal visible" href="capilar.html" aria-label="Protocolo Capilar — saúde do couro cabeludo e do fio" style="transition-delay: 0s;">
+            <a class="pcard pcard--capilar reveal" href="capilar.html" aria-label="Protocolo Capilar — saúde do couro cabeludo e do fio">
               
               <div class="pcard__media" aria-hidden="true"><img class="card-img" src="images/4-cabelo-couro-cabeludo-saud-vel.png" alt="" aria-hidden="true" loading="lazy" decoding="async" width="400" height="300"></div>
               <div class="pcard__body">
@@ -1307,7 +1307,7 @@ footer {
           </li>
 
           <li>
-            <a class="pcard pcard--desinflamacao reveal visible" href="desinflamacao.html" aria-label="Desinflamação e Reequilíbrio — guia integrativo" style="transition-delay: 0s;">
+            <a class="pcard pcard--desinflamacao reveal" href="desinflamacao.html" aria-label="Desinflamação e Reequilíbrio — guia integrativo">
               
               <div class="pcard__media" aria-hidden="true"><img class="card-img" src="images/3-desinflama-o.jpg" alt="" loading="lazy" decoding="async" width="400" height="300" data-img-zoom="100" data-img-x="50" data-img-y="42" data-img-fit="cover" data-img-lock="1" data-img-auto="1" style="object-fit: cover; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(17.7819% 0% 24.556%);"></div>
               <div class="pcard__body">
@@ -1322,7 +1322,7 @@ footer {
           </li>
 
           <li>
-            <a class="pcard pcard--curriculo reveal visible" href="curriculo.html" aria-label="Currículo — conheça a trajetória de Kelly Regina Ferreira" style="transition-delay: 0s;">
+            <a class="pcard pcard--curriculo reveal" href="curriculo.html" aria-label="Currículo — conheça a trajetória de Kelly Regina Ferreira">
               
               <div class="pcard__media" aria-hidden="true"><img class="card-img" src="images/4-70.png" alt="" loading="lazy" decoding="async" width="400" height="300" data-img-zoom="100" data-img-x="27.5" data-img-y="13.1" data-img-fit="cover" data-img-lock="1" data-img-auto="0" style="object-fit: cover; object-position: 50% 50%; transform-origin: 50% 50%; object-view-box: inset(7.6004% 0% 50.2121%);"></div>
               <div class="pcard__body">
@@ -1437,6 +1437,7 @@ footer {
       var progress = document.querySelector('.timeline-rail__progress');
       var items = document.querySelectorAll('.protocol-grid > li');
       var ticking = false;
+      var desktopReady = false;
 
       function showCard(li) {
         var card = li.querySelector('.pcard');
@@ -1446,11 +1447,26 @@ footer {
         }
       }
 
+      function hideCard(li) {
+        var card = li.querySelector('.pcard');
+        if (card) card.classList.remove('visible');
+      }
+
       function observeMobileCards() {
         document.querySelectorAll('.pcard.reveal:not(.visible)').forEach(function (el, i) {
           el.style.transitionDelay = Math.min(i * 0.08, 0.4) + 's';
           io.observe(el);
         });
+      }
+
+      function prepareDesktop() {
+        document.querySelectorAll('.pcard.reveal').forEach(function (el) {
+          io.unobserve(el);
+          el.classList.remove('visible');
+          el.style.transitionDelay = '0s';
+        });
+        items.forEach(function (li) { li.classList.remove('is-on'); });
+        desktopReady = true;
       }
 
       function updateTimeline() {
@@ -1459,27 +1475,31 @@ footer {
 
         /* Mobile / tablet: sem timeline — cards via IntersectionObserver */
         if (!mq.matches) {
+          desktopReady = false;
           progress.style.height = '0%';
           items.forEach(function (li) { li.classList.remove('is-on'); });
           observeMobileCards();
           return;
         }
 
+        if (!desktopReady) prepareDesktop();
+
         var rect = wrap.getBoundingClientRect();
-        var viewLine = window.innerHeight * 0.45;
-        var raw = (viewLine - rect.top) / rect.height;
+        var viewLine = window.innerHeight * 0.42;
+        var raw = (viewLine - rect.top) / Math.max(rect.height, 1);
         var p = Math.max(0, Math.min(1, raw));
         progress.style.height = (p * 100).toFixed(2) + '%';
 
         /* Desktop: card aparece quando a bolinha chega na linha de scroll */
         items.forEach(function (li) {
           var r = li.getBoundingClientRect();
-          var nodeY = r.top + 28; /* centro aproximado da bolinha */
-          if (nodeY <= viewLine + 4) {
+          var nodeY = r.top + 28; /* centro aproximado da bolinha (::before top 1.5rem) */
+          if (nodeY <= viewLine + 6) {
             li.classList.add('is-on');
-            showCard(li); /* permanece visível depois */
+            showCard(li);
           } else {
             li.classList.remove('is-on');
+            hideCard(li);
           }
         });
       }
