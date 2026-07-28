@@ -160,6 +160,7 @@ body::before {
 }
 
 .hero-kicker {
+  display: none;
   position: static;
   max-width: 18rem;
   font-size: 0.625rem;
@@ -182,25 +183,25 @@ body::before {
   place-items: center;
 }
 
-/* Anéis proporcionais ao retrato (escalam juntos) */
+/* Anéis concêntricos (mobile) — proporção ao retrato */
 .hero-orb {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 118%;
+  width: 112%;
   aspect-ratio: 1;
   border-radius: var(--radius-full);
-  border: 1px solid color-mix(in srgb, var(--rose-300) 42%, transparent);
-  transform: translate(-42%, -58%);
+  border: 1px solid color-mix(in srgb, var(--copper-400) 58%, transparent);
+  transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 0;
 }
 
 .hero-orb--soft {
-  width: 136%;
-  border-color: color-mix(in srgb, var(--blush-300) 38%, transparent);
-  transform: translate(-58%, -44%);
-  opacity: 0.8;
+  width: 124%;
+  border-color: color-mix(in srgb, var(--copper-300) 48%, transparent);
+  transform: translate(-50%, -50%);
+  opacity: 1;
 }
 
 .avatar-wrap {
@@ -213,8 +214,8 @@ body::before {
   overflow: hidden;
   background: var(--blush-100);
   box-shadow:
-    0 0 0 3px var(--mist-50),
-    0 0 0 4px color-mix(in srgb, var(--rose-300) 50%, transparent),
+    0 0 0 2px var(--mist-50),
+    0 0 0 3px color-mix(in srgb, var(--copper-400) 72%, transparent),
     var(--shadow-md);
   transform: none;
 }
@@ -239,12 +240,12 @@ body::before {
 .hero-name {
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: clamp(2.25rem, 9.5vw, 3rem);
-  line-height: 1.08;
-  letter-spacing: -0.02em;
+  font-size: clamp(2.125rem, 8.5vw, 2.75rem);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
   color: var(--color-heading);
-  margin-bottom: 0.75rem;
-  max-width: 14ch;
+  margin-bottom: 0.625rem;
+  max-width: 18ch;
   text-wrap: balance;
 }
 
@@ -252,15 +253,15 @@ body::before {
   display: inline;
   font-style: italic;
   font-weight: 400;
-  color: var(--sage-700);
+  color: var(--copper-500);
 }
 
 .hero-credential {
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
   font-weight: 500;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--rose-700);
+  color: var(--mist-600);
   margin-bottom: 1rem;
 }
 
@@ -268,16 +269,43 @@ body::before {
   font-family: var(--font-display);
   font-style: italic;
   font-weight: 400;
-  font-size: clamp(1.0625rem, 3.8vw, 1.1875rem);
+  font-size: clamp(1rem, 3.6vw, 1.125rem);
   line-height: 1.55;
-  color: var(--color-text-secondary);
+  color: var(--mist-700);
   max-width: 22rem;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.5rem;
   text-wrap: balance;
 }
 
+/* Divisor editorial — diamante (mobile) */
+.hero-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 16rem);
+  margin: 0.25rem 0 0.25rem;
+  color: var(--copper-400);
+}
+
+.hero-divider::before,
+.hero-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: color-mix(in srgb, var(--copper-400) 55%, transparent);
+}
+
+.hero-divider__diamond {
+  flex-shrink: 0;
+  width: 0.375rem;
+  height: 0.375rem;
+  margin: 0 0.75rem;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+
 .hero-cta {
-  display: inline-flex;
+  display: none;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
@@ -330,18 +358,21 @@ body::before {
   align-items: center;
 }
 
+/* Mobile: rótulo editorial “PROTOCOLOS” */
 .section-label {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 500;
-  font-size: clamp(1.75rem, 6.5vw, 2.25rem);
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  color: var(--color-heading);
-  margin-bottom: 0.75rem;
+  font-size: 0.625rem;
+  letter-spacing: 0.22em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--mist-700);
+  margin-bottom: 0;
   text-wrap: balance;
 }
 
 .section-lead {
+  display: none;
   font-size: 0.9375rem;
   line-height: 1.7;
   font-weight: 400;
@@ -407,11 +438,11 @@ body::before {
 .pcard__media::after {
   content: "";
   position: absolute;
-  inset: 40% 0 0;
+  inset: 35% 0 0;
   background: linear-gradient(
     to top,
-    var(--sand-50) 0%,
-    color-mix(in srgb, var(--sand-50) 55%, transparent) 45%,
+    color-mix(in srgb, var(--sand-50) 72%, transparent) 0%,
+    color-mix(in srgb, var(--sand-50) 35%, transparent) 50%,
     transparent 100%
   );
   pointer-events: none;
@@ -422,11 +453,13 @@ body::before {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.65s var(--ease-out);
+  opacity: 0.6;
+  transition: transform 0.65s var(--ease-out), opacity 0.65s var(--ease-out);
 }
 
 .pcard:hover .card-img {
   transform: scale(1.02);
+  opacity: 0.72;
 }
 
 .pcard__body {
@@ -474,10 +507,10 @@ body::before {
 }
 
 .pcard__cta {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 0.75rem;
+  margin: 0.75rem auto 0;
   width: 2rem;
   height: 2rem;
   color: var(--color-text-secondary);
@@ -501,7 +534,7 @@ body::before {
 
 .contact-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.75rem;
   align-items: center;
   justify-content: center;
@@ -512,8 +545,10 @@ body::before {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  flex: 1 1 0;
+  max-width: 11.5rem;
   min-height: 3rem;
-  padding: 0.75rem 1.25rem;
+  padding: 0.75rem 1rem;
   font-size: 0.8125rem;
   font-weight: 500;
   letter-spacing: 0.04em;
@@ -543,6 +578,13 @@ body::before {
   box-shadow: 0 8px 20px color-mix(in srgb, #cc2366 28%, transparent);
 }
 
+.contact-link--whatsapp:hover {
+  color: #fff;
+  border-color: transparent;
+  background: #25d366;
+  box-shadow: 0 8px 20px color-mix(in srgb, #128c7e 28%, transparent);
+}
+
 .contact-icon {
   width: 1.125rem;
   height: 1.125rem;
@@ -560,110 +602,164 @@ body::before {
 
 .clinic-card {
   text-align: center;
-  padding: 1.75rem 1.5rem;
-  border-radius: var(--radius-lg);
+  padding: 1.75rem 1.5rem 1.5rem;
+  border-radius: 1rem;
   border: 0;
-  background: color-mix(in srgb, var(--blush-100) 42%, var(--mist-50));
+  background: var(--mist-50);
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--mist-800) 4%, transparent),
+    0 8px 24px color-mix(in srgb, var(--mist-800) 6%, transparent);
   display: flex;
   flex-direction: column;
   align-items: center;
+  max-width: 28rem;
+  margin-inline: auto;
 }
 
 .clinic-eyebrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 0.625rem;
   font-weight: 500;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--rose-700);
-  margin-bottom: 1rem;
+  color: var(--mist-500);
+  margin-bottom: 1.125rem;
 }
 
-/* CTA Maps — botão claro, não só link sublinhado */
+.clinic-eyebrow svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--rose-400);
+  flex-shrink: 0;
+}
+
+/* CTA Maps — outline editorial */
 .clinic-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  min-height: 3.25rem;
-  padding: 0.75rem 1.5rem;
+  min-height: 2.75rem;
+  padding: 0.625rem 1.5rem;
   border-radius: var(--radius-pill);
-  background: var(--color-heading);
-  color: var(--color-text-inverse);
-  font-size: 0.9375rem;
+  background: transparent;
+  color: var(--mist-600);
+  font-size: 0.6875rem;
   font-family: var(--font-body);
   font-weight: 500;
-  letter-spacing: 0.02em;
-  margin-bottom: 1rem;
-  border: 0;
-  border-bottom: 0;
-  box-shadow: var(--shadow-md);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 0.875rem;
+  border: 1px solid color-mix(in srgb, var(--mist-400) 55%, transparent);
+  box-shadow: none;
   transition:
+    color 0.3s ease,
+    border-color 0.3s ease,
     background 0.3s ease,
-    box-shadow 0.3s ease,
-    transform 0.3s var(--ease-out);
+    box-shadow 0.3s ease;
 }
 
-.clinic-cta svg { width: 1.125rem; height: 1.125rem; flex-shrink: 0; }
+.clinic-cta svg {
+  width: 0.9375rem;
+  height: 0.9375rem;
+  flex-shrink: 0;
+  color: var(--mist-500);
+}
 
 .clinic-cta:hover {
-  background: var(--rose-700);
-  border-bottom-color: transparent;
-  color: var(--color-text-inverse);
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--blush-100) 55%, var(--mist-50));
+  border-color: var(--rose-400);
+  color: var(--rose-700);
+  box-shadow: none;
+  transform: none;
 }
+
+.clinic-cta:hover svg { color: var(--rose-500); }
 
 .clinic-address {
   font-style: normal;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 400;
-  color: var(--color-text-secondary);
+  color: var(--mist-500);
   line-height: 1.65;
   max-width: 22rem;
 }
 
 /* ═══════════════ FOOTER ═══════════════ */
 footer {
-  margin-top: 3.5rem;
-  padding-top: 0;
-  border-top: 0;
+  margin-top: 2.5rem;
+  padding: 2.25rem 0 2.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--mist-300) 70%, transparent);
   text-align: center;
 }
 
 .footer-wordmark {
   display: block;
   font-family: var(--font-display);
-  font-size: 1.125rem;
-  font-weight: 500;
+  font-size: clamp(1.375rem, 5vw, 1.625rem);
+  font-weight: 400;
+  font-style: italic;
   letter-spacing: -0.01em;
-  color: var(--color-heading);
+  color: var(--copper-500);
   margin-bottom: 1rem;
 }
 
-.footer-line,
-.footer-name-line,
-.footer-spec-line,
-.footer-disclaimer,
-.footer-credit {
+.footer-line {
   font-size: 0.75rem;
   font-weight: 400;
-  color: var(--color-text-muted);
+  color: var(--mist-600);
   line-height: 1.65;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.125rem;
+}
+
+.footer-name-line {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--mist-600);
+  line-height: 1.5;
+  margin-top: 1rem;
+  margin-bottom: 0.375rem;
+}
+
+.footer-spec-line {
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mist-500);
+  line-height: 1.5;
+  margin-bottom: 0;
 }
 
 .footer-disclaimer {
-  max-width: 24rem;
-  margin: 1rem auto;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: var(--mist-500);
+  line-height: 1.7;
+  max-width: 28rem;
+  margin: 1.25rem auto 1rem;
+}
+
+.footer-credit {
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: var(--mist-500);
+  line-height: 1.65;
+  margin-bottom: 0;
 }
 
 .footer-credit a {
-  color: var(--color-text-secondary);
+  color: var(--mist-600);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-.footer-credit a:hover { color: var(--color-link-hover); }
+.footer-credit a:hover { color: var(--copper-600); }
 
 /* ═══════════════ REVEAL ═══════════════ */
 .reveal {
@@ -771,6 +867,7 @@ footer {
   }
 
   .hero-kicker {
+    display: block;
     text-align: left;
     max-width: none;
     margin-bottom: 1.25rem;
@@ -782,18 +879,52 @@ footer {
     margin-bottom: 0.75rem;
   }
 
+  .hero-credential {
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    color: var(--rose-700);
+  }
+
   .hero-tagline {
     max-width: 22rem;
     margin-bottom: 1.75rem;
+    color: var(--color-text-secondary);
+    font-size: clamp(1.0625rem, 3.8vw, 1.1875rem);
+  }
+
+  .hero-divider {
+    display: none;
   }
 
   .hero-cta {
+    display: inline-flex;
     width: auto;
     min-width: 12.5rem;
   }
 
   .hero-portrait {
     --portrait-size: 15.5rem;
+  }
+
+  /* Desktop: anéis artísticos deslocados */
+  .hero-orb {
+    width: 118%;
+    border-color: color-mix(in srgb, var(--rose-300) 42%, transparent);
+    transform: translate(-42%, -58%);
+  }
+
+  .hero-orb--soft {
+    width: 136%;
+    border-color: color-mix(in srgb, var(--blush-300) 38%, transparent);
+    transform: translate(-58%, -44%);
+    opacity: 0.8;
+  }
+
+  .avatar-wrap {
+    box-shadow:
+      0 0 0 3px var(--mist-50),
+      0 0 0 4px color-mix(in srgb, var(--rose-300) 50%, transparent),
+      var(--shadow-md);
   }
 
   .protocols-band { padding: 4rem 0 2rem; }
@@ -804,6 +935,21 @@ footer {
     max-width: 32rem;
     margin-inline: auto;
     margin-bottom: 2.5rem;
+  }
+
+  .section-label {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.75rem, 6.5vw, 2.25rem);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    text-transform: none;
+    color: var(--color-heading);
+    margin-bottom: 0.75rem;
+  }
+
+  .section-lead {
+    display: block;
   }
 
   .protocol-grid {
@@ -820,20 +966,32 @@ footer {
 
   .contact-band { padding-top: 3rem; }
   .contact-row { justify-content: center; }
+  .contact-link {
+    flex: 0 0 auto;
+    max-width: none;
+    padding: 0.75rem 1.25rem;
+  }
 
-  .clinic-band { padding-top: 2.5rem; }
+  .clinic-band { padding-top: 2.75rem; }
   .clinic-card {
     text-align: center;
     align-items: center;
-    padding: 2rem 1.75rem;
+    padding: 2rem 2rem 1.75rem;
+    max-width: 32rem;
   }
 
   footer {
     text-align: center;
-    margin-top: 4rem;
+    margin-top: 3rem;
+    padding: 2.75rem 0 3rem;
+  }
+
+  .footer-wordmark {
+    font-size: 1.75rem;
   }
 
   .footer-disclaimer {
+    max-width: 34rem;
     margin-left: auto;
     margin-right: auto;
   }
@@ -1074,9 +1232,10 @@ footer {
         </div>
         <div class="hero-copy">
           <p class="hero-kicker">Estética Natural Integrativa</p>
-          <h1 class="hero-name">Kelly Regina <em>Ferreira</em></h1>
+          <h1 class="hero-name"><em>Kelly</em> Regina Ferreira</h1>
           <p class="hero-credential">Terapeuta Naturalista Integrativa</p>
-          <p class="hero-tagline">Cuidado clínico, leveza e escuta — para a pele, o corpo e o equilíbrio que sustentam a beleza.</p>
+          <p class="hero-tagline">Estética Natural Integrativa — beleza que nasce de dentro.</p>
+          <div class="hero-divider" aria-hidden="true"><span class="hero-divider__diamond"></span></div>
           <a class="hero-cta" href="https://wa.me/5511982899981?text=Ol%C3%A1%20Kelly%2C%20gostaria%20de%20agendar%20minha%20avalia%C3%A7%C3%A3o!" target="_blank" rel="noopener noreferrer" aria-label="Agendar avaliação com Kelly Regina pelo WhatsApp">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"></path></svg>
             Agendar avaliação
@@ -1089,7 +1248,7 @@ footer {
       <section class="protocols-band reveal" aria-labelledby="products-heading">
         <div class="band-inner">
           <div class="section-intro">
-            <h2 class="section-label" id="products-heading">Protocolos de cuidado</h2>
+            <h2 class="section-label" id="products-heading">Protocolos</h2>
             <p class="section-lead">Cada protocolo nasce de uma leitura individual do organismo — com ética, delicadeza e profundidade.</p>
           </div>
 
@@ -1180,6 +1339,12 @@ footer {
 
       <nav class="contact-band reveal" aria-label="Redes sociais">
         <div class="band-inner contact-row">
+          <a class="contact-link contact-link--whatsapp" href="https://wa.me/5511982899981?text=Ol%C3%A1%20Kelly%2C%20gostaria%20de%20agendar%20minha%20avalia%C3%A7%C3%A3o!" target="_blank" rel="noopener noreferrer" aria-label="Agendar avaliação com Kelly Regina pelo WhatsApp">
+            <span class="contact-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"></path></svg>
+            </span>
+            <span class="contact-label">WhatsApp</span>
+          </a>
           <a class="contact-link" href="https://www.instagram.com/kellyferreira.oficial" target="_blank" rel="noopener noreferrer" aria-label="Instagram de Kelly Regina Ferreira — @kellyferreira.oficial">
             <span class="contact-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1196,15 +1361,21 @@ footer {
       <section class="clinic-band reveal" aria-labelledby="clinic-heading">
         <div class="band-inner">
           <div class="clinic-card">
-            <h2 class="clinic-eyebrow" id="clinic-heading">Atendimento presencial</h2>
+            <h2 class="clinic-eyebrow" id="clinic-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 21s7-5.2 7-11a7 7 0 1 0-14 0c0 5.8 7 11 7 11z"></path>
+                <circle cx="12" cy="10" r="2.5"></circle>
+              </svg>
+              Nossa clínica
+            </h2>
             <a class="clinic-cta" href="https://www.google.com/maps/search/?api=1&amp;query=Avenida+General+Pedro+Pinho%2C+463+-+Sala+05" target="_blank" rel="noopener noreferrer" aria-label="Como chegar — abrir localização da clínica no Google Maps">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M12 21s7-5.2 7-11a7 7 0 1 0-14 0c0 5.8 7 11 7 11z"></path>
                 <circle cx="12" cy="10" r="2.5"></circle>
               </svg>
-              Abrir no Maps
+              Como chegar
             </a>
-            <address class="clinic-address">Avenida General Pedro Pinho, 463 · Sala 05</address>
+            <address class="clinic-address">Avenida General Pedro Pinho, 463 • Sala 05</address>
           </div>
         </div>
       </section>
@@ -1218,8 +1389,8 @@ footer {
         <p class="footer-name-line">Kelly Regina Ferreira Correia · Terapeuta Naturalista Integrativa</p>
         <p class="footer-spec-line">Estética Natural Integrativa</p>
         <p class="footer-disclaimer">
-          As informações nestas páginas têm caráter informativo e não substituem avaliação individualizada.
-          A resposta de cada organismo é única. Reprodução proibida sem autorização.
+          As informações contidas nestas páginas têm caráter informativo e não substituem a avaliação individualizada.
+          Os resultados podem variar conforme as características e a resposta de cada pessoa. Reprodução proibida sem autorização.
         </p>
         <p class="footer-credit">
           Site desenvolvido por
