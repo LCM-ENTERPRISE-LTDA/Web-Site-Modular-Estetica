@@ -124,7 +124,7 @@ body::before {
 
 /* ═══════════════ HERO — eixo central no mobile ═══════════════ */
 .hero-band {
-  padding: 2.5rem 0 3rem;
+  padding: 2.5rem 0 0;
 }
 
 .hero {
@@ -273,17 +273,17 @@ body::before {
   line-height: 1.55;
   color: var(--mist-700);
   max-width: 22rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
   text-wrap: balance;
 }
 
-/* Divisor editorial — diamante (mobile) */
+/* Divisor editorial — diamante centralizado entre tagline e PROTOCOLOS */
 .hero-divider {
   display: flex;
   align-items: center;
   justify-content: center;
   width: min(100%, 16rem);
-  margin: 0.25rem 0 0.25rem;
+  margin: 1.75rem 0;
   color: var(--copper-400);
 }
 
@@ -347,11 +347,12 @@ body::before {
 
 /* ═══════════════ PROTOCOLS ═══════════════ */
 .protocols-band {
-  padding: 3rem 0 2rem;
+  padding: 0 0 2rem;
 }
 
 .section-intro {
   margin-bottom: 2rem;
+  margin-top: 0;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -432,21 +433,7 @@ body::before {
   aspect-ratio: 4 / 3;
   overflow: hidden;
   border-radius: var(--radius-lg);
-  background: var(--blush-50);
-}
-
-.pcard__media::after {
-  content: "";
-  position: absolute;
-  inset: 35% 0 0;
-  background: linear-gradient(
-    to top,
-    color-mix(in srgb, var(--sand-50) 72%, transparent) 0%,
-    color-mix(in srgb, var(--sand-50) 35%, transparent) 50%,
-    transparent 100%
-  );
-  pointer-events: none;
-  z-index: 1;
+  background: transparent;
 }
 
 .pcard__media .card-img {
@@ -455,6 +442,21 @@ body::before {
   object-fit: cover;
   opacity: 0.6;
   transition: transform 0.65s var(--ease-out), opacity 0.65s var(--ease-out);
+  /* Gradiente de baixo → cima: transparente (fundo do site) → imagem */
+  -webkit-mask-image: linear-gradient(
+    to top,
+    transparent 0%,
+    rgba(0, 0, 0, 0.35) 22%,
+    rgba(0, 0, 0, 0.75) 48%,
+    #000 72%
+  );
+  mask-image: linear-gradient(
+    to top,
+    transparent 0%,
+    rgba(0, 0, 0, 0.35) 22%,
+    rgba(0, 0, 0, 0.75) 48%,
+    #000 72%
+  );
 }
 
 .pcard:hover .card-img {
@@ -817,7 +819,7 @@ footer {
 @media (min-width: 480px) {
   .band-inner,
   .hero { width: min(100% - 2.5rem, 30rem); }
-  .hero-band { padding: 2.75rem 0 3.25rem; }
+  .hero-band { padding: 2.75rem 0 0; }
   .pcard__desc { max-width: 40ch; }
 }
 
