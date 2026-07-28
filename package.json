@@ -1,0 +1,19 @@
+{
+  "name": "web-site-modular-estetica",
+  "version": "1.0.0",
+  "description": "Web site modular para edição",
+  "main": "auth.js",
+  "scripts": {
+    "favicons": "node scripts/generate-favicons-from-master.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LCM-ENTERPRISE-LTDA/Web-Site-Modular-Estetica.git"
+  },
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "sharp": "^0.34.3",
+    "to-ico": "^1.1.5"
+  }
+}
